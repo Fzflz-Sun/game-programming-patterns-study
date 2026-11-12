@@ -28,6 +28,7 @@
     <div class="seg" role="group" aria-label="显示语言 / Display language" id="langSeg">
       <button data-lang="both">双语</button><button data-lang="zh">中</button><button data-lang="en">EN</button>
     </div>
+    <button class="icon-btn sync-btn" id="syncBtn" aria-label="云同步 Sync" data-s="loading"><span class="sync-ic">⟳</span><span class="sync-n"></span></button>
     <button class="icon-btn" id="themeBtn" aria-label="切换夜间模式 / Toggle dark mode">
       <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/></svg>
       <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -39,6 +40,29 @@
   <nav class="sidebar" id="sidebar" aria-label="目录 / Contents"></nav>
   <main class="main" id="main" tabindex="-1"></main>
 </div>
+<dialog class="dlg" id="syncDlg">
+  <div class="dlg-in">
+    <h2>云同步 · Cloud sync</h2>
+    <p class="dlg-status" id="dlgStatus"></p>
+    <p>星标、标注和笔记保存在 GitHub 仓库的 <code>annotations</code> 分支中，所有设备共享，任何访问者都能看到。只有持有写入令牌的设备才能修改。</p>
+    <p class="muted">Stars, highlights and notes are stored in this site's GitHub repo and shared across devices. Writing requires a token.</p>
+    <ol class="muted">
+      <li>打开 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub › Fine-grained token</a></li>
+      <li>Repository access 选 <b>Only select repositories</b> → <code>game-programming-patterns-study</code></li>
+      <li>Permissions › Contents 设为 <b>Read and write</b>，生成后粘贴到下方</li>
+    </ol>
+    <p id="tokState"></p>
+    <input id="tokInput" type="password" autocomplete="off" placeholder="github_pat_…">
+    <div class="dlg-acts">
+      <button class="btn" data-dlg="logout" id="tokLogout">断开本设备 Disconnect</button>
+      <button class="btn" data-dlg="refresh">立即刷新 Refresh</button>
+      <span class="sp"></span>
+      <button class="btn" data-dlg="close">关闭 Close</button>
+      <button class="btn primary" data-dlg="save">连接 Connect</button>
+    </div>
+  </div>
+</dialog>
+<script src="assets/annot.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

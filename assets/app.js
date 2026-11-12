@@ -96,14 +96,19 @@
       h += '<div class="toc-part">Part ' + p.num + '<b>' + esc(p.zh) + '</b></div>';
       p.chapters.forEach(function (c) {
         var on = c.id === activeId;
+        var sc = starCount(c.id + '/');
         h += '<a class="toc-ch' + (on ? ' active' : '') + '" href="#/' + c.id + '"><span class="n">' + (c.num === 0 ? '·' : c.num) +
           '</span><span class="t">' + esc(c.zh) + '<small>' + esc(c.en) + '</small></span>' +
+          (sc ? '<span class="star-n" title="本章星标 Starred in this chapter">★ ' + sc + '</span>' : '') +
           (prog[c.id] && prog[c.id].read ? '<span class="done" title="已学完">✓</span>' : '') + '</a>';
         if (on && chapter) {
           h += '<div class="toc-secs">';
           chapter.sections.forEach(function (s) {
-            h += '<a href="#/' + c.id + '/' + s.num + '"><span class="sn">' + esc(s.num) + '</span>' + esc(s.title.zh) + '</a>';
+            var ss = starCount(c.id + '/' + s.num + '/');
+            h += '<a href="#/' + c.id + '/' + s.num + '"><span class="sn">' + esc(s.num) + '</span>' + esc(s.title.zh) +
+              (ss ? '<span class="star-n sm">★ ' + ss + '</span>' : '') + '</a>';
           });
+          if (sc) h += '<a href="#/' + c.id + '/starred"><span class="sn">★</span>只看星标 Starred only</a>';
           h += '<a href="#/' + c.id + '/practice"><span class="sn">✎</span>练习 Practice</a></div>';
         }
       });
@@ -124,9 +129,10 @@
       h += '<section class="part-block"><h2><span class="pn">Part ' + p.num + '</span>' + esc(p.zh) + '<span class="en-t">' + esc(p.en) + '</span></h2><div class="cards">';
       p.chapters.forEach(function (c) {
         var pr = prog[c.id] || {};
+        var sc = starCount(c.id + '/');
         h += '<a class="card" href="#/' + c.id + '"><div class="cn">' + chapLabel(c) + '</div><div class="cz">' + esc(c.zh) +
           '</div><div class="ce">' + esc(c.en) + '</div><div class="cm"><span>' +
-          (pr.score != null ? '练习 ' + pr.score + '/' + pr.total : '未练习') + '</span>' +
+          (pr.score != null ? '练习 ' + pr.score + '/' + pr.total : '未练习') + (sc ? ' · <span class="star-n">★ ' + sc + '</span>' : '') + '</span>' +
           (pr.read ? '<span class="ok">✓ 已学完</span>' : '') + '</div></a>';
       });
       h += '</div></section>';
@@ -169,27 +175,41 @@
     var h = '<article class="content"><header class="ch-head"><div class="eyebrow">' + chapLabel(meta) + ' · ' + esc(meta.part.zh) + '</div>' +
       '<h1>' + esc(ch.title.zh) + '</h1><div class="sub">' + esc(ch.title.en) + '</div></header>' +
       '<div class="lead">' + bi(ch.summary) + '</div>' +
-      '<div class="tabs" role="tablist"><button data-v="learn" class="' + (view === 'learn' ? 'on' : '') + '">知识点 Learn<span class="count">' + nPts + '</span></button>' +
+      '<div class="tabs" role="tablist"><button data-v="learn" class="' + (view !== 'practice' ? 'on' : '') + '">知识点 Learn<span class="count">' + nPts + '</span></button>' +
       '<button data-v="practice" class="' + (view === 'practice' ? 'on' : '') + '">练习 Practice<span class="count">' + ch.exercises.length + '</span></button></div>';
 
     if (view === 'practice') {
       h += '<div class="ex-head"><span class="ex-score" id="exScore"></span><button class="btn" id="exReset">重做 Reset</button></div>';
       ch.exercises.forEach(function (e, i) { h += renderExercise(meta, ch, e, i); });
     } else {
+      var A = window.GPPAnnot.state, starredOnly = view === 'starred', shown = 0;
+      if (starredOnly) {
+        h += '<div class="filter-bar">★ 只显示本章星标知识点 Showing starred points only · <a href="#/' + meta.id + '">显示全部 Show all</a></div>';
+      }
       ch.sections.forEach(function (s) {
-        h += '<section class="section" id="s-' + esc(s.num) + '"><h2 class="sec-title"><span class="sn">§' + esc(s.num) +
-          '</span><span class="zh-t">' + esc(s.title.zh) + '</span><span class="en-t">' + esc(s.title.en) + '</span></h2>';
-        s.points.forEach(function (p) {
-          h += '<div class="point"><h3><span class="zh">' + esc(p.title.zh) + '</span><span class="en">' + esc(p.title.en) + '</span></h3>' +
+        var ph = '';
+        s.points.forEach(function (p, i) {
+          var key = meta.id + '/' + s.num + '/' + i;
+          var starred = !!A.stars[key];
+          if (starredOnly && !starred) return;
+          shown++;
+          var note = A.notes[key] || '';
+          ph += '<div class="point' + (starred ? ' starred' : '') + '" data-key="' + esc(key) + '">' +
+            '<div class="pt-tools"><button class="star-btn" data-act="star" aria-pressed="' + starred + '" title="星标 Star">' + (starred ? '★' : '☆') + '</button></div>' +
+            '<h3><span class="zh">' + mk(key + '/t.zh', p.title.zh) + '</span><span class="en">' + mk(key + '/t.en', p.title.en) + '</span></h3>' +
             '<div class="src">出处 Source <span class="tag">' + (meta.num === 0 ? 'Introduction' : 'Ch.' + meta.num + ' ' + esc(ch.title.en)) +
             '</span>›<span class="tag">§' + esc(s.num) + ' ' + esc(s.title.en) + '</span>' +
             (p.subsection ? '›<span class="tag">' + esc(p.subsection.en) + '</span>' : '') + '</div>' +
-            '<div class="body">' + bi(p.body) + '</div>' +
-            (p.code ? '<pre><code>' + highlight(p.code) + '</code></pre>' : '') + '</div>';
+            '<div class="body"><div class="bi"><p class="zh" lang="zh">' + mk(key + '/b.zh', p.body.zh) + '</p><p class="en" lang="en">' + mk(key + '/b.en', p.body.en) + '</p></div></div>' +
+            (p.code ? '<pre><code>' + highlight(p.code) + '</code></pre>' : '') +
+            '<div class="note-wrap">' + noteView(key, note) + '</div></div>';
         });
-        h += '</section>';
+        if (!ph) return;
+        h += '<section class="section" id="s-' + esc(s.num) + '"><h2 class="sec-title"><span class="sn">§' + esc(s.num) +
+          '</span><span class="zh-t">' + esc(s.title.zh) + '</span><span class="en-t">' + esc(s.title.en) + '</span></h2>' + ph + '</section>';
       });
-      if (ch.terms && ch.terms.length) {
+      if (starredOnly && !shown) h += '<div class="loading">本章还没有星标知识点 No starred points yet.</div>';
+      if (!starredOnly && ch.terms && ch.terms.length) {
         h += '<section class="section" id="s-terms"><h2 class="sec-title"><span class="sn">✦</span><span class="zh-t">关键术语</span><span class="en-t">Key Terms</span></h2><div class="terms">';
         ch.terms.forEach(function (t) { h += '<div class="term"><div class="en">' + esc(t.en) + '</div><div class="zh">' + esc(t.zh) + '</div></div>'; });
         h += '</div></section>';
@@ -203,13 +223,217 @@
       '</nav></article>';
     main.innerHTML = h;
 
+    main.dataset.key = meta.id + '|' + view;
     main.querySelector('.tabs').addEventListener('click', function (e) {
       var b = e.target.closest('button');
       if (b) location.hash = '#/' + meta.id + (b.dataset.v === 'practice' ? '/practice' : '');
     });
     if (view === 'practice') bindExercises(meta, ch);
-    else markRead(meta.id);
+    else if (view === 'learn') markRead(meta.id);
   }
+
+  // ---------- Stars, highlights, notes ----------
+  var Annot = window.GPPAnnot;
+
+  function starCount(prefix) {
+    var n = 0, s = Annot.state.stars;
+    for (var k in s) if (k.indexOf(prefix) === 0) n++;
+    return n;
+  }
+  function mk(blk, text) {
+    return '<span class="mk" data-blk="' + esc(blk) + '">' + Annot.render(text, Annot.state.marks[blk]) + '</span>';
+  }
+  function noteView(key, note) {
+    if (!note) return '<button class="note-add" data-act="note-edit">✎ 添加笔记 Add note</button>';
+    return '<div class="note"><div class="note-head"><span>笔记 Note</span><span class="note-acts">' +
+      '<button data-act="note-edit">编辑 Edit</button><button data-act="note-del">删除 Delete</button></span></div>' +
+      '<div class="note-text">' + mk(key + '/note', note) + '</div></div>';
+  }
+  function noteEditor(key) {
+    var cur = Annot.state.notes[key] || '';
+    return '<div class="note editing"><textarea class="note-input" maxlength="' + Annot.NOTE_MAX + '" placeholder="写下你的理解（最多 10000 字）Write your note">' + esc(cur) + '</textarea>' +
+      '<div class="note-foot"><span class="note-count">' + cur.length + ' / ' + Annot.NOTE_MAX + '</span>' +
+      '<span><button class="btn" data-act="note-cancel">取消 Cancel</button> <button class="btn primary" data-act="note-save">保存 Save</button></span></div></div>';
+  }
+
+  main.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b) return;
+    var pt = b.closest('.point');
+    if (!pt) return;
+    var key = pt.dataset.key, act = b.dataset.act, wrap = pt.querySelector('.note-wrap');
+    if (act === 'star') {
+      var on = !Annot.state.stars[key];
+      Annot.star(key, on);
+      pt.classList.toggle('starred', on);
+      b.textContent = on ? '★' : '☆';
+      b.setAttribute('aria-pressed', on);
+      refreshSidebar();
+    } else if (act === 'note-edit') {
+      wrap.innerHTML = noteEditor(key);
+      var ta = wrap.querySelector('textarea');
+      autoGrow(ta);
+      ta.focus();
+    } else if (act === 'note-cancel') {
+      wrap.innerHTML = noteView(key, Annot.state.notes[key] || '');
+    } else if (act === 'note-save') {
+      var txt = wrap.querySelector('textarea').value.slice(0, Annot.NOTE_MAX).replace(/\s+$/, '');
+      var old = Annot.state.notes[key] || '';
+      Annot.note(key, txt, Annot.shift(Annot.state.marks[key + '/note'], old, txt));
+      wrap.innerHTML = noteView(key, txt);
+    } else if (act === 'note-del') {
+      if (confirm('删除这条笔记？Delete this note?')) {
+        Annot.note(key, '', []);
+        wrap.innerHTML = noteView(key, '');
+      }
+    }
+  });
+  main.addEventListener('input', function (e) {
+    if (!e.target.classList.contains('note-input')) return;
+    autoGrow(e.target);
+    var c = e.target.closest('.note').querySelector('.note-count');
+    c.textContent = e.target.value.length + ' / ' + Annot.NOTE_MAX;
+  });
+  function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 600) + 'px'; }
+
+  // Selection toolbar
+  var tb = document.createElement('div');
+  tb.className = 'mk-bar';
+  tb.setAttribute('role', 'toolbar');
+  tb.innerHTML = '<button data-k="hl" title="标黄 Highlight"><i class="sw sw-hl"></i></button>' +
+    '<button data-k="r" title="红色 Red"><i class="sw sw-r"></i></button>' +
+    '<button data-k="b" title="蓝色 Blue"><i class="sw sw-b"></i></button>' +
+    '<button data-k="g" title="绿色 Green"><i class="sw sw-g"></i></button>' +
+    '<button data-k="p" title="紫色 Purple"><i class="sw sw-p"></i></button>' +
+    '<button data-k="x" title="清除标注 Clear">清除</button>';
+  document.body.appendChild(tb);
+  var selInfo = null;
+
+  function offsetIn(el, node, off) {
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    r.setEnd(node, off);
+    return r.toString().length;
+  }
+  function currentSelection() {
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
+    var r = sel.getRangeAt(0);
+    var a = r.startContainer.nodeType === 1 ? r.startContainer : r.startContainer.parentNode;
+    var z = r.endContainer.nodeType === 1 ? r.endContainer : r.endContainer.parentNode;
+    var ea = a.closest && a.closest('.mk'), ez = z.closest && z.closest('.mk');
+    if (!ea || ea !== ez || !main.contains(ea)) return null;
+    var s = offsetIn(ea, r.startContainer, r.startOffset), en = offsetIn(ea, r.endContainer, r.endOffset);
+    if (en <= s) return null;
+    return { el: ea, blk: ea.dataset.blk, s: s, e: en, rect: r.getBoundingClientRect() };
+  }
+  function hideBar() { tb.classList.remove('on'); selInfo = null; }
+  function showBar() {
+    var info = currentSelection();
+    if (!info) { hideBar(); return; }
+    selInfo = info;
+    tb.classList.add('on');
+    var w = tb.offsetWidth, hgt = tb.offsetHeight, r = info.rect;
+    var x = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+    var y = r.top - hgt - 10;
+    if (y < 64) y = r.bottom + 10;
+    tb.style.left = x + 'px';
+    tb.style.top = y + 'px';
+  }
+  var selTimer = null;
+  document.addEventListener('selectionchange', function () {
+    clearTimeout(selTimer);
+    selTimer = setTimeout(showBar, 180);
+  });
+  window.addEventListener('scroll', function () { if (selInfo) showBar(); }, { passive: true });
+  tb.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  tb.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || !selInfo) return;
+    var info = selInfo, cur = Annot.state.marks[info.blk];
+    var next = b.dataset.k === 'x' ? Annot.clearMark(cur, info.s, info.e) : Annot.addMark(cur, info.s, info.e, b.dataset.k);
+    Annot.marks(info.blk, next);
+    info.el.innerHTML = Annot.render(info.el.textContent, next);
+    window.getSelection().removeAllRanges();
+    hideBar();
+  });
+
+  // Sync status + token dialog
+  var syncBtn = document.getElementById('syncBtn');
+  var SYNC_TXT = {
+    loading: ['⟳', '正在读取云端标注 Loading shared annotations'],
+    syncing: ['⟳', '正在同步 Syncing'],
+    synced: ['✓', '已与云端同步 Synced'],
+    pending: ['…', '等待同步 Waiting to sync'],
+    local: ['!', '仅保存在本机：点此登录后即可同步到所有设备 Saved on this device only — click to connect'],
+    error: ['!', '同步失败 Sync failed']
+  };
+  function paintSync() {
+    var s = Annot.status, t = SYNC_TXT[s] || SYNC_TXT.synced;
+    syncBtn.dataset.s = s;
+    syncBtn.querySelector('.sync-ic').textContent = t[0];
+    var n = Annot.pendingCount();
+    syncBtn.querySelector('.sync-n').textContent = (s === 'local' || s === 'error' || s === 'pending') && n ? n : '';
+    syncBtn.title = t[1] + (Annot.detail ? ' · ' + Annot.detail : '') + (n ? ' · ' + n + ' 项未同步' : '');
+  }
+  var dlg = document.getElementById('syncDlg');
+  syncBtn.addEventListener('click', function () {
+    document.getElementById('tokInput').value = '';
+    document.getElementById('tokState').textContent = Annot.hasToken() ? '本设备已连接 GitHub。This device is connected.' : '本设备尚未连接，标注只保存在本机。Not connected — changes stay on this device.';
+    document.getElementById('dlgStatus').textContent = (SYNC_TXT[Annot.status] || [])[1] + (Annot.detail ? ' · ' + Annot.detail : '') + (Annot.pendingCount() ? ' · ' + Annot.pendingCount() + ' 项未同步' : '');
+    document.getElementById('tokLogout').style.display = Annot.hasToken() ? '' : 'none';
+    dlg.showModal ? dlg.showModal() : dlg.setAttribute('open', '');
+  });
+  dlg.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-dlg]');
+    if (e.target === dlg || (b && b.dataset.dlg === 'close')) { dlg.close ? dlg.close() : dlg.removeAttribute('open'); return; }
+    if (!b) return;
+    if (b.dataset.dlg === 'save') {
+      var v = document.getElementById('tokInput').value.trim();
+      if (!v) return;
+      Annot.setToken(v);
+      dlg.close ? dlg.close() : dlg.removeAttribute('open');
+    } else if (b.dataset.dlg === 'logout') {
+      Annot.setToken('');
+      dlg.close ? dlg.close() : dlg.removeAttribute('open');
+    } else if (b.dataset.dlg === 'refresh') {
+      Annot.refresh(true);
+      dlg.close ? dlg.close() : dlg.removeAttribute('open');
+    }
+  });
+
+  var lastSig = '';
+  function sig() {
+    var s = Annot.state;
+    return JSON.stringify([s.stars, s.marks, s.notes]);
+  }
+  function refreshSidebar() {
+    if (!toc) return;
+    var id = currentChapterId();
+    renderSidebar(id, id ? cache[id] : null);
+  }
+  function currentChapterId() {
+    var id = decodeURIComponent(location.hash.replace(/^#\/?/, '').split('/')[0] || '');
+    return flat.some(function (c) { return c.id === id; }) ? id : null;
+  }
+  Annot.onChange(function () {
+    paintSync();
+    var s = sig();
+    if (s === lastSig) return;
+    lastSig = s;
+    refreshSidebar();
+    // Remote data changed: re-render chapter unless the user is mid-edit or mid-selection
+    if (main.querySelector('.note.editing') || selInfo || !toc) return;
+    var id = currentChapterId();
+    if (id && cache[id] && main.dataset.key && main.dataset.key.indexOf('|practice') < 0) {
+      var y = window.scrollY;
+      var meta = flat.filter(function (c) { return c.id === id; })[0];
+      renderChapter(meta, cache[id], main.dataset.key.split('|')[1]);
+      window.scrollTo(0, y);
+    }
+  });
+  lastSig = sig();
+  paintSync();
 
   function renderExercise(meta, ch, e, i) {
     var h = '<div class="ex" data-i="' + i + '"><div class="ex-meta"><span class="type">' + TYPE_LABEL[e.type] + '</span><span>Q' + (i + 1) +
@@ -304,6 +528,7 @@
     var id = decodeURIComponent(parts[0] || '');
     var meta = flat.filter(function (c) { return c.id === id; })[0];
     if (!meta) {
+      main.dataset.key = '';
       renderSidebar(null);
       renderHome();
       document.title = '游戏编程模式 · Game Programming Patterns 学习站';
@@ -311,8 +536,8 @@
       return;
     }
     var sub = parts[1] || '';
-    var view = sub === 'practice' ? 'practice' : 'learn';
-    main.innerHTML = '<div class="loading">加载中 Loading…</div>';
+    var view = sub === 'practice' || sub === 'starred' ? sub : 'learn';
+    if (main.dataset.key !== id + '|' + view) main.innerHTML = '<div class="loading">加载中 Loading…</div>';
     loadChapter(id).then(function (ch) {
       var key = id + '|' + view;
       var same = main.dataset.key === key;
