@@ -335,8 +335,10 @@
     tb.classList.add('on');
     var w = tb.offsetWidth, hgt = tb.offsetHeight, r = info.rect;
     var x = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
-    var y = r.top - hgt - 10;
-    if (y < 64) y = r.bottom + 10;
+    // Prefer opening below the selection so it doesn't collide with the
+    // mobile OS's own selection popup, which appears above the selection.
+    var y = r.bottom + 10;
+    if (y + hgt > window.innerHeight - 8) y = r.top - hgt - 10;
     tb.style.left = x + 'px';
     tb.style.top = y + 'px';
   }
