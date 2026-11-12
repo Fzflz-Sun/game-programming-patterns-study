@@ -1,5 +1,7 @@
 # 游戏编程模式 · Game Programming Patterns 学习站
 
+**在线访问：** https://fzflz-sun.github.io/game-programming-patterns-study/
+
 基于 Robert Nystrom《Game Programming Patterns》整理的中英双语学习网站：
 
 - 以原书目录为骨架，逐章逐节梳理知识点，每个知识点注明出处（第几章 › 第几节）
