@@ -1,0 +1,328 @@
+{
+  "id": "data-locality",
+  "title": { "en": "Data Locality", "zh": "数据局部性" },
+  "summary": {
+    "en": "CPUs are far faster than RAM, and every cache miss stalls the processor for hundreds of cycles. Data Locality arranges data contiguously in memory, in the order you process it, so that each cache line the CPU fetches is full of data you actually need.",
+    "zh": "CPU 的速度远远快于内存，每一次缓存未命中都会让处理器空等数百个周期。数据局部性模式把数据按处理顺序连续地排布在内存中，让 CPU 取来的每一条缓存行里装的都是真正需要的数据。"
+  },
+  "sections": [
+    {
+      "num": "17.1",
+      "title": { "en": "Intent", "zh": "意图" },
+      "points": [
+        {
+          "title": { "en": "Arrange data for the CPU cache", "zh": "为 CPU 缓存安排数据" },
+          "body": {
+            "en": "The intent of the pattern is to accelerate memory access by arranging data to take advantage of CPU caching.",
+            "zh": "该模式的意图是：通过合理安排数据来利用 CPU 缓存，从而加快内存访问速度。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "17.2",
+      "title": { "en": "Motivation", "zh": "动机" },
+      "points": [
+        {
+          "title": { "en": "CPUs got faster, RAM did not", "zh": "CPU 变快了，内存却没有" },
+          "body": {
+            "en": "Charts show CPU speed climbing every year, but RAM access speed has lagged far behind. Fetching a byte from RAM can take hundreds of cycles, so modern CPUs spend an astonishingly large fraction of their time waiting on memory. RAM is no longer truly \"random access\".",
+            "zh": "图表显示 CPU 速度年年攀升，但内存访问速度远远落后。从内存中取一个字节可能需要数百个周期，因此现代 CPU 有惊人比例的时间都在等待内存。内存已经不再是真正意义上的“随机访问”了。"
+          }
+        },
+        {
+          "title": { "en": "The warehouse analogy", "zh": "仓库的比喻" },
+          "subsection": { "en": "A data warehouse", "zh": "数据仓库" },
+          "body": {
+            "en": "An accountant can process a box of papers in a minute, but the warehouse guy takes a whole day to fetch each box. The fix: since the next box is often right next to the previous one (locality of reference), he brings a whole pallet of adjacent boxes and leaves it in the office. If the next box is on the pallet, it is grabbed instantly; if not, the pallet must be swapped for a new one.",
+            "zh": "会计一分钟就能处理完一箱文件，但仓库管理员每取一箱都要花上一整天。改进方法是：既然下一个要的箱子往往就在上一个旁边（引用局部性），他就一次运来一整托盘相邻的箱子放在办公室里。若下一箱在托盘上，伸手即得；若不在，就得把整个托盘换掉。"
+          }
+        },
+        {
+          "title": { "en": "Cache, cache lines, hits and misses", "zh": "缓存、缓存行、命中与未命中" },
+          "subsection": { "en": "A pallet for your CPU", "zh": "给 CPU 的托盘" },
+          "body": {
+            "en": "The CPU has a small, fast on-chip memory (SRAM) called a cache, organized into levels L1, L2, L3. Whenever it needs a byte from RAM, it grabs a contiguous chunk of about 64 to 128 bytes, called a cache line. Finding data already in the cache is a cache hit; having to go to main memory is a cache miss, during which the CPU stalls for hundreds of cycles.",
+            "zh": "CPU 芯片内有一小块高速内存（SRAM），称为缓存，分为 L1、L2、L3 等多级。每当需要从内存读取一个字节时，它会一次抓取一段约 64 到 128 字节的连续内存，这叫做缓存行。在缓存中找到数据称为缓存命中；不得不去主存读取则是缓存未命中，此时 CPU 会停顿数百个周期。"
+          }
+        },
+        {
+          "title": { "en": "A cache miss is like sleepFor500Cycles()", "zh": "缓存未命中就像 sleepFor500Cycles()" },
+          "subsection": { "en": "A pallet for your CPU", "zh": "给 CPU 的托盘" },
+          "body": {
+            "en": "If your hot loop contained a pointless call that slept for 500 cycles, removing it would be your first optimization. A cache miss has an equivalent cost: every bounce to main memory is like inserting a delay into your code.",
+            "zh": "如果热点循环里有一个白白睡眠 500 个周期的调用，你首先要做的优化一定是删掉它。缓存未命中的代价与之相当：每次跳到主存去读数据，都相当于在代码里插入了一段延迟。"
+          },
+          "code": "for (int i = 0; i < NUM_THINGS; i++) {\n  sleepFor500Cycles();\n  things[i].doStuff();\n}"
+        },
+        {
+          "title": { "en": "Data is performance", "zh": "数据就是性能" },
+          "subsection": { "en": "Wait, data is performance?", "zh": "等等，数据也关乎性能？" },
+          "body": {
+            "en": "The author wrote two programs doing the exact same computation, differing only in cache misses; the slow one was fifty times slower. Performance is not only an aspect of code: because of caching, the way you organize data directly impacts speed. The goal is to lay out the things you process next to each other in memory, as actual data in place rather than pointers (assuming a single thread, since threads sharing a cache line must synchronize).",
+            "zh": "作者写了两个计算完全相同、只在缓存未命中次数上有差异的程序，慢的那个比快的慢了五十倍。性能不只是代码层面的问题：由于缓存的存在，数据的组织方式会直接影响速度。目标是让要处理的东西在内存中彼此相邻，而且是原地存放的真实数据而不是指针（前提是单线程，因为多个线程修改同一缓存行时需要代价高昂的同步）。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "17.3",
+      "title": { "en": "The Pattern", "zh": "模式" },
+      "points": [
+        {
+          "title": { "en": "Keep data contiguous in processing order", "zh": "按处理顺序连续存放数据" },
+          "body": {
+            "en": "Modern CPUs have caches that make access to memory adjacent to recently accessed memory much quicker. Take advantage of that to improve performance by increasing data locality: keep data in contiguous memory in the order that you process it.",
+            "zh": "现代 CPU 拥有缓存，访问与最近访问过的内存相邻的数据会快得多。利用这一点，通过提高数据局部性来提升性能：把数据按照处理的顺序存放在连续的内存中。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "17.4",
+      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "points": [
+        {
+          "title": { "en": "Only for real performance problems", "zh": "只用于真实存在的性能问题" },
+          "body": {
+            "en": "Like most optimizations, use it when you have a performance problem, not in infrequently executed corners of the code, because the result is usually more complex and less flexible. You must also be sure the slowness is actually caused by cache misses; otherwise this pattern won't help.",
+            "zh": "与大多数优化一样，只有在确实存在性能问题时才使用它，不要用在很少执行的角落代码里，因为优化后的代码几乎总是更复杂、更不灵活。还必须确认性能问题确实是由缓存未命中引起的，否则这个模式帮不上忙。"
+          }
+        },
+        {
+          "title": { "en": "Profile cache misses", "zh": "剖析缓存未命中" },
+          "body": {
+            "en": "Simple timer instrumentation isn't enough; you want a profiler that reports how many cache misses occur and where. Commercial tools are expensive, but Cachegrind is a free option that simulates a CPU and cache hierarchy. Even so, think about how cache-friendly your data structures are throughout design.",
+            "zh": "简单的计时埋点并不够，你需要一个能报告缓存未命中次数及发生位置的性能分析器。商业工具价格不菲，而 Cachegrind 是一个免费选择，它在模拟的 CPU 和缓存层级上运行程序。即便如此，在整个设计过程中都应该考虑数据结构是否对缓存友好。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "17.5",
+      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "points": [
+        {
+          "title": { "en": "Abstraction costs locality", "zh": "抽象会牺牲局部性" },
+          "body": {
+            "en": "In C++, interfaces imply accessing objects through pointers or references, and virtual calls require looking up the vtable and then chasing another pointer. Both hop across memory and cause cache misses. The more you design for data locality, the more you must give up inheritance, interfaces and their benefits; there's no silver bullet, only trade-offs.",
+            "zh": "在 C++ 中，使用接口意味着通过指针或引用访问对象，而虚函数调用需要先查找虚表再追踪另一个指针。两者都会在内存中跳来跳去，导致缓存未命中。越是围绕数据局部性来设计，就越要放弃继承、接口及其带来的好处；这里没有银弹，只有艰难的权衡。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "17.6",
+      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "points": [
+        {
+          "title": { "en": "Pointer chasing in a naive game loop", "zh": "朴素游戏循环中的指针追逐" },
+          "subsection": { "en": "Contiguous arrays", "zh": "连续数组" },
+          "body": {
+            "en": "A typical engine keeps an array of pointers to GameEntity objects, each holding pointers to its AI, physics and render components. Updating means following the entity pointer (a cache miss), then the component pointer (another miss), for every component of every entity, with objects scattered randomly by the heap. Wasting time this way is called \"pointer chasing\".",
+            "zh": "典型的引擎维护一个 GameEntity 指针数组，每个实体又持有指向 AI、物理和渲染组件的指针。更新时，每个实体的每个组件都要先跟随实体指针（一次未命中），再跟随组件指针（又一次未命中），而这些对象在堆上随机散落。这种浪费时间的方式称为“指针追逐”。"
+          },
+          "code": "for (int i = 0; i < numEntities; i++) {\n  entities[i]->ai()->update();\n}"
+        },
+        {
+          "title": { "en": "Arrays of components, not pointers", "zh": "组件数组，而非指针数组" },
+          "subsection": { "en": "Contiguous arrays", "zh": "连续数组" },
+          "body": {
+            "en": "Since GameEntity itself has no interesting state, keep one flat array per component type and let the game loop walk them directly. With fewer -> operators, the loop crawls straight through contiguous memory; in the author's test it was fifty times faster. Each component remains encapsulated, and GameEntity can still exist with pointers into these arrays.",
+            "zh": "既然 GameEntity 本身没有什么有用的状态，就为每种组件维护一个扁平数组，让游戏循环直接遍历。-> 运算符少了，循环就是在连续内存中顺序爬行；在作者的测试中快了五十倍。每个组件仍然保持封装，GameEntity 也可以保留，只是它的指针指向这些数组。"
+          },
+          "code": "AIComponent* aiComponents =\n    new AIComponent[MAX_ENTITIES];\n\nwhile (!gameOver) {\n  for (int i = 0; i < numEntities; i++) {\n    aiComponents[i].update();\n  }\n  // physics and render likewise...\n}"
+        },
+        {
+          "title": { "en": "Inactive objects break contiguity", "zh": "非活跃对象破坏连续性" },
+          "subsection": { "en": "Packed data", "zh": "紧凑数据" },
+          "body": {
+            "en": "In a particle system, checking an isActive() flag for each particle loads the whole inactive particle into the cache for nothing. A contiguous array doesn't help if the objects you actually process aren't contiguous. The if check can also cause branch mispredictions and pipeline flushes when active and inactive particles alternate.",
+            "zh": "在粒子系统中，逐个检查 isActive() 标志会把整个非活跃粒子白白载入缓存。如果真正要处理的对象在数组中并不连续，连续数组也无济于事。此外，当活跃与非活跃粒子交替出现时，这个 if 判断还会导致分支预测失败和流水线清空。"
+          }
+        },
+        {
+          "title": { "en": "Keep active particles sorted at the front", "zh": "让活跃粒子保持排在前面" },
+          "subsection": { "en": "Packed data", "zh": "紧凑数据" },
+          "body": {
+            "en": "Instead of checking the flag, keep the array sorted so all active particles are at the front, and track numActive_. You don't re-sort every frame: when a particle is activated, swap it with the first inactive one; when deactivated, swap it with the last active one. Moving bytes in memory can be cheaper than chasing pointers.",
+            "zh": "不再检查标志，而是让数组保持有序，所有活跃粒子排在前面，并记录 numActive_。不必每帧重新排序：激活粒子时，把它与第一个非活跃粒子交换；停用时，与最后一个活跃粒子交换。在内存中搬移字节有时比追逐指针更便宜。"
+          },
+          "code": "void ParticleSystem::activateParticle(int index) {\n  assert(index >= numActive_);\n  Particle temp = particles_[numActive_];\n  particles_[numActive_] = particles_[index];\n  particles_[index] = temp;\n  numActive_++;\n}\n\n// update loop:\nfor (int i = 0; i < numActive_; i++) {\n  particles[i].update();\n}"
+        },
+        {
+          "title": { "en": "No more active flag, but less OOP", "zh": "无需活跃标志，但更不面向对象" },
+          "subsection": { "en": "Packed data", "zh": "紧凑数据" },
+          "body": {
+            "en": "Since activity is inferred from a particle's position and numActive_, the flag can be dropped, making particles smaller so more fit in a cache line. The cost is that Particle no longer controls its own active state; activation must go through the ParticleSystem. The author accepts this, seeing them as one concept spread across two classes.",
+            "zh": "由于活跃状态可以从粒子在数组中的位置和 numActive_ 推断出来，标志位就可以去掉，粒子变得更小，一条缓存行能装下更多粒子。代价是 Particle 不再掌控自己的活跃状态，激活必须通过 ParticleSystem 进行。作者接受这一点，把二者看作分布在两个类中的同一个概念。"
+          }
+        },
+        {
+          "title": { "en": "Hot/cold splitting", "zh": "冷热分离" },
+          "subsection": { "en": "Hot/cold splitting", "zh": "冷热分离" },
+          "body": {
+            "en": "An AI component has hot data used every frame (animation, energy, goal position) and cold data used rarely, such as loot drop info used once at death. Cold data bloats each component, so fewer fit in a cache line. Split it: the hot component stays in the array and holds a pointer to a separate cold LootDrop (or use parallel arrays at the same index). Deciding what is hot or cold in real games is rarely clear-cut, somewhere between a black art and a rathole.",
+            "zh": "AI 组件中有每帧都要用的热数据（动画、能量、目标位置），也有极少使用的冷数据，比如只在死亡时用一次的掉落信息。冷数据让每个组件变大，一条缓存行能装下的组件就少了。解决办法是拆分：热组件留在数组中，并持有一个指向独立冷数据 LootDrop 的指针（或使用下标对应的并行数组）。在真实游戏中，冷热划分很少如此分明，这种优化介于玄学和无底洞之间。"
+          },
+          "code": "class AIComponent {\nprivate:\n  Animation* animation_;\n  double energy_;\n  Vector goalPos_;\n  LootDrop* loot_;\n};\n\nclass LootDrop {\n  friend class AIComponent;\n  LootType drop_;\n  int minDrops_;\n  int maxDrops_;\n  double chanceOfDrop_;\n};"
+        }
+      ]
+    },
+    {
+      "num": "17.7",
+      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "points": [
+        {
+          "title": { "en": "A mindset: data-oriented design", "zh": "一种思维方式：面向数据的设计" },
+          "body": {
+            "en": "This pattern is really a mindset: treating your data's arrangement in memory as a key part of performance. You can let it shape your whole architecture or apply it only to a few core data structures. Noel Llopis' influential article calls this \"data-oriented design\".",
+            "zh": "这个模式本质上是一种思维方式：把数据在内存中的排布视为性能的关键部分。你可以让它影响整个架构，也可以只用于少数核心数据结构。Noel Llopis 那篇颇具影响的文章称之为“面向数据的设计”。"
+          }
+        },
+        {
+          "title": { "en": "Polymorphism: don't, or separate arrays", "zh": "多态：不用，或按类型分数组" },
+          "subsection": { "en": "How do you handle polymorphism?", "zh": "如何处理多态？" },
+          "body": {
+            "en": "Avoiding subclassing (perhaps using Type Object) is safe, fast and keeps all objects the same size, but inflexible. Keeping a separate homogeneous array per type keeps objects tightly packed and allows static dispatch, but you must track many collections and be aware of every type, losing the open-endedness of polymorphism.",
+            "zh": "避免使用子类（可以改用类型对象模式）安全、快速，且所有对象大小相同，但不够灵活。为每种类型维护单独的同质数组，可以让对象紧密排列并使用静态分派，但你必须管理许多集合，并且必须知道每一种类型，从而失去多态的开放性。"
+          }
+        },
+        {
+          "title": { "en": "Polymorphism: a collection of pointers", "zh": "多态：指针集合" },
+          "subsection": { "en": "How do you handle polymorphism?", "zh": "如何处理多态？" },
+          "body": {
+            "en": "An array of pointers to a base class is the natural, flexible, open-ended solution, and objects can be any size. But it is less cache-friendly due to pointer indirection, which is fine if the code isn't performance-critical.",
+            "zh": "用一个指向基类的指针数组是最自然、最灵活、完全开放的方案，对象可以是任意大小。但由于指针间接访问，它对缓存不太友好；如果这段代码不是性能关键的，这样做也没问题。"
+          }
+        },
+        {
+          "title": { "en": "Entities with pointers or IDs to components", "zh": "实体持有组件指针或组件 ID" },
+          "subsection": { "en": "How are game entities defined?", "zh": "游戏实体如何定义？" },
+          "body": {
+            "en": "With pointers, an entity reaches its components in one indirection and doesn't care where they live, but moving components in memory breaks those pointers. Using IDs that are looked up through a component manager lets components move, but it is more complex, slower (searching or hashing), and requires access to that manager.",
+            "zh": "使用指针时，实体通过一次间接访问就能找到组件，也不关心组件存放在哪里，但在内存中移动组件会使这些指针失效。使用通过组件管理器查找的 ID 可以让组件自由移动，但更复杂、更慢（需要查找或哈希），并且需要能访问该管理器。"
+          }
+        },
+        {
+          "title": { "en": "The entity is just an ID", "zh": "实体只是一个 ID" },
+          "subsection": { "en": "How are game entities defined?", "zh": "游戏实体如何定义？" },
+          "body": {
+            "en": "In a newer style, components know the ID of their owning entity instead of the entity knowing its components, so the entity becomes a glorified number. Entities are tiny, have no lifetime to manage, but are empty, and looking up sibling components may be slow and performance-critical. Using the array index as the ID makes arrays parallel, but then they can't be sorted independently.",
+            "zh": "在一种较新的风格中，不是实体知道自己的组件，而是组件知道其所属实体的 ID，实体变成了一个包装过的数字。实体非常小，也无需管理生命周期，但它是空的，而且查找兄弟组件可能很慢，而这恰恰是性能关键路径。把数组下标当作 ID 能让各组件数组保持并行，但这样它们就无法各自独立排序了。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "17.8",
+      "title": { "en": "See Also", "zh": "参见" },
+      "points": [
+        {
+          "title": { "en": "Component, Object Pool and further reading", "zh": "组件模式、对象池与延伸阅读" },
+          "body": {
+            "en": "The Component pattern is one of the most common structures optimized for cache usage, since entities are updated one domain at a time, but locality matters anywhere performance-critical code touches lots of data. The pattern relies on contiguous arrays of homogeneous objects, whose additions and removals are what Object Pool handles. Tony Albrecht's \"Pitfalls of Object-Oriented Programming\" and Noel Llopis' blog post are key reading; the Artemis engine uses simple IDs for entities.",
+            "zh": "组件模式是最常为缓存优化的数据结构之一，因为实体是按领域逐一更新的；但只要性能关键的代码要处理大量数据，局部性就很重要。本模式依赖同质对象的连续数组，而在数组中增删对象正是对象池模式要解决的问题。Tony Albrecht 的《面向对象编程的陷阱》和 Noel Llopis 的博文是重要的延伸阅读；Artemis 引擎是较早使用简单 ID 表示实体的框架。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "data locality", "zh": "数据局部性" },
+    { "en": "locality of reference", "zh": "引用局部性" },
+    { "en": "CPU cache", "zh": "CPU 缓存" },
+    { "en": "cache line", "zh": "缓存行" },
+    { "en": "cache hit / cache miss", "zh": "缓存命中 / 缓存未命中" },
+    { "en": "pointer chasing", "zh": "指针追逐" },
+    { "en": "branch misprediction", "zh": "分支预测失败" },
+    { "en": "pipeline flush", "zh": "流水线清空" },
+    { "en": "hot/cold splitting", "zh": "冷热分离" },
+    { "en": "data-oriented design", "zh": "面向数据的设计" },
+    { "en": "dynamic dispatch", "zh": "动态分派" }
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "ref": "17.2",
+      "q": "在仓库比喻中，“托盘”（pallet）对应 CPU 的哪个部分？ / In the warehouse analogy, what does the pallet represent?",
+      "options": ["Registers（寄存器）", "The bus（总线）", "Main memory / RAM（主存）", "The cache / a cache line（缓存 / 缓存行）"],
+      "answer": 3,
+      "explain": "Desk = registers, warehouse = RAM, warehouse guy = bus, pallet = cache line. 托盘就是一次运来的一整块相邻数据，即缓存行。"
+    },
+    {
+      "type": "fill",
+      "ref": "17.2",
+      "q": "When the CPU reads a byte from RAM, it fetches a contiguous chunk of about 64–128 bytes called a ___.",
+      "answer": ["cache line", "缓存行"],
+      "explain": "缓存行（cache line）是 CPU 从内存搬入缓存的最小单位。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "17.2",
+      "q": "在多线程程序中，把两个线程频繁修改的数据放在同一条缓存行里会更快。",
+      "answer": false,
+      "explain": "False. If two threads tweak data on the same cache line, the cores must do costly cache synchronization; it's faster to put such data on different lines. 多线程修改的数据应放在不同缓存行。"
+    },
+    {
+      "type": "choice",
+      "ref": "17.4",
+      "q": "Before restructuring data for locality, what should you confirm? 在动手重组数据之前应先确认什么？",
+      "options": ["代码是否使用了虚函数", "性能问题确实是由缓存未命中引起的（用 profiler 验证）", "数据总量是否小于 L1 缓存", "游戏是否运行在主机平台上"],
+      "answer": 1,
+      "explain": "If code is slow for other reasons, this pattern won't help. 用能统计缓存未命中的分析工具（如 Cachegrind）来确认。"
+    },
+    {
+      "type": "open",
+      "ref": "17.5",
+      "q": "为什么说 interfaces and virtual methods 与数据局部性相冲突？请中英文作答。",
+      "answer": "EN: Interfaces in C++ mean accessing objects through pointers or references, and virtual calls require looking up the vtable and following another pointer; both hop across memory and cause cache misses. 中：C++ 中的接口意味着通过指针或引用访问对象，虚函数调用需要查虚表再追踪指针，两者都会在内存中跳跃，引发缓存未命中。",
+      "explain": "关键词：pointer indirection（指针间接）、vtable（虚表）、trade-off（权衡）。"
+    },
+    {
+      "type": "fill",
+      "ref": "17.6",
+      "q": "Wasting time traversing pointers scattered across memory is called “___”.",
+      "answer": ["pointer chasing", "指针追逐"],
+      "explain": "entities[i]->ai()->update() 每次都要追两个指针，就是典型的 pointer chasing。"
+    },
+    {
+      "type": "choice",
+      "ref": "17.6",
+      "q": "粒子系统中，如何在不检查 active flag 的情况下只更新活跃粒子？ / How do we skip the active check?",
+      "options": ["每帧对整个数组做一次 quicksort", "为活跃粒子另建一个指针列表", "让活跃粒子始终排在数组前部，并用 numActive_ 计数；激活/停用时做交换", "把粒子放进链表，删掉不活跃的节点"],
+      "answer": 2,
+      "explain": "Keep the array sorted incrementally by swapping on activate/deactivate. 不必每帧排序，只在状态变化时交换即可。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "17.6",
+      "q": "Keeping particles sorted by active state means each Particle no longer needs to store an active flag.",
+      "answer": true,
+      "explain": "正确。活跃状态可由位置和 numActive_ 推断，粒子更小，每条缓存行能放更多粒子。"
+    },
+    {
+      "type": "choice",
+      "ref": "17.6",
+      "q": "In hot/cold splitting, which AIComponent data should be moved to the cold side? 哪些数据属于“冷”数据？",
+      "options": ["Loot drop data used once at death（死亡时才用的掉落数据）", "The current animation（当前动画）", "Energy level（能量值）", "Goal position（目标位置）"],
+      "answer": 0,
+      "explain": "Animation, energy and goal are touched every frame (hot). 掉落信息一生只用一次，是冷数据。"
+    },
+    {
+      "type": "choice",
+      "ref": "17.7",
+      "q": "“Use separate arrays for each type” 处理多态的主要缺点是什么？",
+      "options": ["对象之间会有填充（padding）", "必须使用虚函数调用", "对象无法紧密排列", "必须管理很多集合，并且代码必须知道每一种类型"],
+      "answer": 3,
+      "explain": "Separate arrays keep objects packed and allow static dispatch, but you lose polymorphism's open-endedness. 失去了多态的开放性。"
+    },
+    {
+      "type": "open",
+      "ref": "17.7",
+      "q": "If the game entity is just an ID, what are its pros and cons? 实体只是一个 ID 时有什么利弊？",
+      "answer": "EN: Pros: entities are tiny single values and need no lifetime management (an entity dies when all its components are destroyed). Cons: entities are empty, so there's nowhere for non-component state, and looking up sibling components by ID may be slow on a performance-critical path; using the index as ID forces parallel arrays that can't be sorted independently. 中：优点是实体只是一个很小的值，无需管理生命周期（所有组件销毁时实体即“死亡”）；缺点是实体是空的，无处存放非组件的状态，按 ID 查找兄弟组件可能很慢且处于性能关键路径；若用下标当 ID，则各数组必须保持并行，无法独立排序。",
+      "explain": "这种风格是对组件模式的进一步强化（doubles down on Component）。"
+    }
+  ]
+}

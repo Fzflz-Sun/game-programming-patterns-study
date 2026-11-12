@@ -1,0 +1,290 @@
+{
+  "id": "subclass-sandbox",
+  "title": { "en": "Subclass Sandbox", "zh": "子类沙盒" },
+  "summary": {
+    "en": "A base class defines an abstract protected sandbox method and a set of protected provided operations; each subclass implements the sandbox method using only those operations. This removes duplication, confines coupling to the base class, and yields a shallow but wide class hierarchy.",
+    "zh": "基类定义一个受保护的抽象沙盒方法和一组受保护的“提供操作”；每个子类只使用这些操作来实现沙盒方法。这样可以消除重复代码，把耦合限制在基类中，并形成浅而宽的类层次结构。"
+  },
+  "sections": [
+    {
+      "num": "12.1",
+      "title": { "en": "Intent", "zh": "意图" },
+      "points": [
+        {
+          "title": { "en": "Behavior defined with base-class operations", "zh": "用基类提供的操作定义行为" },
+          "body": {
+            "en": "The intent of Subclass Sandbox is to define behavior in a subclass using a set of operations provided by its base class.",
+            "zh": "子类沙盒模式的意图是：在子类中使用其基类提供的一组操作来定义行为。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "12.2",
+      "title": { "en": "Motivation", "zh": "动机" },
+      "points": [
+        {
+          "title": { "en": "A hundred superpower subclasses", "zh": "上百个超能力子类" },
+          "body": {
+            "en": "A superhero game wants dozens or hundreds of superpowers, each a subclass of a Superpower base class, and they can touch every corner of the codebase: sounds, visual effects, AI, entities, physics. (With so many subclasses, a data-driven approach via Type Object, Bytecode, or Interpreter is often better.)",
+            "zh": "一款超级英雄游戏想要几十甚至上百种超能力，每种都是 Superpower 基类的一个子类，而且它们会触及代码库的每个角落：音效、视觉特效、AI、实体、物理。（子类这么多时，借助类型对象、字节码或解释器模式采用数据驱动的方式往往更好。）"
+          }
+        },
+        {
+          "title": { "en": "Problems of unconstrained subclasses", "zh": "不受约束的子类带来的问题" },
+          "body": {
+            "en": "Letting everyone write power classes freely causes lots of redundant code (a freeze ray and heat ray are similar), couples every part of the engine to these classes, makes outside system changes break random powers, and makes it hard to enforce invariants — such as all power audio being properly queued and prioritized.",
+            "zh": "放任大家随意编写超能力类，会导致大量冗余代码（冰冻射线和热射线其实很相似），让引擎的每个部分都与这些类耦合，外部系统一改动就可能破坏某些超能力，而且很难保证所有超能力遵守统一的不变式——比如所有超能力播放的音频都要正确地排队并设置优先级。"
+          }
+        },
+        {
+          "title": { "en": "Protected provided operations and a sandbox method", "zh": "受保护的提供操作与沙盒方法" },
+          "body": {
+            "en": "Give gameplay programmers a set of primitives — playSound(), spawnParticles() — as protected (likely non-virtual) methods of Superpower, signaling they exist to be called by subclasses. Then define activate(), an abstract protected sandbox method. To create a power: inherit from Superpower, override activate(), and implement it by calling the provided operations.",
+            "zh": "把一组原语——playSound()、spawnParticles()——作为 Superpower 的受保护（通常是非虚的）方法提供给玩法程序员，表明它们专门供子类调用。再定义 activate() 这个受保护的抽象沙盒方法。创建新超能力只需：继承 Superpower，重写 activate()，并在其中调用基类提供的操作来实现它。"
+          }
+        },
+        {
+          "title": { "en": "Coupling confined to one place", "zh": "把耦合限制在一处" },
+          "body": {
+            "en": "Duplicated code across subclasses can be rolled up into higher-level provided operations. Only Superpower is coupled to the game systems; the hundred subclasses are coupled only to their base class, so system changes touch Superpower, not dozens of subclasses.",
+            "zh": "子类之间的重复代码可以上提为更高层次的提供操作。只有 Superpower 与各游戏系统耦合；上百个子类只与基类耦合，因此系统变动时只需修改 Superpower，而不必改动几十个子类。"
+          }
+        },
+        {
+          "title": { "en": "Shallow but wide hierarchy", "zh": "浅而宽的类层次" },
+          "body": {
+            "en": "The result is a shallow but wide class hierarchy: short inheritance chains, many classes hanging off Superpower. That single class is a point of leverage — effort spent on it benefits many classes. Inheritance is the deepest coupling there is, but the author finds wide trees easier to work with than deep ones.",
+            "zh": "其结果是一个浅而宽的类层次：继承链很短，但有很多类直接挂在 Superpower 之下。这个基类成了代码库中的杠杆点——在它身上投入的精力能惠及大量类。继承是代码库中最深的耦合，但作者认为宽的继承树比深的更好维护。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "12.3",
+      "title": { "en": "The Pattern", "zh": "模式描述" },
+      "points": [
+        {
+          "title": { "en": "Pattern definition", "zh": "模式定义" },
+          "body": {
+            "en": "A base class defines an abstract sandbox method and several provided operations. Marking them protected makes it clear that they are for use by derived classes. Each derived sandboxed subclass implements the sandbox method using the provided operations.",
+            "zh": "基类定义一个抽象的沙盒方法和若干提供操作。将它们标记为 protected，表明它们是供派生类使用的。每个派生的沙盒子类都使用这些提供操作来实现沙盒方法。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "12.4",
+      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "points": [
+        {
+          "title": { "en": "A simple, common pattern", "zh": "简单而常见的模式" },
+          "body": {
+            "en": "If you have a non-virtual protected method lying around, you're probably already using something like this. It fits when you have a base class with many derived classes, the base class can provide all operations they need, there is behavioral overlap you want to share, and you want to minimize coupling between the subclasses and the rest of the program.",
+            "zh": "如果你的代码中有非虚的 protected 方法，你很可能已经在用类似的东西了。当你有一个带许多派生类的基类、基类能提供派生类所需的全部操作、子类之间有可共享的行为重叠、并且你希望尽量减少子类与程序其余部分的耦合时，这个模式就很适用。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "12.5",
+      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "points": [
+        {
+          "title": { "en": "The brittle base class problem", "zh": "脆弱基类问题" },
+          "body": {
+            "en": "Base classes tend to accrete code, and this pattern is especially prone to it. Since subclasses reach the game through the base class, it becomes coupled to every system any subclass needs, while subclasses are tightly tied to it. This spiderweb makes the base class hard to change without breaking something — the brittle base class problem.",
+            "zh": "基类往往会越积越多代码，而这个模式尤其如此。由于子类都通过基类访问游戏，基类会与任何子类需要的每个系统耦合，而子类又与基类紧密相连。这张蜘蛛网让基类很难修改而不破坏任何东西——这就是脆弱基类问题。"
+          }
+        },
+        {
+          "title": { "en": "Upside, and the Component remedy", "zh": "好处，以及组件模式的补救" },
+          "body": {
+            "en": "On the flip side, with coupling pushed up into the base class, the subclasses — where most behavior should live — are cleanly isolated and easier to maintain. If the base class becomes a giant bowl of code stew, pull some provided operations into separate classes it delegates to; the Component pattern can help.",
+            "zh": "反过来看，耦合被推到基类之后，子类——大部分行为本应存在于此——就与外界干净地隔离开来，更易维护。如果基类变成了一大锅“代码杂烩”，可以把部分提供操作拆到独立的类中，让基类把职责委派出去；组件模式可以帮上忙。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "12.6",
+      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "points": [
+        {
+          "title": { "en": "The Superpower base class", "zh": "Superpower 基类" },
+          "body": {
+            "en": "activate() is the sandbox method: virtual and abstract, so subclasses must override it, making clear where their work goes. move(), playSound(), and spawnParticles() are the provided operations; their implementations call into physics, audio, and so on, keeping that coupling encapsulated within Superpower.",
+            "zh": "activate() 是沙盒方法：它是纯虚的，子类必须重写，这清楚地告诉实现者工作该写在哪里。move()、playSound() 和 spawnParticles() 是提供操作；它们的实现会调用物理、音频等系统，从而把这些耦合封装在 Superpower 内部。"
+          },
+          "code": "class Superpower {\npublic:\n  virtual ~Superpower() {}\n\nprotected:\n  virtual void activate() = 0;\n\n  void move(double x, double y, double z) { /* Code here... */ }\n  void playSound(SoundId sound, double volume) { /* Code here... */ }\n  void spawnParticles(ParticleType type, int count) { /* Code here... */ }\n};"
+        },
+        {
+          "title": { "en": "A simple power: SkyLaunch", "zh": "一个简单的超能力：SkyLaunch" },
+          "body": {
+            "en": "SkyLaunch springs the hero into the air with a sound and a cloud of dust. If every power were just sound + particles + motion, we wouldn't need the pattern — Superpower could have a baked-in activate() reading data fields. That only works when powers differ only in data.",
+            "zh": "SkyLaunch 让英雄跃向空中，同时播放音效、扬起一团尘土。如果所有超能力都只是音效 + 粒子 + 移动的组合，就根本不需要这个模式——Superpower 可以内置一个读取数据字段的 activate()。但这只适用于各超能力仅在数据上有差异的情况。"
+          },
+          "code": "class SkyLaunch : public Superpower {\nprotected:\n  virtual void activate() {\n    // Spring into the air.\n    playSound(SOUND_SPROING, 1.0f);\n    spawnParticles(PARTICLE_DUST, 10);\n    move(0, 0, 20);\n  }\n};"
+        },
+        {
+          "title": { "en": "State access enables real control flow", "zh": "访问状态带来真正的控制流" },
+          "body": {
+            "en": "Adding getHeroX/Y/Z() lets SkyLaunch jump from the ground, double jump near the ground, or dive attack from high up. Because the sandbox method is a full-fledged method with arbitrary code, the sky's the limit — and complex imperative behavior like this is one reason you might not choose a data-driven approach.",
+            "zh": "加入 getHeroX/Y/Z() 之后，SkyLaunch 可以在地面上起跳、在接近地面时二段跳、在高空时俯冲攻击。由于沙盒方法是能包含任意代码的完整方法，可能性是无限的——而这种复杂的命令式行为，正是你可能不选择数据驱动方式的原因之一。"
+          },
+          "code": "virtual void activate() {\n  if (getHeroZ() == 0) {\n    // On the ground, so spring into the air.\n    playSound(SOUND_SPROING, 1.0f);\n    spawnParticles(PARTICLE_DUST, 10);\n    move(0, 0, 20);\n  } else if (getHeroZ() < 10.0f) {\n    // Near the ground, so do a double jump.\n    playSound(SOUND_SWOOP, 1.0f);\n    move(0, 0, getHeroZ() - 20);\n  } else {\n    // Way up in the air, so do a dive attack.\n    playSound(SOUND_DIVE, 0.7f);\n    spawnParticles(PARTICLE_SPARKLES, 1);\n    move(0, 0, -getHeroZ());\n  }\n}"
+        }
+      ]
+    },
+    {
+      "num": "12.7",
+      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "points": [
+        {
+          "title": { "en": "How many operations to provide", "zh": "提供多少操作" },
+          "subsection": { "en": "What operations should be provided?", "zh": "应该提供哪些操作？" },
+          "body": {
+            "en": "At one extreme the base class provides nothing but the sandbox method (hardly this pattern); at the other it provides everything, so each subclass needs only one #include. The more you provide, the less coupled subclasses are, but the more coupled — and bigger and harder to maintain — the base class becomes.",
+            "zh": "一个极端是基类除了沙盒方法什么都不提供（几乎算不上这个模式）；另一个极端是它提供一切，每个子类只需一个 #include。提供的操作越多，子类的耦合越低，但基类的耦合就越高，也越庞大、越难维护。"
+          }
+        },
+        {
+          "title": { "en": "Rules of thumb for provided operations", "zh": "关于提供操作的经验法则" },
+          "subsection": { "en": "What operations should be provided?", "zh": "应该提供哪些操作？" },
+          "body": {
+            "en": "If an operation is used by only one or a few subclasses, it adds base-class complexity for little gain. Calls that don't modify state are \"safer\" couplings, while state-modifying calls are good candidates for provided operations. A provided operation that merely forwards adds little, but can still encapsulate state, like a soundEngine_ field, that subclasses shouldn't touch.",
+            "zh": "如果某个操作只被一两个子类使用，它给基类增加了复杂度却收益甚微。不修改状态的调用是“较安全”的耦合，而修改状态的调用则适合上提为提供操作。仅仅转发调用的提供操作价值不大，但它仍能封装子类不应接触的状态，比如 soundEngine_ 字段。"
+          },
+          "code": "void playSound(SoundId sound, double volume) {\n  soundEngine_.play(sound, volume);\n}"
+        },
+        {
+          "title": { "en": "Provide operations through helper objects", "zh": "通过辅助对象提供操作" },
+          "subsection": { "en": "Should methods be provided directly, or through objects that contain them?", "zh": "应该直接提供方法，还是通过包含这些方法的对象提供？" },
+          "body": {
+            "en": "To avoid cramming methods into the base class, move related ones (playSound, stopSound, setVolume) into an auxiliary SoundPlayer class and expose it via a getter. This reduces the base class's method count, puts code in a less-coupled class that's easier to change, and reduces Superpower's coupling to just SoundPlayer.",
+            "zh": "为了避免往基类里塞太多方法，可以把相关方法（playSound、stopSound、setVolume）移到辅助类 SoundPlayer 中，再通过一个 getter 暴露它。这减少了基类的方法数量，让代码位于耦合更低、更易修改的类中，并把 Superpower 的耦合缩减到只依赖 SoundPlayer。"
+          },
+          "code": "class Superpower {\nprotected:\n  SoundPlayer& getSoundPlayer() {\n    return soundPlayer_;\n  }\n\n  // Sandbox method and other operations...\n\nprivate:\n  SoundPlayer soundPlayer_;\n};"
+        },
+        {
+          "title": { "en": "Constructor injection vs. two-stage initialization", "zh": "构造函数传入与两阶段初始化" },
+          "subsection": { "en": "How does the base class get the state that it needs?", "zh": "基类如何获取所需的状态？" },
+          "body": {
+            "en": "Passing state (e.g., a ParticleSystem) to the base constructor guarantees it exists, but every subclass constructor must pass it along, exposing private state and becoming a maintenance headache. Two-stage initialization — a parameterless constructor plus init() — avoids that, but forgetting init() leaves a half-created object; wrap both steps in a factory function like createSkyLaunch().",
+            "zh": "把状态（如 ParticleSystem）传给基类构造函数可以确保它存在，但每个子类的构造函数都必须转传它，既暴露了私有状态，也带来维护负担。两阶段初始化——无参构造函数加 init()——避免了这一问题，但一旦忘记调用 init()，对象就处于半初始化状态；可以把两步封装进 createSkyLaunch() 这样的工厂函数中。"
+          },
+          "code": "Superpower* createSkyLaunch(ParticleSystem* particles) {\n  Superpower* power = new SkyLaunch();\n  power->init(particles);\n  return power;\n}"
+        },
+        {
+          "title": { "en": "Static state or a service locator", "zh": "静态状态或服务定位器" },
+          "subsection": { "en": "How does the base class get the state that it needs?", "zh": "基类如何获取所需的状态？" },
+          "body": {
+            "en": "If all powers share the same state, make it private and static, initialized once via Superpower::init(); this saves per-instance memory but shares many of a singleton's problems. Alternatively, let the base class pull state itself from a Service Locator, removing the burden of initialization from surrounding code.",
+            "zh": "如果所有超能力共享同一份状态，可以把它设为私有静态成员，通过 Superpower::init() 只初始化一次；这节省了每个实例的内存，但也带有单例的许多问题。另一种做法是让基类自己从服务定位器中获取状态，从而免去外部代码的初始化负担。"
+          },
+          "code": "void spawnParticles(ParticleType type, int count) {\n  ParticleSystem& particles = Locator::getParticles();\n  particles.spawn(type, count);\n}"
+        }
+      ]
+    },
+    {
+      "num": "12.8",
+      "title": { "en": "See Also", "zh": "参见" },
+      "points": [
+        {
+          "title": { "en": "Update Method, Template Method, and Facade", "zh": "更新方法、模板方法与外观模式" },
+          "body": {
+            "en": "With Update Method, the update method is often also a sandbox method. Subclass Sandbox is a role reversal of Template Method: in Sandbox the method is in the derived class and the primitives in the base class; in Template Method the base class has the method and subclasses implement the primitives. It is also a variation of Facade, with the base class hiding the whole engine from subclasses.",
+            "zh": "使用更新方法模式时，update 方法往往也是一个沙盒方法。子类沙盒是模板方法模式的角色反转：在子类沙盒中，方法位于派生类、原语操作位于基类；在模板方法中，方法位于基类、原语操作由派生类实现。它也可以看作外观模式的变体：基类充当外观，对子类隐藏了整个游戏引擎。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "sandbox method", "zh": "沙盒方法" },
+    { "en": "provided operation", "zh": "提供操作" },
+    { "en": "protected method", "zh": "受保护方法" },
+    { "en": "shallow but wide hierarchy", "zh": "浅而宽的类层次" },
+    { "en": "brittle base class problem", "zh": "脆弱基类问题" },
+    { "en": "coupling", "zh": "耦合" },
+    { "en": "two-stage initialization", "zh": "两阶段初始化" },
+    { "en": "Service Locator", "zh": "服务定位器" },
+    { "en": "Template Method", "zh": "模板方法模式" },
+    { "en": "Facade", "zh": "外观模式" }
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "ref": "12.2",
+      "q": "Why are the provided operations made protected (and usually non-virtual)? 为什么提供操作通常是 protected 且非虚的？",
+      "options": ["为了提升运行速度", "To communicate that they exist specifically to be called by subclasses（表明它们专供子类调用）", "为了让外部代码也能调用", "因为 C++ 要求所有基类方法都是 protected"],
+      "answer": 1,
+      "explain": "Protected signals \"for subclasses\"; non-virtual means they aren't meant to be overridden. 它们是给子类用的工具。"
+    },
+    {
+      "type": "fill",
+      "ref": "12.2",
+      "q": "Subclass Sandbox leads to a class hierarchy that is shallow but ___（浅而___）。",
+      "answer": ["wide", "宽"],
+      "explain": "继承链短，但大量子类直接挂在基类下，基类成为杠杆点。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "12.2",
+      "q": "使用子类沙盒后，上百个超能力子类各自直接与音频、物理等系统耦合。",
+      "answer": false,
+      "explain": "False. Only Superpower is coupled to game systems; subclasses are coupled only to their base class."
+    },
+    {
+      "type": "fill",
+      "ref": "12.5",
+      "q": "When a base class is coupled to every system and every subclass depends on it, it becomes hard to change — the ___ base class problem.",
+      "answer": ["brittle", "脆弱"],
+      "explain": "脆弱基类问题：修改基类很容易破坏某些东西。组件模式可以帮忙拆分基类。"
+    },
+    {
+      "type": "choice",
+      "ref": "12.6",
+      "q": "In the sample code, which method is the sandbox method? 哪个是沙盒方法？",
+      "options": ["playSound()", "move()", "spawnParticles()", "activate()"],
+      "answer": 3,
+      "explain": "activate() is abstract and protected; subclasses override it. 其余都是提供操作。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "12.6",
+      "q": "If every superpower were only a combination of sound, particle effect, and motion, you wouldn't need this pattern — a data-driven activate() in the base class would do.",
+      "answer": true,
+      "explain": "正确。只有当行为复杂、命令式（如根据高度选择跳跃方式）时，才需要完整的沙盒方法。"
+    },
+    {
+      "type": "choice",
+      "ref": "12.7",
+      "q": "Which is a disadvantage of passing state through the base class constructor? 构造函数传参的缺点是？",
+      "options": ["对象可能处于半初始化状态", "Every subclass constructor must pass it along, exposing private state（每个子类都要转传，暴露私有状态）", "它需要单例", "它无法保证状态存在"],
+      "answer": 1,
+      "explain": "半初始化状态是两阶段初始化的风险；构造函数传参的问题在于子类被迫知道并转传基类的私有状态。"
+    },
+    {
+      "type": "open",
+      "ref": "12.7",
+      "q": "Why might you move playSound/stopSound/setVolume into a SoundPlayer class? 列出至少两个好处（中英文）。",
+      "answer": "EN: It reduces the number of methods in the base class (three methods become one getter); helper-class code is easier to maintain because fewer things depend on it; and it lowers base-class coupling to just SoundPlayer, which encapsulates audio dependencies. 中：减少基类的方法数量（三个方法变为一个 getter）；辅助类耦合更低、更易修改维护；基类只依赖 SoundPlayer，由它封装对音频系统的其他依赖。",
+      "explain": "这是“通过对象提供操作”的设计决策。"
+    },
+    {
+      "type": "fill",
+      "ref": "12.7",
+      "q": "Instead of having outside code push state in, the base class can pull it itself using the ___ pattern（例如 Locator::getParticles()）。",
+      "answer": ["Service Locator", "service locator", "服务定位器", "服务定位器模式"],
+      "explain": "服务定位器让基类自己获取所需状态，免除外部代码的初始化负担。"
+    },
+    {
+      "type": "open",
+      "ref": "12.8",
+      "q": "Explain how Subclass Sandbox is a \"role reversal\" of Template Method. 用中英文说明。",
+      "answer": "EN: Both implement a method using primitive operations. In Subclass Sandbox, the method lives in the derived class and the primitives are in the base class; in Template Method, the base class has the method and the derived classes implement the primitives. 中：两者都用一组原语操作来实现某个方法。子类沙盒中，方法在派生类、原语在基类；模板方法中，方法在基类、原语由派生类实现。",
+      "explain": "它也可视为外观模式的变体：基类对子类隐藏整个引擎。"
+    }
+  ]
+}

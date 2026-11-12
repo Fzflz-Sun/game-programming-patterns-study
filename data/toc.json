@@ -1,0 +1,44 @@
+{
+  "book": { "en": "Game Programming Patterns", "zh": "游戏编程模式", "author": "Robert Nystrom" },
+  "parts": [
+    { "id": "intro", "num": 1, "en": "Introduction", "zh": "概述",
+      "chapters": [
+        { "id": "intro", "num": 0, "en": "Introduction", "zh": "前言" },
+        { "id": "architecture", "num": 1, "en": "Architecture, Performance, and Games", "zh": "架构、性能与游戏" }
+      ] },
+    { "id": "revisited", "num": 2, "en": "Design Patterns Revisited", "zh": "重访设计模式",
+      "chapters": [
+        { "id": "command", "num": 2, "en": "Command", "zh": "命令模式" },
+        { "id": "flyweight", "num": 3, "en": "Flyweight", "zh": "享元模式" },
+        { "id": "observer", "num": 4, "en": "Observer", "zh": "观察者模式" },
+        { "id": "prototype", "num": 5, "en": "Prototype", "zh": "原型模式" },
+        { "id": "singleton", "num": 6, "en": "Singleton", "zh": "单例模式" },
+        { "id": "state", "num": 7, "en": "State", "zh": "状态模式" }
+      ] },
+    { "id": "sequencing", "num": 3, "en": "Sequencing Patterns", "zh": "序列模式",
+      "chapters": [
+        { "id": "double-buffer", "num": 8, "en": "Double Buffer", "zh": "双缓冲" },
+        { "id": "game-loop", "num": 9, "en": "Game Loop", "zh": "游戏循环" },
+        { "id": "update-method", "num": 10, "en": "Update Method", "zh": "更新方法" }
+      ] },
+    { "id": "behavioral", "num": 4, "en": "Behavioral Patterns", "zh": "行为模式",
+      "chapters": [
+        { "id": "bytecode", "num": 11, "en": "Bytecode", "zh": "字节码" },
+        { "id": "subclass-sandbox", "num": 12, "en": "Subclass Sandbox", "zh": "子类沙盒" },
+        { "id": "type-object", "num": 13, "en": "Type Object", "zh": "类型对象" }
+      ] },
+    { "id": "decoupling", "num": 5, "en": "Decoupling Patterns", "zh": "解耦模式",
+      "chapters": [
+        { "id": "component", "num": 14, "en": "Component", "zh": "组件" },
+        { "id": "event-queue", "num": 15, "en": "Event Queue", "zh": "事件队列" },
+        { "id": "service-locator", "num": 16, "en": "Service Locator", "zh": "服务定位器" }
+      ] },
+    { "id": "optimization", "num": 6, "en": "Optimization Patterns", "zh": "优化模式",
+      "chapters": [
+        { "id": "data-locality", "num": 17, "en": "Data Locality", "zh": "数据局部性" },
+        { "id": "dirty-flag", "num": 18, "en": "Dirty Flag", "zh": "脏标记" },
+        { "id": "object-pool", "num": 19, "en": "Object Pool", "zh": "对象池" },
+        { "id": "spatial-partition", "num": 20, "en": "Spatial Partition", "zh": "空间分区" }
+      ] }
+  ]
+}

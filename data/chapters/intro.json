@@ -1,0 +1,261 @@
+{
+  "id": "intro",
+  "title": { "en": "Introduction", "zh": "前言" },
+  "summary": {
+    "en": "The author explains why he wrote the book: the best solutions in game codebases are often buried and reinvented. The book collects and polishes those patterns, presents them à la carte, relates them to the Gang of Four's Design Patterns, and describes the consistent chapter structure and simplified C++ samples.",
+    "zh": "作者解释了写这本书的原因：游戏代码库里最好的解决方案常常被埋没，结果被人一再重新发明。本书收集并打磨这些模式，以“点菜式”的方式呈现，阐明它们与四人帮《设计模式》的关系，并介绍各章统一的结构以及刻意简化的 C++ 示例代码。"
+  },
+  "sections": [
+    {
+      "num": "0.0",
+      "title": { "en": "Introduction (Opening)", "zh": "前言（开篇）" },
+      "points": [
+        {
+          "title": { "en": "From BASIC listings to game programming", "zh": "从 BASIC 程序清单走上游戏编程之路" },
+          "body": {
+            "en": "In fifth grade the author typed simple BASIC programs into beat-up TRS-80s and was captivated by a long listing called \"Tunnels and Trolls\". He never got it running, but from then on he wanted to be a game programmer, and spent his teenage summers hacking games together on a Macintosh.",
+            "zh": "五年级时，作者在破旧的 TRS-80 电脑上敲入简单的 BASIC 程序，并被一份名为“Tunnels and Trolls”的长篇程序清单深深吸引。他始终没能让它运行起来，但从那以后就立志成为游戏程序员，青少年时期的暑假几乎都在 Macintosh 上拼凑游戏。"
+          },
+          "code": "10 PRINT \"BOBBY IS RADICAL!!!\"\n20 GOTO 10"
+        },
+        {
+          "title": { "en": "The real challenge: programs bigger than your head", "zh": "真正的挑战：程序大到装不进脑子" },
+          "body": {
+            "en": "At first the challenge was just getting something working; later it became writing programs bigger than what fit in his head. He started looking for books about how to organize programs, and found relief in Design Patterns: other people struggled too and had found solutions.",
+            "zh": "起初的难题只是让程序跑起来；后来，难题变成了如何编写大到脑子装不下的程序。他开始寻找讲如何组织程序的书，并在《设计模式》中得到慰藉：原来别人也在挣扎，而且已经找到了解决方法。"
+          }
+        },
+        {
+          "title": { "en": "Brilliant code, neglected architecture", "zh": "代码出色，架构却被忽视" },
+          "body": {
+            "en": "At Electronic Arts he found brilliant code in graphics, AI, animation and effects, but the architecture it hung from was often an afterthought: modules were heavily coupled and new features were bolted on wherever they fit. Still, the code was written under intense deadlines, and he gradually found much brilliance hidden under the surface.",
+            "zh": "在艺电（Electronic Arts），他看到图形、AI、动画和特效方面的代码非常出色，但承载这些代码的架构却常常是事后才考虑的：模块之间耦合严重，新功能哪里塞得下就塞到哪里。不过这些代码是在极紧的期限下写成的，他逐渐发现表面之下藏着许多精妙之处。"
+          }
+        },
+        {
+          "title": { "en": "The book's goal: stop reinventing", "zh": "本书的目标：不再重复发明" },
+          "body": {
+            "en": "Good solutions were buried in codebases, and coworkers struggled to reinvent them even when examples sat in the same code. The book digs up and polishes the best patterns found in games, so we can spend our time inventing new things instead of re-inventing them.",
+            "zh": "好的解决方案埋藏在代码库里，同事们即使脚下的代码中就有现成的例子，也还在费力地重新发明。本书把游戏中最好的模式挖掘出来、打磨好，让我们把时间花在创造新东西上，而不是重复发明已有的东西。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "0.1",
+      "title": { "en": "What’s in Store", "zh": "本书内容" },
+      "points": [
+        {
+          "title": { "en": "Two kinds of existing books", "zh": "现有的两类书" },
+          "body": {
+            "en": "Most game programming books are either domain-specific (deep dives into 3D graphics, physics, AI, audio…) or whole-engine books that try to span an entire engine, usually for one genre such as a 3D first-person shooter.",
+            "zh": "大多数游戏编程书要么是领域专著（深入讲解 3D 图形、物理、AI、音频等某一方面），要么是讲整个引擎的书，试图覆盖引擎的方方面面，而且通常针对某一种类型，比如 3D 第一人称射击游戏。"
+          }
+        },
+        {
+          "title": { "en": "The gaps they leave", "zh": "它们留下的空白" },
+          "body": {
+            "en": "Domain books rarely explain how their code ties into the rest of the game. Whole-engine books are too monolithic and genre-specific; with mobile and casual games there are many genres, and we aren't all just cloning Quake anymore.",
+            "zh": "领域专著很少说明那部分代码如何与游戏的其余部分衔接；整引擎类的书又过于庞大笼统、局限于特定类型。随着移动游戏和休闲游戏兴起，游戏类型越来越多，我们早已不是都在克隆《雷神之锤》了。"
+          }
+        },
+        {
+          "title": { "en": "An à la carte approach", "zh": "“点菜式”的组织方式" },
+          "body": {
+            "en": "Each chapter is an independent idea you can apply to your own code, so you can mix and match them to suit the game you want to make — similar in style to the Game Programming Gems series.",
+            "zh": "每一章都是一个可以独立应用到你代码中的思想，你可以根据自己想做的游戏自由组合搭配，这与《游戏编程精粹》（Game Programming Gems）系列的风格类似。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "0.2",
+      "title": { "en": "How it Relates to Design Patterns", "zh": "本书与《设计模式》的关系" },
+      "points": [
+        {
+          "title": { "en": "A lineage of pattern languages", "zh": "模式语言的传承" },
+          "body": {
+            "en": "Design Patterns by the \"Gang of Four\" (Gamma, Helm, Johnson, Vlissides) was itself inspired by Christopher Alexander's A Pattern Language, a book about real architecture with buildings and walls. Alexander hoped others would use the same structure for other fields, and the GoF did it for software.",
+            "zh": "“四人帮”（Gamma、Helm、Johnson、Vlissides）的《设计模式》本身受到 Christopher Alexander《建筑模式语言》（A Pattern Language）的启发，那是一本讲真正的建筑（墙壁、房屋）的书。Alexander 希望其他领域也能借用这种结构，四人帮就把它用到了软件上。"
+          }
+        },
+        {
+          "title": { "en": "GoF patterns do apply to games — and vice versa", "zh": "GoF 模式适用于游戏，反之亦然" },
+          "body": {
+            "en": "The title doesn't imply the GoF book is inapplicable to games; the Design Patterns Revisited section covers several of its patterns with a game focus. Conversely, this book applies to non-game software too — it could have been called More Design Patterns, but games make more engaging examples than employee records and bank accounts.",
+            "zh": "书名并不意味着四人帮的书不适用于游戏；“重访设计模式”部分正是以游戏为视角讨论了其中的若干模式。反过来，本书也适用于非游戏软件——它本可以叫《更多设计模式》，只是游戏比员工档案、银行账户更能做出有趣的例子。"
+          }
+        },
+        {
+          "title": { "en": "Challenges particular to games", "zh": "游戏特有的工程挑战" },
+          "body": {
+            "en": "The patterns are especially suited to game challenges: time and sequencing are core to the architecture; compressed development cycles require many programmers to iterate quickly without stepping on each other; behaviors must interact without turning the code into a hairball; and performance is critical.",
+            "zh": "这些模式特别适合游戏常见的挑战：时间与顺序是架构的核心；开发周期紧张，许多程序员需要快速迭代又不互相干扰；各种行为要相互作用，却不能让代码缠成一团乱麻；此外，性能至关重要。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "0.3",
+      "title": { "en": "How to Read the Book", "zh": "如何阅读本书" },
+      "points": [
+        {
+          "title": { "en": "Three broad sections", "zh": "全书分为三大部分" },
+          "body": {
+            "en": "The first part introduces and frames the book. The second, Design Patterns Revisited, gives the author's spin on several GoF patterns. The third, the real meat, presents thirteen patterns grouped into Sequencing, Behavioral, Decoupling, and Optimization Patterns.",
+            "zh": "第一部分是导言与背景铺垫；第二部分“重访设计模式”是作者对若干四人帮模式的个人解读；第三部分是全书的核心，介绍十三个模式，分为序列模式、行为模式、解耦模式和优化模式四类。"
+          }
+        },
+        {
+          "title": { "en": "Intent, Motivation, Pattern", "zh": "意图、动机、模式" },
+          "body": {
+            "en": "Each pattern chapter uses a consistent structure. Intent describes the problem the pattern solves, so you can quickly find a pattern. Motivation gives an example problem — teaching a pattern without an example is like teaching baking without mentioning dough. The Pattern section distills the essence in textbook form.",
+            "zh": "每个模式章节结构一致。“意图”描述模式要解决的问题，便于快速查找；“动机”给出一个示例问题——不举例子就讲模式，就像教烘焙却不提面团；“模式”一节则把精髓提炼成教科书式的描述。"
+          }
+        },
+        {
+          "title": { "en": "When to Use It, Keep in Mind, Sample Code", "zh": "使用场景、注意事项、示例代码" },
+          "body": {
+            "en": "When to Use It gives guidelines on when the pattern helps and when to avoid it; Keep in Mind points out consequences and risks. Sample Code walks step by step through a full implementation.",
+            "zh": "“使用场景”给出何时适合、何时应避免使用该模式的指导；“使用须知”指出使用该模式的后果与风险；“示例代码”一步步讲解一个完整的实现。"
+          }
+        },
+        {
+          "title": { "en": "Design Decisions and See Also", "zh": "设计决策与参考" },
+          "body": {
+            "en": "Patterns are open-ended, unlike single algorithms: each time you use one you'll likely implement it differently. Design Decisions explores those options. See Also relates the pattern to others and points to real-world open source code that uses it.",
+            "zh": "与单一算法不同，模式是开放式的：每次使用时你很可能会以不同方式实现它。“设计决策”一节探讨这些可选方案；“参考”一节说明该模式与其他模式的关系，并指出使用它的真实开源代码。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "0.4",
+      "title": { "en": "About the Sample Code", "zh": "关于示例代码" },
+      "points": [
+        {
+          "title": { "en": "Why C++", "zh": "为什么用 C++" },
+          "body": {
+            "en": "Samples are in C++ because it is the most popular language for commercially shipped games — the industry's lingua franca — and its C-based syntax underlies Java, C#, JavaScript and others. The patterns are not tied to C++; almost any language works, though some assume objects and classes.",
+            "zh": "示例使用 C++，因为它是商业游戏中最流行的语言，是业界的通用语；而且它所基于的 C 语法也是 Java、C#、JavaScript 等语言的基础。这些模式并不限于 C++，几乎任何语言都适用，只是有些模式假定语言支持对象和类。"
+          }
+        },
+        {
+          "title": { "en": "Read for the idea, not the code", "zh": "看思想，而不是看代码" },
+          "body": {
+            "en": "The book does not teach C++. Samples are deliberately simple, not \"modern\" C++11 style, avoid the standard library and rarely use templates. This makes \"bad\" C++, but more approachable to people from C, Objective-C, Java and other languages.",
+            "zh": "本书并不教 C++。示例刻意保持简单，不采用 C++11 及以后的“现代”风格，不使用标准库，也很少用模板。这样的 C++ 代码算不上“好”，但对来自 C、Objective-C、Java 等语言的读者更友好。"
+          }
+        },
+        {
+          "title": { "en": "Ellipses mark omitted code", "zh": "省略号表示被省略的代码" },
+          "body": {
+            "en": "Code that you've already seen or that isn't relevant to the pattern is sometimes omitted, and an ellipsis marks where it goes.",
+            "zh": "已经出现过或与模式无关的代码有时会被省略，并用省略号标出它原本的位置。"
+          },
+          "code": "bool update()\n{\n  // Do work...\n  return isDone();\n}"
+        }
+      ]
+    },
+    {
+      "num": "0.5",
+      "title": { "en": "Where to Go From Here", "zh": "下一步" },
+      "points": [
+        {
+          "title": { "en": "Patterns keep evolving", "zh": "模式在不断发展" },
+          "body": {
+            "en": "Patterns are a constantly changing part of software development. The book continues the GoF's process of documenting and sharing patterns, and readers contribute too by developing their own patterns and refining — or refuting — the ones in the book.",
+            "zh": "模式是软件开发中不断变化和扩展的一部分。本书延续了四人帮记录与分享模式的工作，而读者也是其中的一员：开发自己的模式，改进（或反驳！）本书中的模式，都是对软件社区的贡献。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "design pattern", "zh": "设计模式" },
+    { "en": "Gang of Four (GoF)", "zh": "四人帮" },
+    { "en": "pattern language", "zh": "模式语言" },
+    { "en": "à la carte", "zh": "点菜式（按需选用）" },
+    { "en": "coupling", "zh": "耦合" },
+    { "en": "architecture", "zh": "架构" },
+    { "en": "Intent / Motivation", "zh": "意图 / 动机" },
+    { "en": "Design Decisions", "zh": "设计决策" },
+    { "en": "lingua franca", "zh": "通用语" }
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "ref": "0.0",
+      "q": "What problem does this book mainly aim to solve? 本书主要想解决什么问题？",
+      "options": ["Teaching modern C++11 features", "好的解决方案埋藏在代码库中，程序员却在重复发明它们", "Building a complete 3D FPS engine", "Replacing the Gang of Four book entirely"],
+      "answer": 1,
+      "explain": "The author dug up and polished the best patterns from games so we spend time inventing new things instead of re-inventing them. 目标是减少重复发明。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "0.0",
+      "q": "At EA, the author found that the architecture of the games was carefully planned, while the low-level code was weak. 作者在 EA 发现架构精心设计而底层代码很差。",
+      "answer": false,
+      "explain": "False. 恰恰相反：图形、AI 等代码非常出色，但承载它们的架构常常是事后才考虑的（an afterthought）。"
+    },
+    {
+      "type": "choice",
+      "ref": "0.1",
+      "q": "作者认为 whole-engine books 有什么不足？",
+      "options": ["They are too short", "They never discuss rendering", "They only cover audio", "Too monolithic and too genre-specific（过于庞大且局限于特定类型）"],
+      "answer": 3,
+      "explain": "整引擎类书通常针对单一类型（如 FPS），当你的游戏不符合那个模子时帮助不大。"
+    },
+    {
+      "type": "fill",
+      "ref": "0.1",
+      "q": "The book is organized in an ___ style: each chapter is an independent idea you can mix and match. 本书采用“点菜式”风格。",
+      "answer": ["à la carte", "a la carte", "点菜式", "点菜"],
+      "explain": "À la carte = 按需选用，每章独立，可自由组合。"
+    },
+    {
+      "type": "choice",
+      "ref": "0.2",
+      "q": "Design Patterns（GoF）这本书本身受到了哪本书的启发？",
+      "options": ["The Art of Computer Programming", "Game Programming Gems", "A Pattern Language by Christopher Alexander", "Code Complete"],
+      "answer": 2,
+      "explain": "Alexander 的《建筑模式语言》讲的是真实的建筑，四人帮把这种结构用到了软件上。"
+    },
+    {
+      "type": "open",
+      "ref": "0.2",
+      "q": "List the engineering challenges the author says are especially common in games. 作者认为游戏中有哪些特别常见的工程挑战？",
+      "answer": "EN: Time and sequencing are core; compressed development cycles with many programmers iterating rapidly; many behaviors interacting without the code becoming a hairball; and critical performance. 中：时间与顺序是核心；开发周期紧张、多人需快速迭代互不干扰；大量行为相互作用却不能让代码纠缠成一团；性能至关重要。",
+      "explain": "Four points: sequencing, fast iteration, interaction/decoupling, performance. 这四点分别对应书中的序列、行为、解耦和优化模式。"
+    },
+    {
+      "type": "choice",
+      "ref": "0.3",
+      "q": "Which section of each pattern chapter explores the different ways to implement the pattern? 哪一节探讨实现模式的不同选择？",
+      "options": ["Intent", "Motivation", "Keep in Mind", "Design Decisions"],
+      "answer": 3,
+      "explain": "Patterns are open-ended; Design Decisions（设计决策）探讨各种可选方案。"
+    },
+    {
+      "type": "fill",
+      "ref": "0.3",
+      "q": "The third part of the book presents ___ patterns grouped into four categories. 第三部分介绍了___个模式。",
+      "answer": ["thirteen", "13", "十三"],
+      "explain": "13 个模式分为 Sequencing、Behavioral、Decoupling、Optimization 四类。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "0.4",
+      "q": "The sample code uses modern C++11 style and the standard library to show best practices. 示例代码使用现代 C++ 和标准库。",
+      "answer": false,
+      "explain": "False. 示例刻意简化，不用 C++11 风格、不用标准库、很少用模板——read for the idea, not the code."
+    },
+    {
+      "type": "truefalse",
+      "ref": "0.5",
+      "q": "作者认为读者也可以通过改进甚至反驳（refute）书中的模式来为软件社区做贡献。",
+      "answer": true,
+      "explain": "True. Patterns keep evolving, and readers are a core part of that process."
+    }
+  ]
+}

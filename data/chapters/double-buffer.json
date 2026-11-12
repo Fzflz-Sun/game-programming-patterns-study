@@ -1,0 +1,482 @@
+{
+  "id": "double-buffer",
+  "title": {
+    "en": "Double Buffer",
+    "zh": "双缓冲"
+  },
+  "summary": {
+    "en": "Double Buffer makes a series of sequential operations appear instantaneous or simultaneous. Keep a current buffer for reading and a next buffer for writing, then atomically swap them when the changes are done. It prevents tearing in rendering and order-dependent bugs when entities read state they are also modifying.",
+    "zh": "双缓冲让一系列顺序执行的操作看起来是瞬间或同时完成的。保留一个用于读取的当前缓冲区和一个用于写入的下一缓冲区，修改完成后原子地交换两者。它能防止渲染中的画面撕裂，也能避免实体读取自己正在修改的状态时产生依赖更新顺序的错误。"
+  },
+  "sections": [
+    {
+      "num": "8.1",
+      "title": {
+        "en": "Intent",
+        "zh": "意图"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "Make sequential operations look instantaneous",
+            "zh": "让顺序操作看起来瞬间完成"
+          },
+          "body": {
+            "en": "The intent of Double Buffer: cause a series of sequential operations to appear instantaneous or simultaneous.",
+            "zh": "双缓冲模式的意图是：让一系列顺序执行的操作看起来是瞬间完成或同时发生的。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "8.2",
+      "title": {
+        "en": "Motivation",
+        "zh": "动机"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "Computers are sequential; users want instant results",
+            "zh": "计算机是顺序的，而用户要看到瞬间的结果"
+          },
+          "body": {
+            "en": "Computers break big tasks into tiny steps performed one after another, but users often need to see things happen in a single instantaneous step. Rendering is the classic case: the game draws mountains, hills, and trees one at a time, but the user must only ever see complete frames, each appearing instantly.",
+            "zh": "计算机把大任务拆成一个个小步骤依次执行，但用户常常需要看到事情在一瞬间完成。渲染就是典型例子：游戏一件一件地绘制远山、丘陵和树木，但用户只能看到完整的帧，而且每一帧都要瞬间出现。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "How computer graphics work (briefly)",
+            "zh": "计算机图形的工作原理（简述）"
+          },
+          "title": {
+            "en": "The framebuffer",
+            "zh": "帧缓冲区"
+          },
+          "body": {
+            "en": "A display draws one pixel at a time, row by row, about sixty times a second. It pulls colors from a framebuffer, an array of pixels in RAM whose byte layout is set by the pixel format and color depth (often 32 bits per pixel). All graphics ultimately boil down to setting byte values in the framebuffer.",
+            "zh": "显示器一次绘制一个像素，逐行扫描，每秒大约六十次。它从帧缓冲区读取颜色，帧缓冲区是内存中的一个像素数组，其字节与颜色的对应关系由像素格式和色深决定（通常每像素 32 位）。所有图形算法归根结底都只是在帧缓冲区中设置字节值。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "How computer graphics work (briefly)",
+            "zh": "计算机图形的工作原理（简述）"
+          },
+          "title": {
+            "en": "Tearing",
+            "zh": "画面撕裂"
+          },
+          "body": {
+            "en": "The video driver reads the framebuffer constantly while the game runs. If it scans past the pixels we've written into ones we haven't yet, the user sees half a drawing. This hideous bug is called tearing, since the bottom half looks torn off. We need the driver to see all pixels at once.",
+            "zh": "游戏运行时，视频驱动程序一直在读取帧缓冲区。如果它扫描得比我们写得快，越过已写的像素读到了尚未写入的像素，用户就会看到只画了一半的图像。这种难看的错误叫做“撕裂”，因为下半部分看起来像被撕掉了。我们需要让驱动程序一次看到全部像素。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "Act 1, Scene 1",
+            "zh": "第一幕，第一场"
+          },
+          "title": {
+            "en": "The two-stage theater analogy",
+            "zh": "双舞台剧场的类比"
+          },
+          "body": {
+            "en": "Build two stages, A and B, each with its own lights. While scene one plays on lit stage A, stagehands set up scene two on darkened stage B. When the scene ends, switch the lights; stage A becomes the work area for scene three. The audience sees continuous scenes and never sees a stagehand.",
+            "zh": "建两个舞台 A 和 B，各有一套灯光。第一场在亮着灯的 A 台上演时，舞台工作人员在熄了灯的 B 台布置第二场。一场结束就切换灯光，A 台又成为布置第三场的工作区。观众看到的是连续的演出，从不会看到舞台工作人员。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "Back to the graphics",
+            "zh": "回到图形"
+          },
+          "title": {
+            "en": "Two framebuffers, swapped",
+            "zh": "两个帧缓冲区，相互交换"
+          },
+          "body": {
+            "en": "The video hardware reads the current framebuffer (stage A) while rendering code writes to the other (stage B). When drawing is done, we swap buffers so the hardware reads from the new one. Timed at the end of a refresh, there's no tearing, and the old buffer becomes free for the next frame.",
+            "zh": "视频硬件读取当前帧缓冲区（相当于 A 台），渲染代码则写入另一个缓冲区（相当于 B 台）。绘制完成后交换缓冲区，让硬件改从新缓冲区读取。只要在一次刷新结束时交换，就不会撕裂，而旧缓冲区则空出来用于绘制下一帧。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "8.3",
+      "title": {
+        "en": "The Pattern",
+        "zh": "模式"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "Current buffer and next buffer",
+            "zh": "当前缓冲区与下一缓冲区"
+          },
+          "body": {
+            "en": "A buffered class encapsulates a buffer, a piece of modifiable state edited incrementally that outside code should see change atomically. It keeps two instances: reads always come from the current buffer, writes go to the next buffer. When changes are complete, a swap instantly makes the next buffer public, and the old current buffer is reused as the new next buffer.",
+            "zh": "一个缓冲类封装了一个缓冲区：一块会被逐步修改的状态，但外部代码应该看到它一次性地原子变化。为此该类保存两个实例：读取总是来自当前缓冲区，写入总是发生在下一缓冲区。修改完成后，交换操作瞬间让下一缓冲区公开可见，旧的当前缓冲区则被复用为新的下一缓冲区。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "8.4",
+      "title": {
+        "en": "When to Use It",
+        "zh": "何时使用"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "Four conditions",
+            "zh": "四个条件"
+          },
+          "body": {
+            "en": "Without double buffering, such a system usually looks visibly wrong or behaves incorrectly. Use it when all of these hold: state is modified incrementally; that state may be accessed mid-modification; you want to prevent readers from seeing work in progress; and you want to read the state without waiting while it's being written.",
+            "zh": "这类系统如果缺少双缓冲，通常会出现明显的视觉错误或行为错误。当以下条件全部满足时使用它：状态被逐步修改；该状态可能在修改过程中被访问；你想防止访问代码看到修改中的半成品；你希望读取状态时不必等待写入完成。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "8.5",
+      "title": {
+        "en": "Keep in Mind",
+        "zh": "注意事项"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "A low-level pattern",
+            "zh": "一个底层模式"
+          },
+          "body": {
+            "en": "Unlike larger architectural patterns, Double Buffer lives at a lower implementation level, so it has few consequences for the rest of the codebase; most of the game won't even notice. There are two caveats.",
+            "zh": "与大型架构模式不同，双缓冲处在较低的实现层面，所以对代码库其余部分的影响很小，游戏的大部分代码甚至察觉不到。不过有两点需要注意。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "The swap itself takes time",
+            "zh": "交换本身需要时间"
+          },
+          "title": {
+            "en": "The swap must be atomic and fast",
+            "zh": "交换必须是原子且快速的"
+          },
+          "body": {
+            "en": "No code may access either buffer during the swap. Often it's as quick as assigning a pointer, but if swapping takes longer than modifying the state in the first place, the pattern hasn't helped at all.",
+            "zh": "交换期间任何代码都不能访问两个缓冲区中的任何一个。通常交换就像给指针赋值一样快，但如果交换所花的时间比修改状态本身还长，那这个模式就毫无帮助。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "We have to have two buffers",
+            "zh": "必须有两个缓冲区"
+          },
+          "title": {
+            "en": "Doubled memory",
+            "zh": "内存翻倍"
+          },
+          "body": {
+            "en": "The pattern keeps two copies of the state in memory at all times, which can be a heavy price on memory-constrained devices. If you can't afford two buffers, you need other ways to keep state from being accessed during modification.",
+            "zh": "这个模式需要始终在内存中保存两份状态，在内存受限的设备上代价可能很高。如果负担不起两个缓冲区，就得找其他办法来保证状态在修改期间不被访问。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "8.6",
+      "title": {
+        "en": "Sample Code",
+        "zh": "示例代码"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "A single buffer flickers",
+            "zh": "单缓冲会闪烁"
+          },
+          "body": {
+            "en": "A Framebuffer offers clear(), draw(x, y), and getPixels(); a Scene draws a face by clearing and drawing pixels one at a time. Since the video driver may call getPixels() at any moment, even mid-draw, the user might see the eyes but no mouth for a frame, producing flickering graphics.",
+            "zh": "Framebuffer 提供 clear()、draw(x, y) 和 getPixels()；Scene 通过清屏后逐个绘制像素来画一张笑脸。由于视频驱动随时可能调用 getPixels()，甚至在绘制中途，用户可能在某一帧看到眼睛却没有嘴巴，最终导致画面闪烁。"
+          }
+        },
+        {
+          "title": {
+            "en": "Double-buffered Scene",
+            "zh": "双缓冲的 Scene"
+          },
+          "body": {
+            "en": "Scene keeps two buffers and two pointers, current_ and next_. Drawing goes to next_; the video driver reads through current_ via getBuffer(). After drawing, swap() just switches the pointers, so the driver never sees a half-drawn buffer.",
+            "zh": "Scene 保存两个缓冲区和两个指针 current_ 与 next_。绘制写入 next_，视频驱动通过 getBuffer() 从 current_ 读取。绘制结束后，swap() 只需交换两个指针，因此驱动永远看不到画了一半的缓冲区。"
+          },
+          "code": "class Scene {\npublic:\n  Scene() : current_(&buffers_[0]), next_(&buffers_[1]) {}\n\n  void draw() {\n    next_->clear();\n    next_->draw(1, 1);\n    // ...\n    next_->draw(4, 3);\n    swap();\n  }\n\n  Framebuffer& getBuffer() { return *current_; }\n\nprivate:\n  void swap() {\n    // Just switch the pointers.\n    Framebuffer* temp = current_;\n    current_ = next_;\n    next_ = temp;\n  }\n\n  Framebuffer buffers_[2];\n  Framebuffer* current_;\n  Framebuffer* next_;\n};"
+        },
+        {
+          "subsection": {
+            "en": "Not just for graphics",
+            "zh": "不仅仅用于图形"
+          },
+          "title": {
+            "en": "Two causes of reading state mid-modification",
+            "zh": "修改中被读取的两种成因"
+          },
+          "body": {
+            "en": "The core problem is state being accessed while it's modified. One cause is access from another thread or interrupt, as in graphics. The other, equally common, is when the code doing the modification also reads the same state it's modifying, which happens especially in physics and AI where entities interact.",
+            "zh": "核心问题是状态在修改过程中被访问。一种成因是来自另一个线程或中断的访问，如图形示例。另一种同样常见：执行修改的代码本身也在读取它正在修改的状态，这在实体互相交互的物理和 AI 中尤为多见。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "Artificial unintelligence",
+            "zh": "人工“智障”"
+          },
+          "title": {
+            "en": "Slapstick comedians depend on update order",
+            "zh": "闹剧演员受更新顺序影响"
+          },
+          "body": {
+            "en": "Comedians each face another and slap back when slapped; Stage updates each actor then resets its slapped flag. With order Harry, Baldy, Chump, one slap propagates around the circle in a single frame. Reordering the array makes it cascade one actor per frame. Because update reads and writes the same state, results depend on order, violating the requirement that actors appear to update in parallel.",
+            "zh": "每个喜剧演员面朝另一个人，被打了就回打对方一巴掌；Stage 依次更新每个演员，然后重置其“被打”标志。按 Harry、Baldy、Chump 的顺序时，一记耳光在一帧内就传遍一圈；调换数组顺序后，它变成每帧只传一个人。因为更新时读写的是同一份状态，结果取决于顺序，违背了“演员看起来同时更新”的要求。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "Buffered slaps",
+            "zh": "缓冲的耳光"
+          },
+          "title": {
+            "en": "Buffering each actor's slapped state",
+            "zh": "缓冲每个演员的“被打”状态"
+          },
+          "body": {
+            "en": "Buffer at finer granularity: each actor has currentSlapped_ (read) and nextSlapped_ (written by slap()). reset() becomes swap(), copying next into current and clearing next. Stage updates all actors first, then swaps all of them, so a slap is seen in the next frame regardless of array order.",
+            "zh": "以更细的粒度进行缓冲：每个演员有 currentSlapped_（用于读取）和 nextSlapped_（由 slap() 写入）。reset() 变成 swap()：把 next 复制到 current，再清空 next。Stage 先更新所有演员，再统一交换所有演员的状态，于是无论数组顺序如何，耳光都会在下一帧被看到。"
+          },
+          "code": "void swap() {\n  // Swap the buffer.\n  currentSlapped_ = nextSlapped_;\n  // Clear the new \"next\" buffer.\n  nextSlapped_ = false;\n}\n\nvoid Stage::update() {\n  for (int i = 0; i < NUM_ACTORS; i++) actors_[i]->update();\n  for (int i = 0; i < NUM_ACTORS; i++) actors_[i]->swap();\n}"
+        }
+      ]
+    },
+    {
+      "num": "8.7",
+      "title": {
+        "en": "Design Decisions",
+        "zh": "设计决策"
+      },
+      "points": [
+        {
+          "subsection": {
+            "en": "How are the buffers swapped?",
+            "zh": "如何交换缓冲区？"
+          },
+          "title": {
+            "en": "Swap pointers or references",
+            "zh": "交换指针或引用"
+          },
+          "body": {
+            "en": "Swapping pointers is fast regardless of buffer size. But outside code can't store persistent pointers into the buffer, which rules it out when the video driver expects a fixed framebuffer location. Also, existing data on a buffer is from two frames ago, not the last frame, which matters for tricks like motion blur that reuse old data.",
+            "zh": "交换指针很快，与缓冲区大小无关。但外部代码不能长期保存指向缓冲区的指针；如果视频驱动要求帧缓冲区固定在某个内存地址，就不能用这种方式。另外，缓冲区中已有的数据来自两帧之前而不是上一帧，这对动态模糊这类复用旧数据的技巧很重要。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "How are the buffers swapped?",
+            "zh": "如何交换缓冲区？"
+          },
+          "title": {
+            "en": "Copy the data between buffers",
+            "zh": "在缓冲区之间复制数据"
+          },
+          "body": {
+            "en": "If readers can't be repointed, copy next into current, as the comedians do (copying one bool is as cheap as a pointer). Data on the next buffer is then only one frame old. The big downside: copying a large buffer like a whole framebuffer takes significant time, during which nothing can read or write either buffer.",
+            "zh": "如果无法让使用者改指向另一个缓冲区，就把下一缓冲区的数据复制到当前缓冲区，喜剧演员示例就是这样做的（复制一个布尔值和复制指针一样便宜）。这样下一缓冲区中的数据只旧一帧。最大的缺点是：复制整个帧缓冲区这样的大缓冲区耗时可观，而期间两个缓冲区都不能被读写。"
+          }
+        },
+        {
+          "subsection": {
+            "en": "What is the granularity of the buffer?",
+            "zh": "缓冲区的粒度如何？"
+          },
+          "title": {
+            "en": "Monolithic vs. distributed buffers",
+            "zh": "整体缓冲区与分散缓冲区"
+          },
+          "body": {
+            "en": "A monolithic buffer (the graphics example) is simpler to swap: one swap, even just a couple of pointer assignments. Data distributed across many objects (the actors) is slower, since each object must swap. If you don't otherwise touch old data, store slapped_[2] per object and a static current_ index; a single static swap() flips the index for every actor at once.",
+            "zh": "整体式缓冲区（如图形示例）交换起来更简单：只需一次交换，甚至只是几次指针赋值。数据分散在许多对象中（如演员示例）时交换更慢，因为每个对象都要交换。如果平时不需要访问旧数据，可以让每个对象保存 slapped_[2]，再用一个静态的 current_ 索引；只需调用一次静态的 swap() 翻转索引，所有演员的状态就一起交换了。"
+          },
+          "code": "class Actor {\npublic:\n  static void init() { current_ = 0; }\n  static void swap() { current_ = next(); }\n\n  void slap() { slapped_[next()] = true; }\n  bool wasSlapped() { return slapped_[current_]; }\n\nprivate:\n  static int current_;\n  static int next() { return 1 - current_; }\n\n  bool slapped_[2];\n};"
+        }
+      ]
+    },
+    {
+      "num": "8.8",
+      "title": {
+        "en": "See Also",
+        "zh": "参考"
+      },
+      "points": [
+        {
+          "title": {
+            "en": "Double buffering in graphics APIs",
+            "zh": "图形 API 中的双缓冲"
+          },
+          "body": {
+            "en": "Double Buffer appears in almost every graphics API: OpenGL has swapBuffers(), Direct3D has \"swap chains\", and Microsoft's XNA framework swaps framebuffers within its endDraw() method.",
+            "zh": "几乎所有图形 API 中都能找到双缓冲：OpenGL 有 swapBuffers()，Direct3D 有“交换链”（swap chain），微软的 XNA 框架在 endDraw() 方法中交换帧缓冲区。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    {
+      "en": "double buffering",
+      "zh": "双缓冲"
+    },
+    {
+      "en": "framebuffer",
+      "zh": "帧缓冲区"
+    },
+    {
+      "en": "tearing",
+      "zh": "画面撕裂"
+    },
+    {
+      "en": "current buffer / next buffer",
+      "zh": "当前缓冲区 / 下一缓冲区"
+    },
+    {
+      "en": "swap",
+      "zh": "交换"
+    },
+    {
+      "en": "atomic",
+      "zh": "原子的"
+    },
+    {
+      "en": "pixel format / color depth",
+      "zh": "像素格式 / 色深"
+    },
+    {
+      "en": "granularity",
+      "zh": "粒度"
+    },
+    {
+      "en": "motion blur",
+      "zh": "动态模糊"
+    },
+    {
+      "en": "swap chain",
+      "zh": "交换链"
+    }
+  ],
+  "exercises": [
+    {
+      "type": "fill",
+      "ref": "8.1",
+      "q": "Intent: Cause a series of ___ operations to appear instantaneous or simultaneous（让一系列顺序操作看起来瞬间或同时完成）。",
+      "answer": [
+        "sequential",
+        "顺序",
+        "顺序的",
+        "顺序执行的"
+      ],
+      "explain": "计算机本质上是顺序执行的，双缓冲让外部只看到完整结果。"
+    },
+    {
+      "type": "choice",
+      "ref": "8.2",
+      "q": "What is \"tearing\"? 画面撕裂是怎么产生的？",
+      "options": [
+        "The GPU overheats and drops frames",
+        "The video driver reads the framebuffer while it's only partly drawn, so the user sees half an image",
+        "Two buffers are swapped too slowly",
+        "The pixel format has too few bits"
+      ],
+      "answer": 1,
+      "explain": "驱动扫描速度超过了渲染速度，读到了尚未写入的像素，看起来下半部分像被撕掉了。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "8.2",
+      "q": "在双舞台类比中，熄灯的舞台对应正被视频硬件读取的当前帧缓冲区。",
+      "answer": false,
+      "explain": "False. The darkened stage is the buffer being written (next buffer); the lit stage is the one being read (current)."
+    },
+    {
+      "type": "choice",
+      "ref": "8.3",
+      "q": "In the Double Buffer pattern, reads and writes go to which buffers? 读写分别发生在哪个缓冲区？",
+      "options": [
+        "Both read and write the current buffer",
+        "Read next, write current",
+        "Read current, write next（读当前，写下一个）",
+        "Alternate randomly each frame"
+      ],
+      "answer": 2,
+      "explain": "修改完成后交换，下一缓冲区公开可见，旧的当前缓冲区复用为新的下一缓冲区。"
+    },
+    {
+      "type": "open",
+      "ref": "8.4",
+      "q": "List the four conditions under which Double Buffer is appropriate. 用中英文作答。",
+      "answer": "EN: (1) Some state is modified incrementally; (2) it may be accessed in the middle of modification; (3) we want to prevent code accessing it from seeing work in progress; (4) we want to read it without waiting while it's being written. 中：(1) 状态被逐步修改；(2) 可能在修改中途被访问；(3) 希望访问方看不到修改中的半成品；(4) 希望读取时无需等待写入完成。",
+      "explain": "四个条件需同时满足。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "8.5",
+      "q": "If swapping the buffers takes longer than modifying the state itself, double buffering hasn't helped at all.",
+      "answer": true,
+      "explain": "True. 交换必须是原子的，且应足够快（通常只是指针赋值）。另一代价是内存翻倍。"
+    },
+    {
+      "type": "choice",
+      "ref": "8.6",
+      "q": "In the original (unbuffered) comedian stage, why does the slap result change when the actors are reordered?",
+      "options": [
+        "Actors read and modify the same slapped state during the update, so earlier updates affect later ones in the same frame",
+        "The video driver interrupts the update",
+        "Comedians face different actors after reordering",
+        "reset() is never called"
+      ],
+      "answer": 0,
+      "explain": "修改与读取的是同一份状态，结果依赖于更新顺序——违背了“同时更新”的要求。"
+    },
+    {
+      "type": "fill",
+      "ref": "8.6",
+      "q": "In the buffered version, Stage first updates all actors and then calls ___() on all of them, so a slap is seen in the next frame（无论顺序如何）。",
+      "answer": [
+        "swap",
+        "交换"
+      ],
+      "explain": "swap() 把 nextSlapped_ 复制到 currentSlapped_，然后清空 nextSlapped_。"
+    },
+    {
+      "type": "choice",
+      "ref": "8.7",
+      "q": "When swapping by pointers, 缓冲区里已有的数据是多久之前的？",
+      "options": [
+        "From the last frame",
+        "Always cleared",
+        "From the current frame",
+        "From two frames ago"
+      ],
+      "answer": 3,
+      "explain": "Frames alternate between buffers A and B without copying, so buffer A holds frame 1 when drawing frame 3. 复用旧数据（如动态模糊）时要注意。"
+    },
+    {
+      "type": "open",
+      "ref": "8.7",
+      "q": "When data is distributed across many objects, how can you get monolithic-buffer swap performance? 请说明作者的优化。",
+      "answer": "EN: Give each object a two-element array (slapped_[2]) and keep a single static current_ index; next() is 1 - current_. A single static swap() flips the index, swapping every object's state at once. 中：让每个对象保存两元素数组 slapped_[2]，并使用一个静态的 current_ 索引，next() 为 1 - current_。只需调用一次静态 swap() 翻转索引，就能同时交换所有对象的状态。",
+      "explain": "适用于不需要额外访问旧缓冲区数据的情况；把“当前/下一”指针变成对象内的相对偏移。"
+    }
+  ]
+}

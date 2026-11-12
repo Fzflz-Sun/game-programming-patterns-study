@@ -1,0 +1,333 @@
+{
+  "id": "dirty-flag",
+  "title": { "en": "Dirty Flag", "zh": "脏标记模式" },
+  "summary": {
+    "en": "A dirty flag marks derived data as out of date when its primary data changes, so the expensive recalculation or synchronization is deferred until the result is actually needed, and done only once no matter how many changes happened in between.",
+    "zh": "脏标记在主数据发生变化时把派生数据标记为“过期”，从而把昂贵的重新计算或同步推迟到真正需要结果的时候，并且无论期间发生了多少次修改，都只做一次。"
+  },
+  "sections": [
+    {
+      "num": "18.1",
+      "title": { "en": "Intent", "zh": "意图" },
+      "points": [
+        {
+          "title": { "en": "Defer work until it's needed", "zh": "把工作推迟到需要时再做" },
+          "body": {
+            "en": "The intent of the pattern is to avoid unnecessary work by deferring it until the result is needed.",
+            "zh": "该模式的意图是：将工作推迟到真正需要结果时再进行，以避免不必要的工作。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.2",
+      "title": { "en": "Motivation", "zh": "动机" },
+      "points": [
+        {
+          "title": { "en": "Hierarchical scene graphs", "zh": "层级化的场景图" },
+          "body": {
+            "en": "A scene graph holds all objects in the world, each with a model and a transform (a 4x4 matrix of position, rotation and scale). Most scene graphs are hierarchical: an object's transform is relative to its parent, so a pirate on a crow's nest on a ship moves along automatically when the ship moves. The parent-relative transform is the local transform; rendering needs the world transform.",
+            "zh": "场景图包含世界中的所有对象，每个对象都有一个模型和一个变换（表示位置、旋转和缩放的 4x4 矩阵）。大多数场景图是层级化的：对象的变换相对于其父对象，所以船移动时，瞭望台上的海盗会自动跟着移动。相对于父对象的变换称为局部变换，而渲染需要的是世界变换。"
+          }
+        },
+        {
+          "title": { "en": "Computing world transforms is on the hot path", "zh": "计算世界变换处于热点路径上" },
+          "subsection": { "en": "Local and world transforms", "zh": "局部变换与世界变换" },
+          "body": {
+            "en": "An object's world transform is found by combining the local transforms along its parent chain from the root down. Every object needs it every frame, so it is performance-critical. Simply recomputing all world transforms on the fly while rendering is wasteful, because much of the world, such as static level geometry, never moves.",
+            "zh": "对象的世界变换是从根节点向下沿父链依次组合各局部变换得到的。每个对象每帧都需要它，所以这是性能关键的。在渲染时即时重算所有世界变换是很浪费的，因为世界中有大量对象（如关卡的静态几何体）根本不动。"
+          }
+        },
+        {
+          "title": { "en": "Eager recalculation wastes work", "zh": "立即重算会造成浪费" },
+          "subsection": { "en": "Cached world transforms", "zh": "缓存世界变换" },
+          "body": {
+            "en": "Caching each object's world transform helps static objects, but recalculating eagerly whenever a local transform changes is still wasteful. If the ship, nest, pirate and parrot all move in one frame, that's ten world transform calculations for four moves, and the parrot's is computed four times though rendered once. The problem: one world transform depends on several local transforms.",
+            "zh": "为每个对象缓存世界变换对静止的对象有帮助，但如果每次局部变换改变就立即重算，仍然很浪费。如果船、瞭望台、海盗和鹦鹉在同一帧里都动了，四次移动会导致十次世界变换计算，鹦鹉的世界变换算了四次却只渲染一次。问题在于：一个世界变换依赖于多个局部变换。"
+          }
+        },
+        {
+          "title": { "en": "Deferred recalculation with a flag", "zh": "用标记延迟重算" },
+          "subsection": { "en": "Deferred recalculation", "zh": "延迟重算" },
+          "body": {
+            "en": "Decouple changing local transforms from updating world transforms: add a flag to each object, set it when the local transform changes, and when the world transform is needed, recalculate only if the flag is set, then clear it. The flag means \"is the world transform out of date?\", traditionally called \"dirty\" (also \"dirty bit\").",
+            "zh": "把修改局部变换与更新世界变换解耦：为每个对象加一个标记，局部变换改变时设置它；需要世界变换时，只有在标记被设置时才重新计算，然后清除标记。这个标记表示“世界变换是否已过期？”，传统上称为“脏”（也叫“脏位”）。"
+          }
+        },
+        {
+          "title": { "en": "What a single bit buys", "zh": "一个比特带来的好处" },
+          "subsection": { "en": "Deferred recalculation", "zh": "延迟重算" },
+          "body": {
+            "en": "Each affected world transform is calculated exactly once. The flag collapses modifications to multiple local transforms along a parent chain into a single recalculation, avoids recalculation for objects that didn't move, and skips the calculation entirely for objects removed before being rendered.",
+            "zh": "每个受影响的世界变换都恰好只计算一次。这个标记把父链上多个局部变换的修改合并为对象上的一次重算，避免了对未移动对象的重算，而且如果对象在渲染前就被移除，则完全不会计算它的世界变换。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.3",
+      "title": { "en": "The Pattern", "zh": "模式" },
+      "points": [
+        {
+          "title": { "en": "Primary data, derived data, and a dirty flag", "zh": "主数据、派生数据与脏标记" },
+          "body": {
+            "en": "A set of primary data changes over time, and a set of derived data is determined from it by some expensive process. A dirty flag tracks when the derived data is out of sync: it is set when the primary data changes. When the derived data is needed, if the flag is set it is reprocessed and the flag cleared; otherwise the cached derived data is used.",
+            "zh": "一组主数据会随时间变化，另一组派生数据通过某个昂贵的过程从主数据得出。脏标记记录派生数据何时与主数据不同步：主数据变化时设置它。需要派生数据时，若标记已设置，就重新处理并清除标记；否则直接使用之前缓存的派生数据。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.4",
+      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "points": [
+        {
+          "title": { "en": "Calculation and synchronization", "zh": "计算与同步" },
+          "body": {
+            "en": "This pattern solves a specific problem and, like most optimizations, should only be used when the performance gain justifies the complexity. It applies to two kinds of costly work: calculation (like the scene graph's math) and synchronization, where the derived data lives elsewhere, on disk or across the network, and moving it is what's expensive.",
+            "zh": "这个模式解决的是一个相当具体的问题，和大多数优化一样，只有当性能收益足以抵消增加的复杂度时才应使用。它适用于两类代价高昂的工作：计算（如场景图中的数学运算）和同步，后者的派生数据位于别处，比如磁盘上或网络另一端的机器上，把数据搬过去本身就很昂贵。"
+          }
+        },
+        {
+          "title": { "en": "Primary data must change more often than it's used", "zh": "主数据的变化必须比派生数据的使用更频繁" },
+          "body": {
+            "en": "The pattern helps by skipping derived data that would be invalidated by a later change before being used. If you always need the derived data after every single modification, it can't help.",
+            "zh": "该模式之所以有效，是因为它跳过了那些在被使用前就会因后续修改而失效的派生数据。如果每次修改主数据后你都需要派生数据，这个模式就帮不上忙。"
+          }
+        },
+        {
+          "title": { "en": "It should be hard to update incrementally", "zh": "派生数据应难以增量更新" },
+          "body": {
+            "en": "For the total weight of booty in a ship's hold, a dirty flag would work, but keeping a running total is simpler: add or subtract each item's weight as it changes. When you can \"pay as you go\" like this, that's usually better than recalculating from scratch.",
+            "zh": "对于船舱里财宝的总重量，用脏标记也可以，但维护一个累计总数更简单：每次增减物品时直接加减其重量。如果能像这样“随用随付”地保持派生数据最新，通常比需要时从头重算更好。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.5",
+      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "points": [
+        {
+          "title": { "en": "Deferring too long has a cost", "zh": "推迟过久是有代价的" },
+          "subsection": { "en": "There is a cost to deferring for too long", "zh": "推迟太久会有代价" },
+          "body": {
+            "en": "When the deferred result is finally needed, it's needed right now, and it's slow, so a big chunk of work can cause a visible pause. Deferring also risks the work never happening: a text editor's \"unsaved changes\" star is a dirty flag, and a power failure before saving loses your document. Auto-save trades lost work against file system thrashing, much like ref counting versus stop-the-world GC.",
+            "zh": "当推迟的结果终于被需要时，往往是马上就要，而计算又很慢，所以一大块工作可能导致明显的卡顿。推迟还有可能让工作根本没被执行：文本编辑器里表示“未保存修改”的星号就是脏标记，若在保存前断电，文档就丢了。自动保存在丢失工作量和频繁写文件之间折中，这和引用计数与“停止世界”式垃圾回收之间的权衡如出一辙。"
+          }
+        },
+        {
+          "title": { "en": "Always set the flag when state changes", "zh": "状态每次变化都必须设置标记" },
+          "subsection": { "en": "You have to make sure to set the flag every time the state changes", "zh": "必须确保每次状态变化时都设置标记" },
+          "body": {
+            "en": "Derived data is essentially a cache, and the hardest part of caching is cache invalidation. Miss setting the flag in one place and the program uses stale data, causing bugs that are very hard to track down. Mitigate this by routing all modifications of the primary data through a single narrow API that sets the flag.",
+            "zh": "派生数据本质上就是缓存，而缓存最难的部分是缓存失效。只要有一处忘了设置标记，程序就会使用过期的数据，产生极难追查的 bug。缓解办法是让所有对主数据的修改都经过一个狭窄的统一接口，并在那里设置标记。"
+          }
+        },
+        {
+          "title": { "en": "Trading memory for speed", "zh": "以内存换速度" },
+          "subsection": { "en": "You have to keep the previous derived data in memory", "zh": "必须在内存中保留之前的派生数据" },
+          "body": {
+            "en": "Using the cached result when the flag is clear means keeping the derived data in memory (less of an issue for synchronization, where it lives elsewhere). The pattern trades memory for speed, which makes sense when calculation is slow and memory is cheap; with more time than memory, calculate on demand instead.",
+            "zh": "标记未设置时要使用缓存的结果，就意味着派生数据必须保留在内存中（用于同步时问题不大，因为派生数据在别处）。该模式以内存换取速度，适用于计算慢而内存便宜的情况；如果时间比内存更充裕，那就应该按需计算。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.6",
+      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "points": [
+        {
+          "title": { "en": "Transform and GraphNode", "zh": "Transform 与 GraphNode" },
+          "body": {
+            "en": "Transform offers origin() (an identity transform) and combine(). A GraphNode has a local transform, a mesh (possibly NULL for grouping nodes) and child nodes; the scene graph is a single root GraphNode. Rendering means traversing the tree and calling renderMesh() with each node's correct world transform.",
+            "zh": "Transform 提供 origin()（单位变换）和 combine()。GraphNode 有一个局部变换、一个网格（仅用于分组的节点可以为 NULL）以及若干子节点；整个场景图就是一个根 GraphNode。渲染就是遍历这棵树，并用每个节点正确的世界变换调用 renderMesh()。"
+          },
+          "code": "class GraphNode {\npublic:\n  GraphNode(Mesh* mesh)\n  : mesh_(mesh),\n    local_(Transform::origin())\n  {}\n\nprivate:\n  Transform local_;\n  Mesh* mesh_;\n  GraphNode* children_[MAX_CHILDREN];\n  int numChildren_;\n};"
+        },
+        {
+          "title": { "en": "The unoptimized traversal", "zh": "未优化的遍历" },
+          "subsection": { "en": "An unoptimized traversal", "zh": "未优化的遍历" },
+          "body": {
+            "en": "render() takes the parent's world transform, combines it with its own local transform, draws the mesh, and recurses into children. No walking up the parent chain is needed since world transforms are built while walking down. It is correct but calls combine() on every node every frame.",
+            "zh": "render() 接收父节点的世界变换，与自身局部变换组合后绘制网格，再递归处理子节点。由于是向下遍历时逐步构建世界变换，所以不需要向上回溯父链。它是正确的，但每帧都对每个节点调用 combine()。"
+          },
+          "code": "void GraphNode::render(Transform parentWorld) {\n  Transform world = local_.combine(parentWorld);\n  if (mesh_) renderMesh(mesh_, world);\n  for (int i = 0; i < numChildren_; i++) {\n    children_[i]->render(world);\n  }\n}"
+        },
+        {
+          "title": { "en": "Cached world_ and dirty_ fields", "zh": "缓存的 world_ 与 dirty_ 字段" },
+          "subsection": { "en": "Let's get dirty", "zh": "动手加入脏标记" },
+          "body": {
+            "en": "Add world_ to cache the computed world transform and dirty_ as the flag. The flag starts true because a new node's world transform hasn't been calculated yet. setTransform() updates the local transform and sets the flag.",
+            "zh": "增加 world_ 用于缓存计算好的世界变换，并增加 dirty_ 作为标记。标记初始为 true，因为新节点的世界变换尚未计算过。setTransform() 在更新局部变换的同时设置标记。"
+          },
+          "code": "void GraphNode::setTransform(Transform local) {\n  local_ = local;\n  dirty_ = true;\n}"
+        },
+        {
+          "title": { "en": "Passing dirtiness down the tree", "zh": "沿树向下传递“脏”状态" },
+          "subsection": { "en": "Let's get dirty", "zh": "动手加入脏标记" },
+          "body": {
+            "en": "Instead of recursively marking every child dirty in setTransform(), render() takes a dirty parameter that is true if any ancestor was dirty, and ORs in its own flag. Clean nodes skip combine() and reuse world_. Moving a node is just a couple of assignments, and rendering recomputes the minimum number of transforms. This works only because render() is the sole user of the world transform.",
+            "zh": "不在 setTransform() 中递归标记所有子节点，而是让 render() 接收一个 dirty 参数：只要任一祖先是脏的，它就为 true，再与自身标记做或运算。干净的节点跳过 combine()，直接复用 world_。移动节点只需几次赋值，渲染时只重算最少数量的变换。这一技巧之所以可行，是因为 render() 是世界变换的唯一使用者。"
+          },
+          "code": "void GraphNode::render(Transform parentWorld, bool dirty) {\n  dirty |= dirty_;\n  if (dirty) {\n    world_ = local_.combine(parentWorld);\n    dirty_ = false;\n  }\n\n  if (mesh_) renderMesh(mesh_, world_);\n\n  for (int i = 0; i < numChildren_; i++) {\n    children_[i]->render(world_, dirty);\n  }\n}"
+        },
+        {
+          "title": { "en": "Is the branch really cheaper?", "zh": "分支真的更便宜吗？" },
+          "subsection": { "en": "Let's get dirty", "zh": "动手加入脏标记" },
+          "body": {
+            "en": "There's a subtle assumption that the if check is faster than a matrix multiply. Intuitively it is, but modern CPUs rely on pipelining, and a branch can cause a misprediction that forces the CPU to refill the pipeline.",
+            "zh": "这里有一个隐含假设：if 判断比矩阵乘法更快。直觉上确实如此，但现代 CPU 高度依赖流水线，一个分支可能导致预测失败，迫使 CPU 重新填充流水线而浪费周期。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.7",
+      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "points": [
+        {
+          "title": { "en": "Clean when the result is needed", "zh": "在需要结果时清理" },
+          "subsection": { "en": "When is the dirty flag cleaned?", "zh": "何时清除脏标记？" },
+          "body": {
+            "en": "This avoids the calculation entirely if the result is never used, a big win when primary data changes much more often than it's accessed. But a time-consuming calculation can cause a noticeable pause right when the player expects the result.",
+            "zh": "如果结果从未被使用，就完全不必计算；当主数据的变化远比派生数据的访问频繁时，这是很大的收益。但如果计算很耗时，就可能在玩家期待看到结果时造成明显的卡顿。"
+          }
+        },
+        {
+          "title": { "en": "Clean at well-defined checkpoints", "zh": "在明确的检查点清理" },
+          "subsection": { "en": "When is the dirty flag cleaned?", "zh": "何时清除脏标记？" },
+          "body": {
+            "en": "Process at natural points, such as saving when the pirate sails into port, or hide the work behind a loading screen or cut scene, so it doesn't hurt the user experience. The downside is losing control over when the work happens: the player might never reach the checkpoint, so work can be deferred longer than expected.",
+            "zh": "在自然的时机进行处理，比如海盗船驶入港口时才存档，或者把工作藏在加载画面或过场动画背后，这样就不影响用户体验。缺点是失去了对工作发生时间的控制：玩家可能永远到不了检查点，于是工作可能被推迟得比预期更久。"
+          }
+        },
+        {
+          "title": { "en": "Clean in the background", "zh": "在后台清理" },
+          "subsection": { "en": "When is the dirty flag cleaned?", "zh": "何时清除脏标记？" },
+          "body": {
+            "en": "Start a fixed timer on the first modification and process all changes when it fires (an intentional delay known as hysteresis). You can tune the frequency, but may do redundant work processing mostly unchanged data, and you need asynchronous support such as threading, with safe handling of concurrent modification.",
+            "zh": "在第一次修改时启动一个固定计时器，计时器触发时处理期间的所有修改（这种有意的延迟称为“滞后”）。你可以调节处理的频率，但可能做冗余工作，处理大量几乎没变的数据；而且需要线程等异步支持，并要安全地处理并发修改。"
+          }
+        },
+        {
+          "title": { "en": "Fine-grained vs. coarse-grained tracking", "zh": "细粒度与粗粒度的追踪" },
+          "subsection": { "en": "How fine-grained is your dirty tracking?", "zh": "脏标记的粒度有多细？" },
+          "body": {
+            "en": "For a ship saved online, a flag per plank means only data that actually changed is processed and sent. A flag per deck processes unchanged data (adding one barrel sends the whole deck), but uses less memory for flags and spends less time on fixed per-chunk overhead such as metadata.",
+            "zh": "对于在线保存的船，每块木板一个标记意味着只处理和发送真正改变的数据。每层甲板一个标记则会处理未改变的数据（加一个木桶就要发送整层甲板），但存储标记所需的内存更少，花在每块数据的固定开销（如元数据）上的时间也更少。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "18.8",
+      "title": { "en": "See Also", "zh": "参见" },
+      "points": [
+        {
+          "title": { "en": "Web frameworks and physics engines", "zh": "Web 框架与物理引擎" },
+          "body": {
+            "en": "Outside games, browser-side frameworks like Angular use dirty flags to track which data changed and must be pushed to the server. Physics engines track which bodies are moving versus resting; a resting body needs no processing until an impulse touches it, so this \"is moving\" bit is a dirty flag.",
+            "zh": "在游戏之外，像 Angular 这样的浏览器端框架用脏标记追踪哪些数据已变化、需要推送到服务器。物理引擎会追踪哪些物体在运动、哪些处于静止；静止物体在受到冲量之前无需处理，所以这个“是否在运动”的位就是一个脏标记。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "dirty flag / dirty bit", "zh": "脏标记 / 脏位" },
+    { "en": "primary data", "zh": "主数据" },
+    { "en": "derived data", "zh": "派生数据" },
+    { "en": "scene graph", "zh": "场景图" },
+    { "en": "local transform", "zh": "局部变换" },
+    { "en": "world transform", "zh": "世界变换" },
+    { "en": "cache invalidation", "zh": "缓存失效" },
+    { "en": "hysteresis", "zh": "滞后" },
+    { "en": "deferred recalculation", "zh": "延迟重算" },
+    { "en": "granularity", "zh": "粒度" }
+  ],
+  "exercises": [
+    {
+      "type": "fill",
+      "ref": "18.1",
+      "q": "Dirty Flag 的意图：Avoid unnecessary work by ___ it until the result is needed.",
+      "answer": ["deferring", "defer", "推迟", "延迟"],
+      "explain": "把工作推迟到需要结果时再做（deferring work until needed）。"
+    },
+    {
+      "type": "choice",
+      "ref": "18.2",
+      "q": "In the eager-recalculation example, ship, crow's nest, pirate and parrot all move in one frame. 一共计算了多少次世界变换？",
+      "options": ["4", "1", "10", "16"],
+      "answer": 2,
+      "explain": "1+2+3+4 = 10 calculations for 4 moves; six are wasted. 鹦鹉的世界变换被算了 4 次但只渲染 1 次。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "18.2",
+      "q": "With a dirty flag, an object removed before it is rendered never has its world transform calculated.",
+      "answer": true,
+      "explain": "正确，这是作者提到的一个小额外好处：计算被推迟到渲染时，对象提前被移除就完全不必计算。"
+    },
+    {
+      "type": "choice",
+      "ref": "18.4",
+      "q": "以下哪种情况最不适合使用脏标记？ / Which case is the worst fit for a dirty flag?",
+      "options": ["派生数据计算昂贵且主数据频繁变化", "需要把修改同步到远程服务器", "主数据变化很多次后才渲染一次", "每次修改主数据后都立即需要派生数据，且可以轻松维护累计值"],
+      "answer": 3,
+      "explain": "The pattern needs primary data to change more often than derived data is used, and should be hard to update incrementally. 能“随用随付”（running total）时就不需要脏标记。"
+    },
+    {
+      "type": "fill",
+      "ref": "18.5",
+      "q": "Phil Karlton: “There are only two hard things in Computer Science: cache ___ and naming things.”",
+      "answer": ["invalidation", "失效"],
+      "explain": "派生数据就是缓存；忘记在某处设置脏标记就会使用过期数据。"
+    },
+    {
+      "type": "open",
+      "ref": "18.5",
+      "q": "How can you make sure the dirty flag is never forgotten? 如何避免漏设脏标记？",
+      "answer": "EN: Encapsulate all modifications of the primary data behind a single narrow API (e.g. setTransform()) and set the dirty flag there, so no code path can change the state without marking it dirty. 中：把所有对主数据的修改封装在一个狭窄的接口后面（如 setTransform()），在该接口中设置脏标记，这样任何修改都不会漏掉标记。",
+      "explain": "关键词：encapsulation（封装）、single narrow API（单一狭窄接口）。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "18.5",
+      "q": "脏标记模式是以速度换内存（trades speed for memory）的优化。",
+      "answer": false,
+      "explain": "False. It trades memory for speed: you keep the derived data cached to avoid recalculating it. 它以内存换速度；压缩算法则恰好相反。"
+    },
+    {
+      "type": "choice",
+      "ref": "18.6",
+      "q": "Why does a new GraphNode start with dirty_ = true? 为什么新节点的 dirty_ 初始为 true？",
+      "options": ["Its world transform has never been calculated, so it's already out of sync（世界变换尚未计算，已不同步）", "To force its children to be deleted", "Because bool defaults to true in C++", "So that it is skipped in the first render"],
+      "answer": 0,
+      "explain": "At birth, the node's cached world_ hasn't been computed yet. 新节点生来就与局部变换不同步。"
+    },
+    {
+      "type": "open",
+      "ref": "18.6",
+      "q": "render(parentWorld, dirty) 中的 dirty 参数起什么作用？Why is this trick valid?",
+      "answer": "EN: The dirty parameter is true if any ancestor in the parent chain was dirty; each node ORs in its own flag. This avoids recursively marking every child dirty in setTransform(). It works only because render() is the only code that needs an up-to-date world transform. 中：dirty 参数表示父链上是否有任一祖先是脏的，每个节点再与自身标记做或运算，从而无需在 setTransform() 中递归标记所有子节点。此技巧成立的前提是 render() 是唯一需要最新世界变换的地方。",
+      "explain": "类似 parentWorld 沿树向下增量计算世界变换，dirty 沿树向下传递父链的“脏”状态。"
+    },
+    {
+      "type": "choice",
+      "ref": "18.7",
+      "q": "Cleaning the dirty flag “in the background” with a timer — 以下哪项是它的缺点？",
+      "options": ["无法调节处理频率", "需要异步/线程支持，并可能重复处理大量未变化的数据", "结果永远不会被计算", "必须等玩家到达检查点"],
+      "answer": 1,
+      "explain": "Background processing needs concurrency support and may do redundant work. 检查点方案的缺点才是“失去对时机的控制”。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "18.7",
+      "q": "Coarse-grained dirty tracking (one flag per deck) spends less time on fixed per-chunk overhead than fine-grained tracking.",
+      "answer": true,
+      "explain": "正确。块越大，块数越少，元数据等固定开销越少；代价是会处理未改变的数据。"
+    }
+  ]
+}

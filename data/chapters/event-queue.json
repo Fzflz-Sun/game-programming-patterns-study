@@ -1,0 +1,336 @@
+{
+  "id": "event-queue",
+  "title": { "en": "Event Queue", "zh": "事件队列" },
+  "summary": {
+    "en": "An event queue decouples when a message or event is sent from when it is processed. Senders push requests into a FIFO queue and return immediately; the receiver pulls them at a convenient time, so it can defer, aggregate, or move processing to another thread — at the cost of the sender losing control and getting no response.",
+    "zh": "事件队列把消息或事件的发送时机与处理时机解耦。发送方把请求放进先进先出的队列后立即返回；接收方在方便的时候再取出处理，因此可以推迟处理、合并请求，或者把处理转移到另一个线程——代价是发送方失去控制权，也得不到响应。"
+  },
+  "sections": [
+    {
+      "num": "15.1",
+      "title": { "en": "Intent", "zh": "意图" },
+      "points": [
+        {
+          "title": { "en": "Decouple sending from processing", "zh": "把发送与处理解耦" },
+          "body": {
+            "en": "The intent of Event Queue is to decouple when a message or event is sent from when it is processed.",
+            "zh": "事件队列模式的意图是：将消息或事件的发送时机与处理时机解耦。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.2",
+      "title": { "en": "Motivation", "zh": "动机" },
+      "points": [
+        {
+          "title": { "en": "GUI event loops", "zh": "GUI 事件循环" },
+          "subsection": { "en": "GUI event loops", "zh": "GUI 事件循环" },
+          "body": {
+            "en": "In event-driven UI programming, the OS generates an event for every click or key press, and an event loop calls getNextEvent() to pull them in. Unlike interrupts, the app pulls events when it wants them, so input must wait somewhere in the meantime — a queue of unprocessed events from which the oldest is taken first.",
+            "zh": "在事件驱动的 UI 编程中，用户每次点击或按键，操作系统都会生成一个事件，程序中的事件循环调用 getNextEvent() 把它取进来。与中断不同，应用程序是在自己需要时才拉取事件，所以在此之前输入必须暂存在某处——也就是一个未处理事件的队列，每次取出最旧的那个。"
+          },
+          "code": "while (running) {\n  Event event = getNextEvent();\n  // Handle event...\n}"
+        },
+        {
+          "title": { "en": "A central event bus", "zh": "中央事件总线" },
+          "subsection": { "en": "Central event bus", "zh": "中央事件总线" },
+          "body": {
+            "en": "Many games have a central event queue as the backbone of their nervous system for high-level communication between decoupled systems. For example, combat code posts an \"enemy died\" event and the tutorial engine, registered for that event, shows \"Press X to grab the loot!\" without the two knowing about each other. This resembles AI blackboard systems.",
+            "zh": "很多游戏都有一个中央事件队列，作为“神经系统”的主干，用于互相解耦的系统之间的高层通信。例如，战斗代码发出一个“敌人死亡”事件，注册了该事件的教程系统就弹出“按 X 拾取战利品！”，而两者彼此并不知道对方的存在。这类似于 AI 领域的黑板系统。"
+          }
+        },
+        {
+          "title": { "en": "Problems with a synchronous audio API", "zh": "同步音频 API 的问题" },
+          "subsection": { "en": "Say what?", "zh": "你说什么？" },
+          "body": {
+            "en": "The author prefers a local example: a static Audio::playSound(id, volume) that loads the sound, finds a channel, and plays it immediately. Three problems emerge: (1) the call blocks the caller until the request is fully processed, freezing the game while sounds load; (2) requests can't be processed in aggregate, so two identical wails in one frame are jarringly loud and hardware channel limits get exceeded; (3) requests run on the caller's thread with no synchronization while the audio thread sits idle.",
+            "zh": "作者倾向于用一个局部的例子：静态函数 Audio::playSound(id, volume) 会立即加载声音、寻找空闲声道并播放。随之出现三个问题：（1）调用会阻塞调用者，直到请求处理完毕，加载声音时游戏会卡住；（2）无法整体处理请求，同一帧里两声相同的惨叫叠加后音量刺耳，同时发声数也会超出硬件上限；（3）请求在调用者的线程上执行且没有任何同步，而专门的音频线程却闲着。"
+          },
+          "code": "void Audio::playSound(SoundId id, int volume) {\n  ResourceId resource = loadSound(id);\n  int channel = findOpenChannel();\n  if (channel == -1) return;\n  startSound(resource, channel, volume);\n}"
+        },
+        {
+          "title": { "en": "Immediacy is the problem", "zh": "问题在于“立即执行”" },
+          "subsection": { "en": "Say what?", "zh": "你说什么？" },
+          "body": {
+            "en": "The common theme: the audio engine treats playSound() as \"drop everything and play right now!\" Callers request at their convenience, which isn't necessarily convenient for the audio engine. The fix is to decouple receiving a request from processing it.",
+            "zh": "这些问题的共同点在于：音频引擎把 playSound() 理解为“放下一切，立刻播放！”调用者在自己方便的时候发出请求，但那未必是音频引擎方便处理的时候。解决办法就是把接收请求与处理请求解耦。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.3",
+      "title": { "en": "The Pattern", "zh": "模式" },
+      "points": [
+        {
+          "title": { "en": "FIFO queue between sender and processor", "zh": "发送者与处理者之间的先进先出队列" },
+          "body": {
+            "en": "A queue stores notifications or requests in first-in, first-out order. Sending enqueues the request and returns; the request processor handles items later, either directly or by routing them to interested parties. This decouples sender from receiver both statically and in time.",
+            "zh": "队列按先进先出（FIFO）的顺序存储一系列通知或请求。发送通知只是把请求入队然后返回；请求处理者稍后再处理队列中的条目，可以直接处理，也可以转发给感兴趣的各方。这使发送者与接收者在静态结构上和时间上都实现了解耦。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.4",
+      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "points": [
+        {
+          "title": { "en": "Only when you need to decouple in time", "zh": "只在需要时间上的解耦时使用" },
+          "body": {
+            "en": "If you only want to decouple who receives a message from its sender, Observer or Command do it with less complexity. You need a queue only to decouple something in time. Treat simplicity as a precious resource.",
+            "zh": "如果只是想把消息的接收者与发送者解耦，观察者或命令模式就能以更低的复杂度做到。只有在需要时间上的解耦时才需要队列。要把简单性当作宝贵的资源。"
+          }
+        },
+        {
+          "title": { "en": "Push on one end, pull on the other", "zh": "一端推，一端拉" },
+          "body": {
+            "en": "Code A naturally pushes a request to B, while B naturally pulls requests at a convenient point in its run cycle. A push model on one end and a pull model on the other needs a buffer between them — that's what a queue provides.",
+            "zh": "代码 A 自然地把请求“推”给 B，而 B 自然地在自己运行周期中方便的时刻把请求“拉”进来。一端是推模型、另一端是拉模型时，两者之间就需要一个缓冲区——这正是队列所提供的。"
+          }
+        },
+        {
+          "title": { "en": "Control moves to the receiver", "zh": "控制权转移给接收者" },
+          "body": {
+            "en": "Queues give control to the reader, which can delay, aggregate, or discard requests, but they take control away from the sender, which can only throw a request on the queue and hope for the best. That makes queues a poor fit when the sender needs a response.",
+            "zh": "队列把控制权交给读取方，它可以推迟、合并甚至丢弃请求；但这同时剥夺了发送方的控制权，发送方只能把请求扔进队列，然后听天由命。因此当发送方需要得到响应时，队列并不合适。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.5",
+      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "points": [
+        {
+          "title": { "en": "A central queue is a global variable", "zh": "中央队列就是全局变量" },
+          "subsection": { "en": "A central event queue is a global variable", "zh": "中央事件队列是一个全局变量" },
+          "body": {
+            "en": "Event queues are complex and have wide-reaching architectural effects. A \"Grand Central Station\" queue that all parts of the game route through is powerful, but it's still global state wrapped in a nice protocol, with all the subtle interdependencies globals bring.",
+            "zh": "事件队列很复杂，对游戏架构的影响也很广泛。让游戏所有部分都通过它转发消息的“中央车站”式队列虽然强大，但它本质上仍是包装在一套协议里的全局状态，带有全局变量引起的种种微妙的相互依赖。"
+          }
+        },
+        {
+          "title": { "en": "The world may change before the event is handled", "zh": "事件被处理前世界可能已经改变" },
+          "subsection": { "en": "The state of the world can change under you", "zh": "世界状态可能在你不知情时改变" },
+          "body": {
+            "en": "An \"entity died\" event may wait several frames; by then the entity may be deallocated and nearby foes gone. Receivers must not assume the current world reflects the moment the event was raised, so queued events tend to be more data-heavy, capturing ephemeral details when sent rather than saying \"something happened\".",
+            "zh": "一个“实体死亡”事件可能在队列中等待好几帧；到被处理时，该实体也许已被释放，附近的敌人也早已走开。接收者不能假定当前的世界状态就是事件发出时的状态，因此排队的事件往往携带更多数据，要在发送时就记录下那些转瞬即逝的细节，而不仅仅是说“发生了某件事”。"
+          }
+        },
+        {
+          "title": { "en": "Feedback loops", "zh": "反馈循环" },
+          "subsection": { "en": "You can get stuck in feedback loops", "zh": "可能陷入反馈循环" },
+          "body": {
+            "en": "A sends an event, B responds with an event A cares about, A responds again, and so on. Synchronous systems find such cycles quickly by overflowing the stack, but a queue's asynchrony unwinds the stack so spurious events may slosh around unnoticed. A common rule: avoid sending events from within code that's handling one; debug logging helps too.",
+            "zh": "A 发出一个事件，B 收到后发出一个 A 关心的事件，A 收到后又发出事件，如此往复。同步系统中这种循环会很快导致栈溢出而暴露出来；但队列的异步性会让调用栈展开，游戏可能照常运行，而无用的事件在队列里来回激荡。常见的规则是：不要在处理事件的代码中再发送事件；加一些调试日志也很有帮助。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.6",
+      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "points": [
+        {
+          "title": { "en": "Reify the request and defer the work", "zh": "把请求实体化并推迟执行" },
+          "body": {
+            "en": "To make playSound() return quickly, reify the request into a PlayMessage struct stored in a plain array — no dynamic allocation, no bookkeeping overhead, cache-friendly contiguous memory. playSound() just appends a message; an update() method (the Update Method pattern), called from the game loop or an audio thread, plays the pending sounds.",
+            "zh": "为了让 playSound() 快速返回，把请求实体化为 PlayMessage 结构体，存放在一个普通数组中——没有动态分配，没有额外的簿记开销，内存连续、缓存友好。playSound() 只负责追加一条消息；再由一个 update() 方法（即更新方法模式），在游戏循环或专门的音频线程中被调用，来播放待处理的声音。"
+          },
+          "code": "struct PlayMessage {\n  SoundId id;\n  int volume;\n};\n\nvoid Audio::playSound(SoundId id, int volume) {\n  assert(numPending_ < MAX_PENDING);\n\n  pending_[numPending_].id = id;\n  pending_[numPending_].volume = volume;\n  numPending_++;\n}"
+        },
+        {
+          "title": { "en": "Ring buffer: head and tail", "zh": "环形缓冲区：头与尾" },
+          "subsection": { "en": "A ring buffer", "zh": "环形缓冲区" },
+          "body": {
+            "en": "To process one request at a time, we need a real queue. A ring buffer keeps the benefits of arrays without shifting elements. The head is the oldest pending request (where we read); the tail is the slot just past the end where the next request is written, so the queue is empty when head == tail.",
+            "zh": "要一次只处理一个请求，就需要真正的队列。环形缓冲区保留了数组的所有优点，又无需移动元素。头（head）指向最旧的待处理请求，是读取的位置；尾（tail）是队列末尾的下一个槽位，下一个请求将写到这里，因此当 head == tail 时队列为空。"
+          }
+        },
+        {
+          "title": { "en": "Wrapping around with modulo", "zh": "用取模实现回绕" },
+          "subsection": { "en": "A ring buffer", "zh": "环形缓冲区" },
+          "body": {
+            "en": "As head and tail crawl right, cells at the beginning become free, so both indices wrap around using modulo the array size — a circular array. An assertion ensures the tail never catches up to the head and overwrites it. If a fixed capacity bothers you, a growable array that doubles in size keeps enqueuing at constant amortized cost.",
+            "zh": "随着头和尾不断右移，数组开头的单元会空出来，所以两个索引都对数组大小取模实现回绕——形成一个环形数组。一条断言保证尾部永远不会追上头部并覆盖它。如果介意容量固定，可以使用可增长数组，满了就扩大一倍，入队操作的均摊复杂度仍是常数。"
+          },
+          "code": "void Audio::playSound(SoundId id, int volume) {\n  assert((tail_ + 1) % MAX_PENDING != head_);\n\n  // Add to the end of the list.\n  pending_[tail_].id = id;\n  pending_[tail_].volume = volume;\n  tail_ = (tail_ + 1) % MAX_PENDING;\n}"
+        },
+        {
+          "title": { "en": "Aggregating duplicate requests", "zh": "合并重复的请求" },
+          "subsection": { "en": "Aggregating requests", "zh": "合并请求" },
+          "body": {
+            "en": "Now that pending requests are visible, playSound() can merge a request matching an already-queued sound, keeping the louder volume. Merging at enqueue time saves slots and is simple, but makes the caller walk the queue (O(n)); you could aggregate in update() or use a hash table instead. Note the aggregation window is only as big as the queue, so processing lag can visibly change behavior.",
+            "zh": "既然能看到待处理的请求，playSound() 就可以把与已入队声音相同的请求合并，并保留较大的音量。在入队时合并能节省槽位且实现简单，但调用者需要遍历整个队列（O(n)）；也可以改在 update() 中合并，或使用哈希表。注意：能合并的“同时”请求的窗口只有队列那么大，因此处理延迟可能会明显影响行为。"
+          },
+          "code": "for (int i = head_; i != tail_; i = (i + 1) % MAX_PENDING) {\n  if (pending_[i].id == id) {\n    // Use the larger of the two volumes.\n    pending_[i].volume = max(volume, pending_[i].volume);\n    // Don't need to enqueue.\n    return;\n  }\n}"
+        },
+        {
+          "title": { "en": "Spanning threads", "zh": "跨越线程" },
+          "subsection": { "en": "Spanning threads", "zh": "跨线程" },
+          "body": {
+            "en": "Games are usually a single process, so threads (e.g. one per domain) are needed to use multiple cores. We now have the three key pieces: requesting is decoupled from playing, a queue marshals between them, and the queue is encapsulated. We just make playSound() and update() thread-safe: playSound() locks briefly, and update() waits on something like a condition variable instead of burning CPU.",
+            "zh": "游戏通常只有一个进程，因此要利用多核就需要多线程（比如每个领域一个线程）。现在我们已经具备三个关键条件：请求声音的代码与播放代码解耦；有一个在两者之间传递数据的队列；队列对程序其他部分是封装的。剩下的只是让 playSound() 和 update() 线程安全：playSound() 只需短暂加锁，update() 则等待条件变量之类的东西，而不是空耗 CPU。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.7",
+      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "points": [
+        {
+          "title": { "en": "Events vs. messages", "zh": "事件与消息" },
+          "subsection": { "en": "What goes in the queue?", "zh": "队列中放什么？" },
+          "body": {
+            "en": "An event describes something that already happened (\"monster died\"): like an asynchronous Observer, it usually has multiple listeners, the sender doesn't care who receives it, and the queue tends to be globally visible. A message describes an action we want in the future (\"play sound\"): like an asynchronous API to a service or a queued Command, it more likely has a single listener.",
+            "zh": "事件描述已经发生的事（“怪物死了”）：类似异步的观察者模式，通常有多个监听者，发送者不关心谁接收，队列的可见范围也往往更广。消息描述我们希望将来发生的动作（“播放声音”）：类似对某个服务的异步 API，或排队的命令（Command），通常只有一个监听者。"
+          }
+        },
+        {
+          "title": { "en": "Single-cast, broadcast, or work queue", "zh": "单播、广播还是工作队列" },
+          "subsection": { "en": "Who can read from the queue?", "zh": "谁可以读取队列？" },
+          "body": {
+            "en": "A single-cast queue fits when the queue is part of a class's API: it's more encapsulated and avoids contention between listeners. A broadcast queue delivers each event to every listener; events with zero listeners are dropped, and filtering may be needed. A work queue gives each item to only one of several listeners (e.g. a thread pool), so it needs scheduling such as round robin.",
+            "zh": "当队列是某个类 API 的一部分时，适合使用单播队列：封装性更好，也不必担心监听者之间的竞争。广播队列把每个事件发给所有监听者；没有监听者时事件会被丢弃，而且可能需要过滤事件。工作队列则把每个条目只交给多个监听者中的一个（例如线程池），因此需要调度策略，比如轮询（round robin）。"
+          }
+        },
+        {
+          "title": { "en": "One writer or many", "zh": "一个写入者还是多个" },
+          "subsection": { "en": "Who can write to the queue?", "zh": "谁可以写入队列？" },
+          "body": {
+            "en": "With one writer, it resembles the synchronous Observer pattern: listeners implicitly know the sender, and there are usually multiple readers. With multiple writers (like playSound() or a global event bus), you must be more careful of cycles, and you'll likely want a reference to the sender in the event itself.",
+            "zh": "只有一个写入者时，它最像同步的观察者模式：监听者隐式地知道事件来自谁，通常允许多个读取者。有多个写入者时（如公开的 playSound() 或全局事件总线），要更加小心循环，而且很可能需要在事件中附带发送者的引用。"
+          }
+        },
+        {
+          "title": { "en": "Lifetime of queued objects", "zh": "队列中对象的生命周期" },
+          "subsection": { "en": "What is the lifetime of the objects in the queue?", "zh": "队列中对象的生命周期是怎样的？" },
+          "body": {
+            "en": "A queued message outlives the call that enqueued it, so it can't live on the stack. In C++, you can pass ownership (sender → queue → receiver, like unique_ptr<T>), share ownership (shared_ptr<T>), or let the queue own it: the sender requests a fresh message living in the queue and fills it in, making the queue's backing store an object pool.",
+            "zh": "入队的消息比入队调用活得更久，所以不能放在栈上。在 C++ 中，可以转移所有权（发送者 → 队列 → 接收者，对应 unique_ptr<T>），可以共享所有权（shared_ptr<T>），也可以让队列拥有它：发送者向队列申请一条位于队列内部的“新”消息并填写内容，这样队列的底层存储就是一个对象池。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "15.8",
+      "title": { "en": "See Also", "zh": "参考" },
+      "points": [
+        {
+          "title": { "en": "Observer's asynchronous cousin and aliases", "zh": "观察者的异步近亲及其别名" },
+          "body": {
+            "en": "Event Queue is in many ways the asynchronous cousin of Observer. \"Message queue\" and \"publish/subscribe\" (pubsub) usually refer to larger-scale systems communicating between applications. State machines that message each other, each with a mailbox of pending inputs, reinvent the actor model; Go's built-in channel is essentially an event or message queue.",
+            "zh": "事件队列在很多方面都是观察者模式的异步近亲。“消息队列”和“发布/订阅”（pubsub）通常指应用程序之间通信的更大规模系统。如果一组状态机彼此发送消息，每个都有一个存放待处理输入的“邮箱”，那就等于重新发明了 Actor 计算模型；Go 语言内置的 channel 本质上就是一个事件或消息队列。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "event queue / message queue", "zh": "事件队列 / 消息队列" },
+    { "en": "event loop", "zh": "事件循环" },
+    { "en": "FIFO (first-in, first-out)", "zh": "先进先出" },
+    { "en": "ring buffer", "zh": "环形缓冲区" },
+    { "en": "head / tail", "zh": "队头 / 队尾" },
+    { "en": "aggregation", "zh": "合并（聚合）" },
+    { "en": "feedback loop", "zh": "反馈循环" },
+    { "en": "broadcast / single-cast", "zh": "广播 / 单播" },
+    { "en": "work queue", "zh": "工作队列" },
+    { "en": "publish/subscribe", "zh": "发布/订阅" },
+    { "en": "actor model", "zh": "Actor 模型" }
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "ref": "15.2",
+      "q": "Which is NOT one of the three problems with the synchronous playSound() API? 以下哪项不是同步音频 API 的问题？",
+      "options": ["It blocks the caller until the sound is processed", "Requests can't be processed in aggregate", "Requests are processed on the wrong thread", "Sound files can't be loaded from disc"],
+      "answer": 3,
+      "explain": "三个问题是：阻塞调用者、无法整体处理请求、在错误的线程上处理。共同根源是“立即执行”（immediacy）。"
+    },
+    {
+      "type": "fill",
+      "ref": "15.3",
+      "q": "An event queue stores requests in ___ order（先进先出）, decoupling sender and receiver both statically and in time.",
+      "answer": ["FIFO", "first-in, first-out", "first-in first-out", "first in first out", "先进先出"],
+      "explain": "发送只是入队并返回，处理者稍后按先进先出顺序处理。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "15.4",
+      "q": "如果只是想 decouple who receives a message from its sender，就应该使用 event queue。",
+      "answer": false,
+      "explain": "False. 只做“谁接收”的解耦，用 Observer 或 Command 更简单；只有需要时间上的解耦（decouple in time）才需要队列。"
+    },
+    {
+      "type": "choice",
+      "ref": "15.4",
+      "q": "When is a queue a poor fit? 什么情况下不适合使用队列？",
+      "options": ["When the receiver wants to aggregate requests", "When the sender needs a response", "When the receiver runs on another thread", "When requests arrive in bursts"],
+      "answer": 1,
+      "explain": "队列把控制权交给接收者、从发送者手中拿走，发送者只能把请求扔进去“听天由命”，拿不到响应。"
+    },
+    {
+      "type": "open",
+      "ref": "15.5",
+      "q": "Why do queued events tend to be more data-heavy than synchronous ones? 请中英文作答。",
+      "answer": "EN: Because the event may be processed frames later, when the world has changed (the entity may be deallocated, nearby foes gone), so the details must be captured at send time rather than looked up by the receiver. 中：因为事件可能在若干帧之后才被处理，那时世界已经变化（实体可能已被释放、附近敌人已离开），所以必须在发送时就把细节记录在事件里，而不能让接收者事后再去查。",
+      "explain": "Synchronous events can just say \"something happened\"; queued events must carry ephemeral details. 同步事件只需说“发生了某事”。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "15.5",
+      "q": "With a queue, feedback loops crash the game quickly by overflowing the stack. 使用队列时，反馈循环会迅速导致栈溢出。",
+      "answer": false,
+      "explain": "False. 这是同步系统的情况；队列的异步性会展开调用栈，游戏可能照常运行而无用事件在队列中来回循环，更难发现。"
+    },
+    {
+      "type": "fill",
+      "ref": "15.6",
+      "q": "In a ring buffer, the queue is empty when head == ___（队尾）.",
+      "answer": ["tail", "tail_", "队尾", "尾"],
+      "explain": "尾指向最后一项的下一个位置（半开区间），所以头尾相等时队列为空。"
+    },
+    {
+      "type": "choice",
+      "ref": "15.6",
+      "q": "How does the ring buffer avoid shifting elements when removing from the front? 环形缓冲区如何避免移动元素？",
+      "options": ["It uses a linked list internally", "It allocates a new array each frame", "It sorts the array after each removal", "It advances head and wraps both indices around using modulo the array size"],
+      "answer": 3,
+      "explain": "head_ = (head_ + 1) % MAX_PENDING；数组开头空出的单元被回绕后的尾部重新利用。"
+    },
+    {
+      "type": "choice",
+      "ref": "15.6",
+      "q": "合并重复声音请求时，作者让合并后的请求使用什么音量？ Which volume is kept?",
+      "options": ["The larger (louder) of the two", "The sum of both volumes", "The average", "Always VOL_MAX"],
+      "answer": 0,
+      "explain": "两次相同的声音叠加会过响，所以合并为一个请求，取 max(volume, pending_[i].volume)。"
+    },
+    {
+      "type": "choice",
+      "ref": "15.7",
+      "q": "A queue where each item goes to only ONE of several listeners (e.g. a thread pool) is called a ___. 每个条目只交给一个监听者的队列叫什么？",
+      "options": ["Broadcast queue（广播队列）", "Work queue（工作队列）", "Single-cast queue（单播队列）", "Mailbox（邮箱）"],
+      "answer": 1,
+      "explain": "工作队列有多个监听者但每项只给一个，需要调度逻辑，如轮询或随机选择。"
+    },
+    {
+      "type": "open",
+      "ref": "15.7",
+      "q": "列出 C++ 中管理队列消息生命周期的三种方式。 List three options for object lifetime in the queue.",
+      "answer": "EN: (1) Pass ownership: sender → queue → receiver, who frees it (unique_ptr<T>); (2) Share ownership: freed when nothing references it (shared_ptr<T>); (3) The queue owns it: the sender requests a fresh message in the queue and fills it in, so the queue's storage is an object pool. 中：（1）转移所有权：发送者 → 队列 → 接收者，由接收者释放（unique_ptr<T>）；（2）共享所有权：没有引用时自动释放（shared_ptr<T>）；（3）队列拥有：发送者向队列申请一条现成的消息并填写，队列的底层存储就是对象池。",
+      "explain": "消息比入队调用活得久，不能放在栈上；有 GC 的语言则无需太担心。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "15.8",
+      "q": "The author calls Event Queue the asynchronous cousin of the Observer pattern. 事件队列是观察者模式的异步近亲。",
+      "answer": true,
+      "explain": "True. 另外 Go 的 channel 本质上也是事件/消息队列。"
+    }
+  ]
+}

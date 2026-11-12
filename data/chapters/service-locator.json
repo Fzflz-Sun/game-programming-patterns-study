@@ -1,0 +1,326 @@
+{
+  "id": "service-locator",
+  "title": { "en": "Service Locator", "zh": "服务定位器" },
+  "summary": {
+    "en": "A service locator provides a global point of access to a service without coupling users to the concrete class that implements it. Like a phone book, it decouples callers from both who the service is (its concrete type) and where it is (how to reach the instance), and enables tricks like null services and logging decorators.",
+    "zh": "服务定位器为某个服务提供全局访问点，同时不让使用者与实现该服务的具体类耦合。它就像一本电话簿，把调用者与服务“是谁”（具体类型）和“在哪里”（如何获取实例）都解耦开，还能实现空服务、日志装饰器等技巧。"
+  },
+  "sections": [
+    {
+      "num": "16.1",
+      "title": { "en": "Intent", "zh": "意图" },
+      "points": [
+        {
+          "title": { "en": "Global access without concrete coupling", "zh": "全局访问而不与具体类耦合" },
+          "body": {
+            "en": "The intent of Service Locator is to provide a global point of access to a service without coupling users to the concrete class that implements it.",
+            "zh": "服务定位器模式的意图是：为某个服务提供一个全局访问点，同时不让使用者与实现该服务的具体类耦合。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "16.2",
+      "title": { "en": "Motivation", "zh": "动机" },
+      "points": [
+        {
+          "title": { "en": "Services that get around", "zh": "无处不在的服务" },
+          "body": {
+            "en": "Some systems — memory allocation, logging, random numbers, audio — are needed almost everywhere and can be thought of as services for the entire game. Audio, for instance, is called from physics (a rock crashing), AI (a sniper's shot), and UI (a menu beep).",
+            "zh": "有些系统——内存分配、日志、随机数、音频——几乎在代码的每个角落都会用到，可以看作是面向整个游戏的服务。比如音频，物理（落石撞地）、AI（狙击手开枪）和 UI（菜单确认音）都会调用它。"
+          }
+        },
+        {
+          "title": { "en": "Static classes and singletons couple too much", "zh": "静态类与单例造成过多耦合" },
+          "body": {
+            "en": "Calling AudioSystem::playSound() or AudioSystem::instance()->playSound() works, but every call site directly references the concrete AudioSystem class and its access mechanism. It's like giving a hundred strangers directions to your house just so they can drop off a letter — and telling each one again when you move.",
+            "zh": "调用 AudioSystem::playSound() 或 AudioSystem::instance()->playSound() 都能达到目的，但每个调用点都直接引用了具体的 AudioSystem 类及其访问方式。这就像为了让一百个陌生人给你送封信，就把你家的详细地址告诉他们——等你搬家时，还得挨个通知每个人新地址。"
+          },
+          "code": "// Use a static class?\nAudioSystem::playSound(VERY_LOUD_BANG);\n\n// Or maybe a singleton?\nAudioSystem::instance()->playSound(VERY_LOUD_BANG);"
+        },
+        {
+          "title": { "en": "The phone book analogy", "zh": "电话簿的比喻" },
+          "body": {
+            "en": "A better solution is a phone book: people look us up by name to get our current address; when we move we just update the book, and we can even list a P.O. box instead of our real address. Service Locator likewise decouples code needing a service from who it is (the concrete type) and where it is (how we get the instance).",
+            "zh": "更好的办法是电话簿：别人按名字查到我们的当前地址；搬家时只需更新电话簿，甚至可以只登记一个邮政信箱而不是真实地址。服务定位器同样把需要服务的代码与服务“是谁”（具体实现类型）和“在哪里”（如何获取实例）解耦。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "16.3",
+      "title": { "en": "The Pattern", "zh": "模式" },
+      "points": [
+        {
+          "title": { "en": "Service, provider, locator", "zh": "服务、服务提供者、定位器" },
+          "body": {
+            "en": "A service class defines an abstract interface to a set of operations. A concrete service provider implements it. A separate service locator gives access to the service by finding an appropriate provider while hiding both the provider's concrete type and the process used to locate it.",
+            "zh": "服务类为一组操作定义抽象接口；具体的服务提供者实现该接口；一个独立的服务定位器负责找到合适的提供者来提供对服务的访问，同时隐藏提供者的具体类型和定位它的过程。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "16.4",
+      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "points": [
+        {
+          "title": { "en": "Sparingly — prefer passing the object", "zh": "谨慎使用——优先直接传参" },
+          "body": {
+            "en": "Anything accessible to every part of the program invites trouble, just like Singleton, so use service locators sparingly. First consider simply passing the object to the code that needs it; that's dead simple, makes the coupling obvious, and covers most needs.",
+            "zh": "让程序的每个部分都能访问某样东西，就是在自找麻烦，这和单例模式的问题一样，所以服务定位器要谨慎使用。首先考虑直接把对象传给需要它的代码：这极其简单，耦合关系一目了然，而且能满足大部分需求。"
+          }
+        },
+        {
+          "title": { "en": "When passing is gratuitous", "zh": "当传参显得多余时" },
+          "body": {
+            "en": "Sometimes passing objects around is gratuitous: logging or memory management shouldn't be in a module's public API, and fundamentally singular facilities like the one audio device are ambient properties not worth plumbing through ten layers. Here the pattern acts as a more flexible, configurable cousin of Singleton — but used poorly it carries Singleton's baggage with worse performance.",
+            "zh": "有时到处传递对象显得多余：日志或内存管理不应该出现在模块的公共 API 中；而像唯一的音频设备这样本质上单一的设施，是环境的固有属性，不值得穿过十层方法传递下去。这时该模式就像单例模式更灵活、更可配置的近亲——但如果用得不好，它会带来单例的所有包袱，而且性能更差。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "16.5",
+      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "points": [
+        {
+          "title": { "en": "Dependencies wired at runtime", "zh": "依赖在运行时才连接" },
+          "body": {
+            "en": "The core difficulty is that a service locator defers wiring up a dependency until runtime. That gives flexibility, but makes it harder to understand dependencies by reading the code.",
+            "zh": "服务定位器的核心难点在于，它把依赖关系（两段代码之间的耦合）推迟到运行时才连接。这带来了灵活性，代价是阅读代码时更难看清依赖关系。"
+          }
+        },
+        {
+          "title": { "en": "Location can fail", "zh": "定位可能失败" },
+          "subsection": { "en": "The service actually has to be located", "zh": "服务必须真的被定位到" },
+          "body": {
+            "en": "With a singleton or static class the instance is always available, but a locator must actually find the service, so we may need to handle failure. A strategy covered later guarantees we always get some service.",
+            "zh": "使用单例或静态类时，所需的实例一定存在；而定位器必须真的找到服务，因此可能需要处理定位失败的情况。后面会介绍一种策略，保证总能得到某个服务。"
+          }
+        },
+        {
+          "title": { "en": "The service must work in any context", "zh": "服务必须在任何情境下都能工作" },
+          "subsection": { "en": "The service doesn’t know who is locating it", "zh": "服务不知道是谁在定位它" },
+          "body": {
+            "en": "Since the locator is global, any code may request and use the service, so it must work correctly in any circumstance. A class meant only for, say, the simulation phase and not rendering shouldn't be exposed to the whole world through this pattern.",
+            "zh": "由于定位器是全局可访问的，任何代码都可能请求并使用该服务，所以服务必须在任何情况下都能正确工作。如果一个类只应在特定情境下使用（比如只在游戏循环的模拟阶段而非渲染阶段使用），就最好不要通过该模式把它暴露给全世界。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "16.6",
+      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "points": [
+        {
+          "title": { "en": "The service interface and provider", "zh": "服务接口与提供者" },
+          "subsection": { "en": "The service", "zh": "服务" },
+          "body": {
+            "en": "The service is an abstract Audio interface with playSound(), stopSound(), and stopAllSounds() and no implementation bound to it. ConsoleAudio is a concrete provider implementing it with the console's audio API.",
+            "zh": "服务是一个抽象的 Audio 接口，包含 playSound()、stopSound() 和 stopAllSounds()，不绑定任何实现。ConsoleAudio 是实现该接口的具体提供者，内部调用主机的音频 API。"
+          },
+          "code": "class Audio {\npublic:\n  virtual ~Audio() {}\n  virtual void playSound(int soundID) = 0;\n  virtual void stopSound(int soundID) = 0;\n  virtual void stopAllSounds() = 0;\n};"
+        },
+        {
+          "title": { "en": "A simple locator via dependency injection", "zh": "通过依赖注入实现的简单定位器" },
+          "subsection": { "en": "A simple locator", "zh": "简单的定位器" },
+          "body": {
+            "en": "The simplest Locator has a static getAudio() and a provide() function. Instead of constructing the service itself, outside code injects it at startup — dependency injection. Callers know only the abstract Audio interface, and not even the locator knows the concrete ConsoleAudio; only the initialization code does.",
+            "zh": "最简单的 Locator 有一个静态的 getAudio() 和一个 provide() 函数。定位器不自己构造服务，而是由外部代码在启动时把服务注入进来——这就是依赖注入。调用者只知道抽象的 Audio 接口，连定位器也不知道具体的 ConsoleAudio，只有初始化代码知道。"
+          },
+          "code": "class Locator {\npublic:\n  static Audio* getAudio() { return service_; }\n\n  static void provide(Audio* service) {\n    service_ = service;\n  }\n\nprivate:\n  static Audio* service_;\n};\n\n// At startup:\nConsoleAudio *audio = new ConsoleAudio();\nLocator::provide(audio);"
+        },
+        {
+          "title": { "en": "The service is unaware of the locator", "zh": "服务并不知道定位器的存在" },
+          "subsection": { "en": "A simple locator", "zh": "简单的定位器" },
+          "body": {
+            "en": "The Audio interface doesn't know it's being accessed through a service locator; it's just a regular abstract base class. So the pattern can be applied to existing classes not designed for it — unlike Singleton, which shapes the design of the service class itself.",
+            "zh": "Audio 接口并不知道自己是通过服务定位器被访问的，在它看来自己只是一个普通的抽象基类。因此该模式可以应用到并非为它而设计的现有类上——这一点与单例不同，单例会影响服务类本身的设计。"
+          }
+        },
+        {
+          "title": { "en": "A null service avoids temporal coupling", "zh": "用空服务避免时序耦合" },
+          "subsection": { "en": "A null service", "zh": "空服务" },
+          "body": {
+            "en": "If the service is used before registration, getAudio() returns NULL and the game crashes — \"temporal coupling\". Using Null Object, a NullAudio provider does nothing; the locator defaults to it in initialize(), checks for NULL in provide() rather than in the accessor (saving cycles on every access), and returns a reference to signal it's never null.",
+            "zh": "如果在注册之前就使用服务，getAudio() 会返回 NULL 导致游戏崩溃——这叫“时序耦合”。借助空对象（Null Object）模式，定义一个什么也不做的 NullAudio 提供者；定位器在 initialize() 中默认指向它，在 provide() 而不是访问函数里检查 NULL（每次访问都能省下几个周期），并返回引用以表明结果永远不会为空。"
+          },
+          "code": "class Locator {\npublic:\n  static void initialize() { service_ = &nullService_; }\n\n  static Audio& getAudio() { return *service_; }\n\n  static void provide(Audio* service) {\n    if (service == NULL) {\n      // Revert to null service.\n      service_ = &nullService_;\n    } else {\n      service_ = service;\n    }\n  }\n\nprivate:\n  static Audio* service_;\n  static NullAudio nullService_;\n};"
+        },
+        {
+          "title": { "en": "Disabling a system on purpose", "zh": "有意禁用某个系统" },
+          "subsection": { "en": "A null service", "zh": "空服务" },
+          "body": {
+            "en": "The null service also makes it easy to intentionally disable a system: just don't register a provider. Turning off audio during development saves memory and CPU — and spares your eardrums when you break into the debugger just as a loud sound starts looping.",
+            "zh": "空服务还让有意禁用某个系统变得很容易：只要不注册提供者即可。开发期间关闭音频可以节省内存和 CPU——更重要的是，当一个巨大的声音刚开始播放时你恰好进入调试器中断，它能保护你的耳膜免受循环尖叫的摧残。"
+          }
+        },
+        {
+          "title": { "en": "A logging decorator", "zh": "日志装饰器" },
+          "subsection": { "en": "Logging decorator", "zh": "日志装饰器" },
+          "body": {
+            "en": "Littering code with log() calls floods everyone with irrelevant messages. With the Decorator pattern, LoggedAudio wraps another provider, logs each call, and forwards it. enableAudioLogging() wraps the current service and swaps it in, enabling selective logging — and it works with the null service, logging sounds even while audio is disabled.",
+            "zh": "在代码中到处调用 log() 会让每个人都淹没在与自己无关的日志里。借助装饰器（Decorator）模式，LoggedAudio 包装另一个提供者，记录每次调用后再转发给它。enableAudioLogging() 把当前服务包装起来并替换进去，从而实现有选择的日志记录——它还能与空服务配合，在禁用音频的同时依然记录本应播放的声音。"
+          },
+          "code": "void enableAudioLogging() {\n  // Decorate the existing service.\n  Audio *service = new LoggedAudio(Locator::getAudio());\n\n  // Swap it in.\n  Locator::provide(service);\n}"
+        }
+      ]
+    },
+    {
+      "num": "16.7",
+      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "points": [
+        {
+          "title": { "en": "Outside code registers the service", "zh": "由外部代码注册服务" },
+          "subsection": { "en": "How is the service located?", "zh": "如何定位服务？" },
+          "body": {
+            "en": "The most common game design: it's fast and simple (getAudio() just returns a pointer, often inlined); we control how the provider is constructed (e.g. networking code builds an online controller provider with the remote player's IP address); and we can swap services at runtime. The downside: the locator depends on outside code having registered the service.",
+            "zh": "这是游戏中最常见的设计：快速而简单（getAudio() 只是返回一个指针，常被内联）；我们可以控制提供者的构造方式（例如由网络代码用远程玩家的 IP 地址构造在线手柄服务提供者）；还可以在游戏运行时切换服务。缺点是：定位器依赖外部代码事先注册好服务。"
+          }
+        },
+        {
+          "title": { "en": "Bind at compile time", "zh": "在编译时绑定" },
+          "subsection": { "en": "How is the service located?", "zh": "如何定位服务？" },
+          "body": {
+            "en": "Preprocessor macros pick the provider at build time. It's as fast as possible and guarantees the service is available if the game compiles, but changing the service requires recompiling and restarting.",
+            "zh": "用预处理宏在构建时选定提供者。这种方式快到极致，并且只要游戏能编译通过就保证服务可用，但要更换服务就必须重新编译并重启游戏。"
+          },
+          "code": "class Locator {\npublic:\n  static Audio& getAudio() { return service_; }\n\nprivate:\n  #if DEBUG\n    static DebugAudio service_;\n  #else\n    static ReleaseAudio service_;\n  #endif\n};"
+        },
+        {
+          "title": { "en": "Configure at runtime", "zh": "在运行时配置" },
+          "subsection": { "en": "How is the service located?", "zh": "如何定位服务？" },
+          "body": {
+            "en": "The enterprise approach: load a config file naming the provider and instantiate it via reflection. You can swap services without recompiling, non-programmers can change them, and one codebase can support multiple configurations (increasingly relevant for diverse mobile devices). But it's complex and burns CPU cycles locating the service.",
+            "zh": "这是企业级软件的做法：加载一个指明提供者的配置文件，再通过反射在运行时实例化它。无需重新编译即可更换服务，非程序员也能修改，同一套代码还能同时支持多种配置（面对五花八门的移动设备，这一点越来越重要）。但它很复杂，而且定位服务要消耗 CPU 周期。"
+          }
+        },
+        {
+          "title": { "en": "If the service can't be located", "zh": "如果找不到服务" },
+          "subsection": { "en": "What happens if the service can’t be located?", "zh": "如果无法定位服务会怎样？" },
+          "body": {
+            "en": "Returning NULL lets each user decide how to handle failure, but every call site must check, and one missed check crashes the game. Asserting declares a missing service a bug in the locator and spares users, but halts the game and can block a large team. A null service keeps the game running and spares users, but an unintentionally missing service is harder to debug. Asserting is most common; on larger teams, add a null service.",
+            "zh": "返回 NULL 让每个使用者自行决定如何处理失败，但每个调用点都必须检查，漏掉一处就会崩溃。断言则声明“找不到服务是定位器的 bug”，使用者无需处理，但游戏会停止运行，可能让大团队的其他人被卡住。空服务让游戏继续运行，使用者也无需处理，但意外缺失的服务更难调试。最常见的是断言；在较大的团队中，建议加上空服务。"
+          }
+        },
+        {
+          "title": { "en": "Global or class-restricted scope", "zh": "全局作用域还是限制在类内" },
+          "subsection": { "en": "What is the scope of the service?", "zh": "服务的作用域是什么？" },
+          "body": {
+            "en": "Global access encourages everyone to use the same service but loses control over where and when it's used. Restricting access to a base class and its descendants (via a protected getAudio()) controls coupling but may duplicate effort for unrelated classes. Guideline: limit domain-specific services (like networking) to a class; make widely used ones (like logging) global.",
+            "zh": "全局访问能促使整个代码库使用同一个服务，但会失去对服务在何处、何时被使用的控制。把访问限制在某个基类及其子类中（通过 protected 的 getAudio()）可以控制耦合，但若多个无关的类都需要该服务，就会产生重复劳动。经验法则：只用于某个领域的服务（如网络）限制在类中；使用广泛的服务（如日志）则设为全局。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "16.8",
+      "title": { "en": "See Also", "zh": "参考" },
+      "points": [
+        {
+          "title": { "en": "Singleton, Unity, XNA", "zh": "单例、Unity 与 XNA" },
+          "body": {
+            "en": "Service Locator is a sibling of Singleton in many ways, so compare both to choose. Unity uses it together with Component in GetComponent(), and XNA's Game class has a GameServices object for registering and locating services of any type.",
+            "zh": "服务定位器在很多方面都是单例模式的兄弟，值得对比两者以选出最适合的。Unity 在 GetComponent() 方法中把它与组件模式结合使用；XNA 的 Game 类内置了一个 GameServices 对象，可以注册和定位任意类型的服务。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "service", "zh": "服务" },
+    { "en": "service provider", "zh": "服务提供者" },
+    { "en": "service locator", "zh": "服务定位器" },
+    { "en": "dependency injection", "zh": "依赖注入" },
+    { "en": "temporal coupling", "zh": "时序耦合" },
+    { "en": "Null Object / null service", "zh": "空对象 / 空服务" },
+    { "en": "Decorator", "zh": "装饰器模式" },
+    { "en": "reflection", "zh": "反射" },
+    { "en": "assertion", "zh": "断言" }
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "ref": "16.2",
+      "q": "In the phone book analogy, what does the service locator decouple callers from? 电话簿比喻中，定位器把调用者与什么解耦？",
+      "options": ["Only the service's method names", "The game loop and the renderer", "Both who the service is (concrete type) and where it is (how to get the instance)", "The service's memory allocator"],
+      "answer": 2,
+      "explain": "Service Locator 同时隐藏了“是谁”（具体实现类型）和“在哪里”（如何获取实例）。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "16.4",
+      "q": "作者建议：before using a service locator, first consider simply passing the object to the code that needs it.",
+      "answer": true,
+      "explain": "True. 直接传参极其简单，耦合一目了然；服务定位器要 sparingly（谨慎地）使用。"
+    },
+    {
+      "type": "fill",
+      "ref": "16.6",
+      "q": "Outside code passing the service into the Locator via provide(), instead of the locator constructing it, is called ___（依赖注入）.",
+      "answer": ["dependency injection", "依赖注入", "DI"],
+      "explain": "由外部代码负责把依赖注入到需要它的对象中。"
+    },
+    {
+      "type": "choice",
+      "ref": "16.6",
+      "q": "In the simple locator, which code knows about the concrete ConsoleAudio class? 谁知道具体类 ConsoleAudio？",
+      "options": ["Every call site that plays a sound", "Only the initialization code that provides the service", "The Locator class", "The Audio interface"],
+      "answer": 1,
+      "explain": "调用者只知道 Audio 接口，定位器也不依赖具体类；只有启动时调用 provide() 的初始化代码知道。"
+    },
+    {
+      "type": "fill",
+      "ref": "16.6",
+      "q": "Two pieces of code that must be called in the right order for the program to work is called \"___ coupling\"（时序耦合）.",
+      "answer": ["temporal", "时序", "时间"],
+      "explain": "在注册服务之前使用就会得到 NULL，空服务可以消除这种时序耦合。"
+    },
+    {
+      "type": "choice",
+      "ref": "16.6",
+      "q": "为什么改进后的 Locator 在 provide() 而不是 getAudio() 中检查 NULL？",
+      "options": ["To move the branch out of the accessor, saving cycles on every access", "Because getAudio() cannot contain if statements", "To allow returning NULL to callers", "Because the null service must be created lazily"],
+      "answer": 0,
+      "explain": "检查放在 provide() 中，每次访问服务都省去一次分支；代价是需要尽早调用 initialize()。"
+    },
+    {
+      "type": "open",
+      "ref": "16.6",
+      "q": "How does the LoggedAudio decorator work, and why is it useful? 请中英文回答。",
+      "answer": "EN: LoggedAudio implements the Audio interface, wraps another provider, logs each call, and forwards it to the wrapped provider. enableAudioLogging() wraps the current service and re-provides it, so logging can be enabled selectively per system instead of flooding everyone with log() calls; it also works with the null service. 中：LoggedAudio 实现 Audio 接口，包装另一个提供者，记录每次调用后再转发给被包装者。enableAudioLogging() 包装当前服务并重新注册，从而可以按系统有选择地开启日志，而不是让到处的 log() 调用淹没所有人；它还能与空服务配合使用。",
+      "explain": "关键词：Decorator（装饰器）、wrap（包装）、forward（转发）、selective logging（选择性日志）。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "16.7",
+      "q": "Binding the service at compile time lets you swap the service while the game is running. 编译时绑定允许在游戏运行时切换服务。",
+      "answer": false,
+      "explain": "False. 编译时绑定最快且保证可用，但更换服务必须重新编译并重启；能在运行时切换的是外部注册的方式。"
+    },
+    {
+      "type": "choice",
+      "ref": "16.7",
+      "q": "Why can't the locator itself construct the online controller provider? 为什么在线手柄服务要由外部注册？",
+      "options": ["Because it needs reflection", "Because it must be a singleton", "Because the provider has no virtual methods", "Because it needs the remote player's IP address, which the locator knows nothing about"],
+      "answer": 3,
+      "explain": "定位器只知道抽象接口，对联网和对方 IP 一无所知；由网络代码构造提供者再交给定位器即可。"
+    },
+    {
+      "type": "choice",
+      "ref": "16.7",
+      "q": "According to the author, which failure-handling option is most commonly used in shipped games? 最常见的处理方式是？",
+      "options": ["Return NULL and let users check", "Assert that the service will be found", "Load a config file via reflection", "Restart the game automatically"],
+      "answer": 1,
+      "explain": "游戏发售前经过大量测试，运行在可靠硬件上，找不到服务的可能性很小；大团队则建议再加一个空服务。"
+    },
+    {
+      "type": "open",
+      "ref": "16.7",
+      "q": "When should a service's scope be restricted to a class vs. made global? 举例说明。",
+      "answer": "EN: If the service is used only within a single domain (e.g. networking for online classes), restrict it to a base class to control coupling; widely used services such as logging should be global. 中：只在某个领域内使用的服务（如只供在线相关类使用的网络服务）应限制在某个基类中以控制耦合；日志这类使用广泛的服务则应设为全局。",
+      "explain": "Global: same service everywhere but less control. Restricted: controlled coupling but possible duplicate effort. 全局与受限各有取舍。"
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "id": "observer",
+  "title": { "en": "Observer", "zh": "观察者模式" },
+  "summary": {
+    "en": "Observer lets one piece of code announce that something interesting happened without caring who receives the notification. A subject keeps a list of observers and synchronously calls their onNotify() methods. It is fast and can avoid dynamic allocation, but you must handle destroyed subjects/observers, beware the lapsed listener problem, and avoid it where you need to reason about both sides of the communication.",
+    "zh": "观察者模式让一段代码宣布“发生了一件有趣的事”，而不必关心谁会收到通知。被观察者（subject）维护一个观察者列表，并同步调用它们的 onNotify() 方法。它速度很快，也可以做到不进行动态内存分配；但必须妥善处理被观察者或观察者的销毁，提防“失效监听者”问题，并且在需要同时理解通信双方时避免使用它。"
+  },
+  "sections": [
+    {
+      "num": "4.0",
+      "title": { "en": "Observer (Introduction)", "zh": "观察者模式（引言）" },
+      "points": [
+        {
+          "title": { "en": "A pervasive pattern", "zh": "无处不在的模式" },
+          "body": {
+            "en": "Model-View-Controller architecture is everywhere, and underlying it is the Observer pattern. Observer is so pervasive that Java put it in its core library (java.util.Observer) and C# baked it into the language (the event keyword). It is one of the most widely known GoF patterns, though the game world can be strangely cloistered.",
+            "zh": "模型-视图-控制器（MVC）架构随处可见，而它的底层正是观察者模式。观察者模式如此普遍，Java 把它放进了核心库（java.util.Observer），C# 更是直接把它做进了语言（event 关键字）。它是四人帮模式中使用最广、最为人熟知的之一，只是游戏开发圈有时出奇地闭塞。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "4.1",
+      "title": { "en": "Achievement Unlocked", "zh": "成就解锁" },
+      "points": [
+        {
+          "title": { "en": "Achievements touch everything", "zh": "成就系统牵涉方方面面" },
+          "body": {
+            "en": "An achievement system has dozens of badges triggered by all sorts of gameplay, like \"Fall off a Bridge\". If we aren't careful, its tendrils will twine through every corner of the codebase — nobody wants unlockFallOffBridge() in the middle of the collision resolution math. We want code for one facet of the game lumped in one place.",
+            "zh": "成就系统有几十种徽章，由各种不同的游戏行为触发，比如“从桥上掉下去”。如果不小心，它的触须会伸进代码库的每个角落——没人愿意在碰撞求解的线性代数中间看到 unlockFallOffBridge() 调用。我们希望与游戏某一方面相关的代码都集中在一处。"
+          }
+        },
+        {
+          "title": { "en": "Announce without caring who listens", "zh": "只管通知，不管谁在听" },
+          "body": {
+            "en": "Observer lets a piece of code announce that something interesting happened without caring who receives the notification. The physics code just says \"this thing just fell, do with that as you will.\" It still decides which notifications to send, so it isn't entirely decoupled — but architecture aims to make systems better, not perfect.",
+            "zh": "观察者模式让一段代码宣布发生了有趣的事，而不关心谁会收到通知。物理代码只是说：“这个东西刚刚掉下去了，你们看着办。”它仍然要决定发送哪些通知，所以并非完全解耦——但架构追求的是让系统更好，而不是完美。"
+          },
+          "code": "void Physics::updateEntity(Entity& entity)\n{\n  bool wasOnSurface = entity.isOnSurface();\n  entity.accelerate(GRAVITY);\n  entity.update();\n  if (wasOnSurface && !entity.isOnSurface())\n  {\n    notify(entity, EVENT_START_FALL);\n  }\n}"
+        },
+        {
+          "title": { "en": "Change achievements without touching physics", "zh": "修改成就无需改动物理代码" },
+          "body": {
+            "en": "The achievement system registers itself to receive physics notifications, checks whether the falling body is the hero and whether he was on a bridge, and unlocks the badge — with no involvement from physics. You can change or remove the whole achievement system without touching a line of the physics engine, which keeps sending notifications obliviously.",
+            "zh": "成就系统把自己注册为物理通知的接收者，检查掉落的是不是英雄、之前是否站在桥上，然后解锁徽章——整个过程物理代码毫不参与。你可以修改甚至移除整个成就系统，而无需改动物理引擎的一行代码，它会继续照常发送通知，浑然不知已经没人在听。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "4.2",
+      "title": { "en": "How it Works", "zh": "工作原理" },
+      "points": [
+        {
+          "subsection": { "en": "The observer", "zh": "观察者" },
+          "title": { "en": "The Observer interface", "zh": "Observer 接口" },
+          "body": {
+            "en": "An observer is any class implementing an interface with onNotify(). The parameters are up to you — that's why it's a pattern and not ready-made code. Typically they are the object that sent the notification and a generic data parameter; here, an entity and an event enum. The achievement system implements it and switches on the event.",
+            "zh": "观察者就是实现了含 onNotify() 方法接口的任意类。参数由你决定——正因如此它是一种模式，而不是可以直接粘贴的现成代码。典型的参数是发送通知的对象和一个通用的“数据”参数；这里是一个实体和一个描述事件的枚举。成就系统实现这个接口，并根据事件类型做 switch 处理。"
+          },
+          "code": "class Observer\n{\npublic:\n  virtual ~Observer() {}\n  virtual void onNotify(const Entity& entity, Event event) = 0;\n};"
+        },
+        {
+          "subsection": { "en": "The subject", "zh": "被观察者" },
+          "title": { "en": "The subject holds a list of observers", "zh": "被观察者持有观察者列表" },
+          "body": {
+            "en": "The object being observed is the \"subject\". Its first job is holding a list of observers and exposing a public API (addObserver/removeObserver) to modify it, so outside code controls who is notified. The subject communicates with observers without being coupled to them: no physics code mentions achievements. That's the clever part of the pattern.",
+            "zh": "被观察的对象称为“被观察者”（subject）。它的第一项职责是持有观察者列表，并公开修改该列表的 API（addObserver/removeObserver），从而由外部代码控制谁接收通知。被观察者与观察者通信，却不与它们耦合：物理代码中没有一行提到成就。这正是该模式的巧妙之处。"
+          },
+          "code": "class Subject\n{\npublic:\n  void addObserver(Observer* observer) { /* Add to array... */ }\n  void removeObserver(Observer* observer) { /* Remove from array... */ }\n\nprotected:\n  void notify(const Entity& entity, Event event)\n  {\n    for (int i = 0; i < numObservers_; i++)\n    {\n      observers_[i]->onNotify(entity, event);\n    }\n  }\n\nprivate:\n  Observer* observers_[MAX_OBSERVERS];\n  int numObservers_;\n};"
+        },
+        {
+          "subsection": { "en": "The subject", "zh": "被观察者" },
+          "title": { "en": "Why a list, not a single observer", "zh": "为什么是列表而不是单个观察者" },
+          "body": {
+            "en": "A list ensures observers aren't implicitly coupled to each other. If only one observer were supported, the audio engine registering for fall events would silently unregister the achievement system. With a list, each observer is treated independently. The notify() loop assumes observers don't modify the list during onNotify(); robust code would prevent or handle that.",
+            "zh": "使用列表可以确保观察者之间不会隐式耦合。如果只支持一个观察者，音频引擎注册监听掉落事件时，就会悄悄把成就系统挤掉。有了列表，每个观察者都被独立对待。notify() 的循环假定观察者不会在 onNotify() 中修改列表；更健壮的实现应当禁止或妥善处理这种并发修改。"
+          }
+        },
+        {
+          "subsection": { "en": "Observable physics", "zh": "可被观察的物理系统" },
+          "title": { "en": "Inheriting Subject vs. owning an event object", "zh": "继承 Subject 与持有事件对象" },
+          "body": {
+            "en": "Following the GoF recipe, Physics inherits Subject, so notify() can be protected while addObserver()/removeObserver() stay public. In real code the author would avoid inheritance and give Physics a Subject instance representing a \"falling event\". That is the difference between observer systems (observe the thing that did something) and event systems (observe an object representing what happened).",
+            "zh": "按照 GoF 的做法，Physics 继承 Subject，这样 notify() 可以设为 protected，而 addObserver()/removeObserver() 保持 public。在实际代码中，作者会避免继承，而是让 Physics 持有一个代表“掉落事件”的 Subject 实例。这就是“观察者”系统（观察做了某事的那个对象）与“事件”系统（观察代表所发生之事的对象）的区别。"
+          },
+          "code": "physics.entityFell()\n  .addObserver(this);"
+        }
+      ]
+    },
+    {
+      "num": "4.3",
+      "title": { "en": "“It’s Too Slow”", "zh": "“它太慢了”" },
+      "points": [
+        {
+          "title": { "en": "Just a list walk and virtual calls", "zh": "只是遍历列表并调用虚方法" },
+          "body": {
+            "en": "Observer gets a bad rap from association with \"events\", \"messages\" and \"data binding\" systems that may queue or allocate per notification. But sending a notification is simply walking a list and calling virtual methods — slightly slower than static dispatch, negligible except in the most performance-critical code. No message allocation, no queueing: just indirection over a synchronous call.",
+            "zh": "观察者模式名声不好，是因为常和“事件”“消息”乃至“数据绑定”系统混为一谈，这些系统可能会为每条通知排队或分配内存。但发送通知其实只是遍历列表、调用虚方法——比静态分派稍慢，除了性能最关键的代码外都可以忽略。没有为消息分配对象，也没有队列，只是对同步方法调用加了一层间接。"
+          }
+        },
+        {
+          "subsection": { "en": "It’s too fast?", "zh": "它太快了？" },
+          "title": { "en": "Observer is synchronous", "zh": "观察者模式是同步的" },
+          "body": {
+            "en": "The subject invokes observers directly and doesn't resume until all have returned, so a slow observer can block the subject. As UI programmers say, \"stay off the UI thread\": finish quickly and push slow work onto another thread or work queue. Beware mixing observers with locks — an observer grabbing a lock the subject holds can deadlock; heavily threaded engines may prefer an asynchronous Event Queue.",
+            "zh": "被观察者直接调用观察者，并且要等所有观察者都返回后才继续自己的工作，因此一个缓慢的观察者会阻塞被观察者。正如 UI 程序员常说的“别占用 UI 线程”：要尽快处理完并返回，耗时的工作推给其他线程或工作队列。混用观察者与线程锁时要小心——观察者若试图获取被观察者持有的锁，就会死锁；在高度多线程的引擎中，使用异步的事件队列可能更好。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "4.4",
+      "title": { "en": "“It Does Too Much Dynamic Allocation”", "zh": "“它做了太多动态内存分配”" },
+      "points": [
+        {
+          "title": { "en": "Allocation only when wiring up", "zh": "只在连接观察者时分配内存" },
+          "body": {
+            "en": "Allocation and especially heap fragmentation still matter in games that must run for days to get certified. A real observer list is usually a dynamic collection, but it only allocates when observers are added or removed; sending a notification allocates nothing. If observers are hooked up at the start, allocation is minimal.",
+            "zh": "对游戏而言，内存分配，尤其是堆碎片，仍然很重要——游戏要通过认证，往往必须连续运行数天不崩溃。实际的观察者列表通常是动态集合，但只有在添加或移除观察者时才分配内存；发送通知完全不分配内存。如果在游戏开始时就连接好观察者，分配量微乎其微。"
+          }
+        },
+        {
+          "subsection": { "en": "Linked observers", "zh": "链式观察者" },
+          "title": { "en": "Thread the list through the observers", "zh": "让链表穿过观察者本身" },
+          "body": {
+            "en": "By putting a little state in Observer, the subject's list can be threaded through the observers themselves: Subject keeps a head_ pointer and each Observer has a next_ pointer, with Subject as a friend class. Adding at the front is simplest, but then observers are notified in reverse registration order — which shouldn't matter, since observers of the same subject should have no ordering dependencies.",
+            "zh": "只要在 Observer 中加入一点状态，就可以把被观察者的列表“串”在观察者身上：Subject 保存一个 head_ 指针，每个 Observer 有一个 next_ 指针，并把 Subject 声明为友元类。插到表头最简单，但这样观察者会按注册的逆序收到通知——这本不应有影响，因为同一被观察者的观察者之间不应存在顺序依赖。"
+          },
+          "code": "void Subject::addObserver(Observer* observer)\n{\n  observer->next_ = head_;\n  head_ = observer;\n}\n\nvoid Subject::notify(const Entity& entity, Event event)\n{\n  Observer* observer = head_;\n  while (observer != NULL)\n  {\n    observer->onNotify(entity, event);\n    observer = observer->next_;\n  }\n}"
+        },
+        {
+          "subsection": { "en": "Linked observers", "zh": "链式观察者" },
+          "title": { "en": "Removal and the one-subject limitation", "zh": "移除操作与只能观察一个被观察者的限制" },
+          "body": {
+            "en": "Removal walks the singly linked list (with a special case for the head; a pointer-to-pointer is more elegant, and a doubly linked list gives constant-time removal). If observers could return a \"stop\" flag, you'd be close to Chain of Responsibility. The cost: since the observer is the list node, it can only observe one subject at a time.",
+            "zh": "移除时需要遍历单链表（并对表头做特殊处理；使用指向指针的指针更优雅，而双向链表可以在常数时间内移除）。如果让观察者返回一个“停止”标志，就很接近职责链模式了。代价是：观察者本身就是链表节点，因此同一时间只能观察一个被观察者。"
+          }
+        },
+        {
+          "subsection": { "en": "A pool of list nodes", "zh": "链表节点池" },
+          "title": { "en": "Separate nodes from a pool", "zh": "从对象池中取出独立节点" },
+          "body": {
+            "en": "To observe multiple subjects without allocation, use separate list nodes, each holding a pointer to an observer and to the next node; many nodes can point to the same observer. The earlier design was an \"intrusive\" linked list — less flexible but more efficient, popular in the Linux kernel. Since all nodes have the same size and type, pre-allocate them in an object pool.",
+            "zh": "若想在不分配内存的前提下观察多个被观察者，可以使用独立的链表节点，每个节点包含一个指向观察者的指针和一个指向下一节点的指针；多个节点可以指向同一个观察者。之前的设计属于“侵入式”链表——灵活性较差但效率更高，在 Linux 内核等地方很常见。由于所有节点大小和类型都相同，可以把它们预先分配在对象池中。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "4.5",
+      "title": { "en": "Remaining Problems", "zh": "遗留问题" },
+      "points": [
+        {
+          "title": { "en": "Not a cure-all", "zh": "并非万能良药" },
+          "body": {
+            "en": "The pattern is simple, fast, and can play nice with memory management, but like any pattern it isn't a cure-all. Patterns get a bad rap when people apply good patterns to the wrong problem. Two challenges remain: one technical, one about maintainability.",
+            "zh": "这个模式简单、快速，也能与内存管理和谐相处，但和所有模式一样，它不是万能药。设计模式之所以名声不佳，是因为人们把好模式用在了错误的问题上。还剩两个挑战：一个是技术层面的，一个关乎可维护性。"
+          }
+        },
+        {
+          "subsection": { "en": "Destroying subjects and observers", "zh": "销毁被观察者与观察者" },
+          "title": { "en": "Dangling pointers and dying breaths", "zh": "悬垂指针与“临终遗言”" },
+          "body": {
+            "en": "Deleting an observer while a subject still points to it leaves a dangling pointer. The simplest fix is for observers to unregister themselves in their destructor — the hard part is remembering. When a subject dies, it can send a final \"dying breath\" notification. Safest is a base observer class that automatically unregisters from all subjects, at the cost of pointers going in both directions.",
+            "zh": "删除观察者而被观察者仍持有其指针，就会产生悬垂指针。最简单的办法是让观察者在析构函数中自行注销——难的不是做，而是记得做。被观察者销毁时，可以发出最后一条“临终遗言”通知。更安全的做法是在观察者基类中实现销毁时自动从所有被观察者注销，代价是需要双向的指针。"
+          }
+        },
+        {
+          "subsection": { "en": "Don’t worry, I’ve got a GC", "zh": "别担心，我有垃圾回收" },
+          "title": { "en": "The lapsed listener problem", "zh": "失效监听者问题" },
+          "body": {
+            "en": "Garbage collection doesn't save you. A stats UI screen that observes the hero but is never unregistered won't be collected, because the subject's observer list still references it. Each time the screen opens, another zombie instance joins the list, wasting CPU updating invisible UI or even playing sounds. This is the lapsed listener problem; be disciplined about unregistration.",
+            "zh": "垃圾回收救不了你。一个观察英雄的属性界面若从未注销，就不会被回收，因为被观察者的观察者列表仍引用着它。每次打开界面，都会有一个新的“僵尸”实例加入列表，白白浪费 CPU 去更新看不见的 UI，甚至播放声音。这就是失效监听者问题（lapsed listener problem）；注销时一定要有纪律。"
+          }
+        },
+        {
+          "subsection": { "en": "What’s going on?", "zh": "到底发生了什么？" },
+          "title": { "en": "Hard to reason about dynamically", "zh": "动态耦合难以推理" },
+          "body": {
+            "en": "Loose coupling helps when reasoning about the subject alone, but when a bug spans a chain of observers, you can only tell who gets notified by which observers are in the list at runtime, instead of statically following a method call. Guideline: if you often need to think about both sides of a communication, don't use Observer; prefer something explicit. It's best for letting mostly unrelated lumps — like physics and achievements — talk.",
+            "zh": "松耦合在单独理解被观察者时很有帮助；但当 bug 横跨一串观察者时，你只能通过运行时列表里恰好有哪些观察者来判断谁会收到通知，而无法静态地追踪方法调用。指导原则：如果你经常需要同时考虑通信的双方才能理解程序，就不要用观察者模式，改用更显式的方式。它最适合让几乎不相关的模块（如物理与成就）相互通信。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "4.6",
+      "title": { "en": "Observers Today", "zh": "当今的观察者" },
+      "points": [
+        {
+          "title": { "en": "Class-based observers feel heavyweight", "zh": "基于类的观察者显得笨重" },
+          "body": {
+            "en": "Design Patterns came out in 1994 at the height of OOP, so Observer is class-heavy. Implementing a whole interface just to receive a notification is heavyweight and rigid: a single class can't use different notification methods for different subjects, which is why the subject usually passes itself to onNotify().",
+            "zh": "《设计模式》出版于 1994 年，正值面向对象的鼎盛时期，所以观察者模式非常依赖类。仅仅为了接收通知就必须实现一整个接口，既笨重又僵化：一个类无法为不同的被观察者使用不同的通知方法，这也是被观察者通常要把自己传给 onNotify() 的原因。"
+          }
+        },
+        {
+          "title": { "en": "Function-based observers", "zh": "基于函数的观察者" },
+          "body": {
+            "en": "A more modern approach makes an observer just a reference to a method or function, common in languages with first-class functions and closures: C# events with delegates, JavaScript event listeners as plain functions. The author would design a function-based system today, even in C++ registering member function pointers rather than Observer interface instances.",
+            "zh": "更现代的做法是让观察者仅仅是对某个方法或函数的引用，这在支持一等函数尤其是闭包的语言中很常见：C# 的事件使用委托（delegate），JavaScript 的事件监听者通常就是普通函数。如果今天设计观察者系统，作者会采用基于函数的方式，即使在 C++ 中也倾向于注册成员函数指针，而不是 Observer 接口的实例。"
+          }
+        }
+      ]
+    },
+    {
+      "num": "4.7",
+      "title": { "en": "Observers Tomorrow", "zh": "未来的观察者" },
+      "points": [
+        {
+          "title": { "en": "Tedious observer code and data binding", "zh": "繁琐的观察者代码与数据绑定" },
+          "body": {
+            "en": "Much observer code looks the same: get notified of a state change, then imperatively update some UI (\"health is 7, set the bar to 70 pixels\"). Dataflow and functional reactive programming try to remove this tedium; a less ambitious approach, data binding, automates updating UI or computed properties when a value changes. It's probably too slow for an engine core but may enter areas like UI.",
+            "zh": "很多观察者代码都大同小异：收到状态变化的通知，然后命令式地更新一部分 UI（“生命值变成 7 了？那就把血条宽度设为 70 像素”）。数据流编程、函数式响应式编程都试图消除这种繁琐；而不那么激进的“数据绑定”则自动完成值变化时更新 UI 元素或计算属性的杂活。它对引擎核心来说可能太慢太复杂，但很可能进入 UI 等不那么关键的领域。"
+          }
+        },
+        {
+          "title": { "en": "Simple and it works", "zh": "简单，而且管用" },
+          "body": {
+            "en": "Meanwhile the good old Observer pattern remains. It's not as exciting as techniques with \"functional\" and \"reactive\" in their names, but it's dead simple and it works — often the two most important criteria for a solution.",
+            "zh": "与此同时，老牌的观察者模式依然在那里。它不像名字里同时带着“函数式”和“响应式”的新技术那样令人兴奋，但它极其简单，而且管用——这往往是评判一个解决方案最重要的两条标准。"
+          }
+        }
+      ]
+    }
+  ],
+  "terms": [
+    { "en": "observer", "zh": "观察者" },
+    { "en": "subject", "zh": "被观察者（主题）" },
+    { "en": "notification", "zh": "通知" },
+    { "en": "synchronous", "zh": "同步的" },
+    { "en": "intrusive linked list", "zh": "侵入式链表" },
+    { "en": "dangling pointer", "zh": "悬垂指针" },
+    { "en": "lapsed listener problem", "zh": "失效监听者问题" },
+    { "en": "event system", "zh": "事件系统" },
+    { "en": "delegate", "zh": "委托" },
+    { "en": "data binding", "zh": "数据绑定" },
+    { "en": "Model-View-Controller (MVC)", "zh": "模型-视图-控制器" }
+  ],
+  "exercises": [
+    {
+      "type": "choice",
+      "ref": "4.1",
+      "q": "What does the Observer pattern let a piece of code do? 观察者模式让代码能做什么？",
+      "options": ["Run work asynchronously on another thread", "Share immutable state between many objects", "宣布发生了有趣的事，而不关心谁接收通知", "Undo previous actions"],
+      "answer": 2,
+      "explain": "Physics just says \"this thing fell\"; 成就系统自行注册接收，物理代码无需了解成就。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "4.1",
+      "q": "With Observer, the physics engine becomes perfectly decoupled from achievements. 物理引擎与成就系统被完全解耦。",
+      "answer": false,
+      "explain": "False. 物理引擎仍需决定发送哪些通知，所以并非完全解耦——architecture aims for better, not perfect."
+    },
+    {
+      "type": "choice",
+      "ref": "4.2",
+      "q": "Why should a subject hold a *list* of observers rather than a single one? 为什么用列表？",
+      "options": ["列表遍历比单个指针更快", "To avoid observers being implicitly coupled — a second registration would otherwise unregister the first", "Because C++ forbids single pointers to interfaces", "So notifications can be queued"],
+      "answer": 1,
+      "explain": "若只支持一个观察者，音频引擎注册后会把成就系统挤掉；列表让每个观察者相互独立。"
+    },
+    {
+      "type": "fill",
+      "ref": "4.2",
+      "q": "In an \"observer\" system you observe the thing that did something; in an ___ system you observe an object representing what happened. 观察代表所发生之事的对象，叫___系统。",
+      "answer": ["event", "events", "事件"],
+      "explain": "例如 physics.entityFell().addObserver(this)——观察的是“掉落事件”对象。"
+    },
+    {
+      "type": "truefalse",
+      "ref": "4.3",
+      "q": "观察者模式是同步的：一个很慢的 observer 会阻塞 subject。 Observer is synchronous, so a slow observer can block the subject.",
+      "answer": true,
+      "explain": "True. Subject 要等所有观察者返回才继续；耗时工作应推给其他线程或工作队列（stay off the UI thread）。"
+    },
+    {
+      "type": "choice",
+      "ref": "4.4",
+      "q": "With linked observers (observer as list node), what feature is sacrificed? 链式观察者牺牲了什么？",
+      "options": ["Fast registration", "Notifying more than one observer", "Using virtual methods", "一个观察者同一时间只能观察一个被观察者"],
+      "answer": 3,
+      "explain": "The observer itself is the node with one next_ pointer, so it can be in only one subject's list. 节点池方案可以解决这个问题。"
+    },
+    {
+      "type": "fill",
+      "ref": "4.4",
+      "q": "A linked list where the data object contains its own next pointer is called an ___ linked list. 数据对象自身包含 next 指针的链表叫___链表。",
+      "answer": ["intrusive", "侵入式", "侵入"],
+      "explain": "Intrusive lists are less flexible but more efficient, popular in the Linux kernel."
+    },
+    {
+      "type": "truefalse",
+      "ref": "4.4",
+      "q": "In a typical observer implementation, every notification sent requires a dynamic memory allocation. 每次发送通知都需要动态分配内存。",
+      "answer": false,
+      "explain": "False. 只有添加/移除观察者时才可能分配；发送通知只是一次方法调用。"
+    },
+    {
+      "type": "fill",
+      "ref": "4.5",
+      "q": "UI screens kept alive by a subject's observer list because they never unregistered illustrate the lapsed ___ problem. 这被称为“失效___”问题。",
+      "answer": ["listener", "监听者", "监听器"],
+      "explain": "即使有 GC，被观察者仍引用着这些“僵尸”界面，它们不会被回收。"
+    },
+    {
+      "type": "open",
+      "ref": "4.5",
+      "q": "When should you NOT use the Observer pattern? 什么时候不应该使用观察者模式？",
+      "answer": "EN: When you often need to think about both sides of a communication to understand that part of the program — e.g. within a single cohesive lump of code for one feature. Prefer an explicit coupling there, since observer links can only be traced at runtime. 中：当你经常需要同时考虑通信双方才能理解程序时（比如同一功能模块内部），应使用更显式的耦合，因为观察者关系只能在运行时追踪。",
+      "explain": "Observer fits mostly unrelated domains like physics and achievements. 它适合几乎无关的模块之间通信。"
+    },
+    {
+      "type": "choice",
+      "ref": "4.6",
+      "q": "If designing an observer system today, what would the author choose? 作者今天会怎样设计观察者系统？",
+      "options": ["Function-based（基于函数，如成员函数指针、闭包）", "Deep inheritance hierarchies of Observer subclasses", "Polling every frame instead of notifications", "A global singleton event manager"],
+      "answer": 0,
+      "explain": "Class-based observers are heavyweight and rigid; C# delegates 和 JavaScript 函数监听者都是基于函数的。"
+    },
+    {
+      "type": "choice",
+      "ref": "4.7",
+      "q": "Which less ambitious approach automates updating UI when a value changes? 哪种技术自动在值变化时更新 UI？",
+      "options": ["Instanced rendering", "Double buffering", "Data binding（数据绑定）", "Object pooling"],
+      "answer": 2,
+      "explain": "数据绑定不试图消灭命令式代码，只自动化“值变了就更新 UI”的杂活。"
+    }
+  ]
+}
