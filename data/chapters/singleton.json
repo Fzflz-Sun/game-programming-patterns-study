@@ -1,6 +1,9 @@
 {
   "id": "singleton",
-  "title": { "en": "Singleton", "zh": "单例模式" },
+  "title": {
+    "en": "Singleton",
+    "zh": "单例模式"
+  },
   "summary": {
     "en": "Singleton ensures a class has one instance and provides a global point of access to it. This chapter shows how NOT to use it: a singleton is global state in disguise, couples code, hurts concurrency, and bundles two solutions when you usually need one. Prefer static classes, runtime assertions, passing objects in, base classes, existing globals, or a Service Locator.",
     "zh": "单例模式保证一个类只有一个实例，并为其提供全局访问点。本章讲的是如何“不”使用它：单例是披着外衣的全局状态，会造成耦合、不利于并发，而且在你通常只需要一个解决方案时硬塞给你两个。更好的选择有静态类、运行时断言、把对象作为参数传入、从基类获取、借助已有的全局对象，或使用服务定位器。"
@@ -8,17 +11,26 @@
   "sections": [
     {
       "num": "6.0",
-      "title": { "en": "Singleton (Introduction)", "zh": "单例模式（引言）" },
+      "title": {
+        "en": "Singleton (Introduction)",
+        "zh": "单例模式（引言）"
+      },
       "points": [
         {
-          "title": { "en": "A chapter about how not to use a pattern", "zh": "一章讲“如何不用”的模式" },
+          "title": {
+            "en": "A chapter about how not to use a pattern",
+            "zh": "一章讲“如何不用”的模式"
+          },
           "body": {
             "en": "Every other chapter shows how to use a pattern; this one shows how not to. The Gang of Four stressed that Singleton should be used sparingly, but that message was often lost in the game industry, where it usually does more harm than good.",
             "zh": "本书其他各章都在讲如何使用某个模式，这一章讲的却是如何不用。GoF 曾强调单例模式应当谨慎使用，但这一告诫在传到游戏行业时常常被丢掉了，结果它往往弊大于利。"
           }
         },
         {
-          "title": { "en": "\"How do I get an instance?\"", "zh": "“我怎么拿到一个实例？”" },
+          "title": {
+            "en": "\"How do I get an instance?\"",
+            "zh": "“我怎么拿到一个实例？”"
+          },
           "body": {
             "en": "When much of the industry moved from C to object-oriented programming, a common problem was having a method to call but no instance of the object that provides it. Singletons, i.e. making it global, were an easy way out.",
             "zh": "当业界大量从 C 转向面向对象编程时，常遇到的问题是：想调用某个方法，手头却没有提供该方法的对象实例。单例（也就是把它变成全局的）成了一条简单的出路。"
@@ -28,19 +40,34 @@
     },
     {
       "num": "6.1",
-      "title": { "en": "The Singleton Pattern", "zh": "单例模式" },
+      "title": {
+        "en": "The Singleton Pattern",
+        "zh": "单例模式"
+      },
       "points": [
         {
-          "subsection": { "en": "Restricting a class to one instance", "zh": "限制类只有一个实例" },
-          "title": { "en": "When one instance is required", "zh": "何时必须只有一个实例" },
+          "subsection": {
+            "en": "Restricting a class to one instance",
+            "zh": "限制类只有一个实例"
+          },
+          "title": {
+            "en": "When one instance is required",
+            "zh": "何时必须只有一个实例"
+          },
           "body": {
             "en": "Design Patterns says Singleton ensures a class has one instance and provides a global point of access to it. Some classes break with more than one instance, typically those wrapping an external system with its own global state, such as an asynchronous file system wrapper that must coordinate all pending operations. Singleton enforces a single instance at compile time.",
             "zh": "《设计模式》的概括是：确保一个类只有一个实例，并为其提供一个全局访问点。有些类存在多个实例时就无法正确工作，典型的是封装了自有全局状态的外部系统，比如一个异步的文件系统封装类，它必须协调所有正在进行的操作。单例在编译期就保证了只有一个实例。"
           }
         },
         {
-          "subsection": { "en": "Providing a global point of access", "zh": "提供全局访问点" },
-          "title": { "en": "The classic implementation", "zh": "经典实现" },
+          "subsection": {
+            "en": "Providing a global point of access",
+            "zh": "提供全局访问点"
+          },
+          "title": {
+            "en": "The classic implementation",
+            "zh": "经典实现"
+          },
           "body": {
             "en": "Logging, content loading, and save systems all need the file system wrapper. The classic singleton has a private constructor, a static instance_ member, and a public static instance() method that lazily creates the instance the first time someone asks for it.",
             "zh": "日志、内容加载、存档等系统都需要用到文件系统封装类。经典的单例实现包含私有构造函数、静态成员 instance_，以及一个公开的静态方法 instance()，它在第一次被请求时才惰性地创建实例。"
@@ -48,8 +75,14 @@
           "code": "class FileSystem {\npublic:\n  static FileSystem& instance() {\n    // Lazy initialize.\n    if (instance_ == NULL) instance_ = new FileSystem();\n    return *instance_;\n  }\n\nprivate:\n  FileSystem() {}\n  static FileSystem* instance_;\n};"
         },
         {
-          "subsection": { "en": "Providing a global point of access", "zh": "提供全局访问点" },
-          "title": { "en": "Modern thread-safe initialization", "zh": "现代的线程安全初始化" },
+          "subsection": {
+            "en": "Providing a global point of access",
+            "zh": "提供全局访问点"
+          },
+          "title": {
+            "en": "Modern thread-safe initialization",
+            "zh": "现代的线程安全初始化"
+          },
           "body": {
             "en": "C++11 guarantees that a local static variable's initializer runs only once, even with concurrency, so using a function-local static makes the initialization thread-safe. Whether the singleton class itself is thread-safe is a completely separate question.",
             "zh": "C++11 规定局部静态变量的初始化只会执行一次，即使存在并发也是如此，因此使用函数内的局部静态变量可以让初始化变得线程安全。至于单例类本身是否线程安全，则是另一个完全不同的问题。"
@@ -60,17 +93,26 @@
     },
     {
       "num": "6.2",
-      "title": { "en": "Why We Use It", "zh": "为什么我们使用它" },
+      "title": {
+        "en": "Why We Use It",
+        "zh": "为什么我们使用它"
+      },
       "points": [
         {
-          "title": { "en": "Lazy and runtime initialization", "zh": "惰性初始化与运行时初始化" },
+          "title": {
+            "en": "Lazy and runtime initialization",
+            "zh": "惰性初始化与运行时初始化"
+          },
           "body": {
             "en": "A singleton isn't created if no one uses it, saving memory and CPU. Unlike static members, which the compiler initializes before main() in an unspecified relative order, a singleton is initialized as late as possible at runtime, so it can use runtime info (like config files) and depend on other singletons, barring circular dependencies.",
             "zh": "如果没人使用，单例就不会被创建，节省内存和 CPU。静态成员由编译器在 main() 之前初始化，且相互之间的初始化顺序没有保证；而单例在运行时尽可能晚地初始化，因此可以使用运行时才知道的信息（如从文件加载的配置），也可以依赖其他单例（只要没有循环依赖）。"
           }
         },
         {
-          "title": { "en": "You can subclass the singleton", "zh": "单例可以被继承" },
+          "title": {
+            "en": "You can subclass the singleton",
+            "zh": "单例可以被继承"
+          },
           "body": {
             "en": "Make FileSystem an abstract interface with per-platform subclasses (PS3FileSystem, WiiFileSystem). instance() picks the concrete type with a compiler switch, so the whole codebase calls FileSystem::instance() without being coupled to platform-specific code.",
             "zh": "把 FileSystem 设计成抽象接口，并为各平台写子类（PS3FileSystem、WiiFileSystem）。instance() 通过编译开关选择具体类型，于是整个代码库都调用 FileSystem::instance()，而无需与平台相关的代码耦合。"
@@ -81,27 +123,48 @@
     },
     {
       "num": "6.3",
-      "title": { "en": "Why We Regret Using It", "zh": "为什么我们后悔使用它" },
+      "title": {
+        "en": "Why We Regret Using It",
+        "zh": "为什么我们后悔使用它"
+      },
       "points": [
         {
-          "subsection": { "en": "It's a global variable", "zh": "它是一个全局变量" },
-          "title": { "en": "Globals make code hard to reason about", "zh": "全局变量让代码难以推理" },
+          "subsection": {
+            "en": "It's a global variable",
+            "zh": "它是一个全局变量"
+          },
+          "title": {
+            "en": "Globals make code hard to reason about",
+            "zh": "全局变量让代码难以推理"
+          },
           "body": {
             "en": "A function that touches no global state (a \"pure\" function) can be understood from its body and arguments alone. Once it calls something like SomeClass::getSomeGlobalData(), you must hunt through the entire codebase to find what else touches that data.",
             "zh": "不访问全局状态的函数（“纯”函数）只需看函数体和传入的参数就能理解。一旦它调用了 SomeClass::getSomeGlobalData() 之类的东西，你就得搜遍整个代码库，找出还有哪些地方动过这份数据。"
           }
         },
         {
-          "subsection": { "en": "It's a global variable", "zh": "它是一个全局变量" },
-          "title": { "en": "Globals encourage coupling and hurt concurrency", "zh": "全局变量助长耦合、妨碍并发" },
+          "subsection": {
+            "en": "It's a global variable",
+            "zh": "它是一个全局变量"
+          },
+          "title": {
+            "en": "Globals encourage coupling and hurt concurrency",
+            "zh": "全局变量助长耦合、妨碍并发"
+          },
           "body": {
             "en": "A globally visible AudioPlayer lets a new coder couple physics to audio with one #include. Controlling access to instances controls coupling. Globals are also memory every thread can poke at, inviting deadlocks and race conditions. Singleton solves none of these problems because it is global state, merely encapsulated in a class: more placebo than cure.",
             "zh": "全局可见的 AudioPlayer 让新人只需一行 #include 就能把物理代码和音频耦合起来；控制了对实例的访问，就控制了耦合。全局变量还是所有线程都能随意改动的内存，容易导致死锁和竞态条件。单例对这些问题一个也没解决，因为它就是全局状态，只是被封装进了类里——与其说是良药，不如说是安慰剂。"
           }
         },
         {
-          "subsection": { "en": "It solves two problems even when you just have one", "zh": "即使只有一个问题，它也解决两个" },
-          "title": { "en": "Unwanted single-instance restriction", "zh": "不想要的单实例限制" },
+          "subsection": {
+            "en": "It solves two problems even when you just have one",
+            "zh": "即使只有一个问题，它也解决两个"
+          },
+          "title": {
+            "en": "Unwanted single-instance restriction",
+            "zh": "不想要的单实例限制"
+          },
           "body": {
             "en": "People usually adopt Singleton for convenient access, e.g. a Log class. But that also imposes a single-instance limit. When you later want separate loggers per domain (online, UI, audio, gameplay), you must change the class and every Log::instance() call site, which is even worse if the library is shared across games.",
             "zh": "人们使用单例通常是为了访问方便，比如 Log 类。但这同时附带了“只能有一个实例”的限制。等到后来想按领域（联网、UI、音频、玩法）拆分出多个日志器时，就得同时修改这个类和每一处 Log::instance() 调用；如果该库被多个游戏共享，情况就更糟。"
@@ -109,8 +172,14 @@
           "code": "Log::instance().write(\"Some event.\");"
         },
         {
-          "subsection": { "en": "Lazy initialization takes control away from you", "zh": "惰性初始化剥夺了你的控制权" },
-          "title": { "en": "Games need to control initialization", "zh": "游戏需要掌控初始化时机" },
+          "subsection": {
+            "en": "Lazy initialization takes control away from you",
+            "zh": "惰性初始化剥夺了你的控制权"
+          },
+          "title": {
+            "en": "Games need to control initialization",
+            "zh": "游戏需要掌控初始化时机"
+          },
           "body": {
             "en": "If the audio system takes hundreds of milliseconds to initialize lazily the first time a sound plays, frames drop mid-action. Games also need to control where heap memory lives to avoid fragmentation. So games often use a static instance instead, which loses polymorphism and freeing memory; that is really just a static class, so just use static functions: Foo::bar() is simpler than Foo::instance().bar().",
             "zh": "如果音频系统在第一次播放声音时才惰性初始化，并耗时几百毫秒，就会在激烈的游戏过程中掉帧。游戏还需要控制内存在堆中的位置以避免碎片。所以游戏往往改用静态实例，但这样就失去了多态，也无法释放内存；这其实就是一个静态类，那不如直接用静态函数：Foo::bar() 比 Foo::instance().bar() 更简单。"
@@ -121,11 +190,20 @@
     },
     {
       "num": "6.4",
-      "title": { "en": "What We Can Do Instead", "zh": "我们能用什么替代" },
+      "title": {
+        "en": "What We Can Do Instead",
+        "zh": "我们能用什么替代"
+      },
       "points": [
         {
-          "subsection": { "en": "See if you need the class at all", "zh": "先看看是否真的需要这个类" },
-          "title": { "en": "Get rid of \"manager\" classes", "zh": "去掉“管理器”类" },
+          "subsection": {
+            "en": "See if you need the class at all",
+            "zh": "先看看是否真的需要这个类"
+          },
+          "title": {
+            "en": "Get rid of \"manager\" classes",
+            "zh": "去掉“管理器”类"
+          },
           "body": {
             "en": "Many singletons are \"managers\" that babysit other objects, like BulletManager. Often they reflect unfamiliarity with OOP: move the behavior into the class it helps (Bullet::isOnScreen(), Bullet::move()), and you need zero managers. OOP is about letting objects take care of themselves.",
             "zh": "很多单例都是“管理器”，专门照看其他对象，比如 BulletManager。它们往往反映出对面向对象的不熟悉：把这些行为移到被帮助的类中（Bullet::isOnScreen()、Bullet::move()），就一个管理器也不需要了。面向对象的本意就是让对象自己照顾自己。"
@@ -133,8 +211,14 @@
           "code": "class Bullet {\npublic:\n  Bullet(int x, int y) : x_(x), y_(y) {}\n\n  bool isOnScreen() {\n    return x_ >= 0 && x_ < SCREEN_WIDTH &&\n           y_ >= 0 && y_ < SCREEN_HEIGHT;\n  }\n\n  void move() { x_ += 5; }\n\nprivate:\n  int x_, y_;\n};"
         },
         {
-          "subsection": { "en": "To limit a class to a single instance", "zh": "为了限制类只有一个实例" },
-          "title": { "en": "Single instance without global access", "zh": "单实例但不提供全局访问" },
+          "subsection": {
+            "en": "To limit a class to a single instance",
+            "zh": "为了限制类只有一个实例"
+          },
+          "title": {
+            "en": "Single instance without global access",
+            "zh": "单实例但不提供全局访问"
+          },
           "body": {
             "en": "Use a static flag and assert() in the constructor: anyone may construct the class, but a second instance fails the assertion. The class enforces single instantiation without dictating how it is accessed. The downside is that the check happens at runtime, whereas Singleton guarantees it at compile time.",
             "zh": "在构造函数中使用静态标志和 assert()：任何人都可以构造这个类，但创建第二个实例时断言会失败。这样类保证了单实例，却不规定别人如何访问它。缺点是检查发生在运行时，而单例是在编译期保证的。"
@@ -142,16 +226,28 @@
           "code": "class FileSystem {\npublic:\n  FileSystem() {\n    assert(!instantiated_);\n    instantiated_ = true;\n  }\n\n  ~FileSystem() { instantiated_ = false; }\n\nprivate:\n  static bool instantiated_;\n};\n\nbool FileSystem::instantiated_ = false;"
         },
         {
-          "subsection": { "en": "To limit a class to a single instance", "zh": "为了限制类只有一个实例" },
-          "title": { "en": "Assertions as contracts", "zh": "断言就是契约" },
+          "subsection": {
+            "en": "To limit a class to a single instance",
+            "zh": "为了限制类只有一个实例"
+          },
+          "title": {
+            "en": "Assertions as contracts",
+            "zh": "断言就是契约"
+          },
           "body": {
             "en": "assert() embeds a contract in code: if the expression is false, the game halts immediately (usually showing file and line in debug builds). Assertions catch bugs as soon as something unexpected happens rather than later when they become visible, acting like fences that corral bugs near the code that created them.",
             "zh": "assert() 把契约嵌入代码：如果表达式为假，游戏会立即停止（调试版本中通常会显示出错的文件和行号）。断言能在意外情况发生的那一刻就抓住 bug，而不是等它后来表现为可见错误时才发现，它就像栅栏，把 bug 圈在产生它的代码附近。"
           }
         },
         {
-          "subsection": { "en": "To provide convenient access to an instance", "zh": "为了方便地访问实例" },
-          "title": { "en": "Pass it in, or get it from the base class", "zh": "作为参数传入，或从基类获取" },
+          "subsection": {
+            "en": "To provide convenient access to an instance",
+            "zh": "为了方便地访问实例"
+          },
+          "title": {
+            "en": "Pass it in, or get it from the base class",
+            "zh": "作为参数传入，或从基类获取"
+          },
           "body": {
             "en": "Keep variables as narrowly scoped as possible. The simplest option is passing the object as an argument (sometimes called dependency injection), e.g. a rendering context. For cross-cutting concerns like logging that don't belong in signatures, a base class like GameObject can expose a protected getLog() to its derived classes (see Subclass Sandbox).",
             "zh": "变量的作用域应尽可能窄。最简单的办法是把对象作为参数传入（有人称之为依赖注入），比如渲染用的 context。对于日志这类不适合出现在函数签名里的横切关注点，可以让 GameObject 这样的基类向派生类提供一个受保护的 getLog()（参见子类沙盒模式）。"
@@ -159,8 +255,14 @@
           "code": "class GameObject {\nprotected:\n  Log& getLog() { return log_; }\n\nprivate:\n  static Log& log_;\n};\n\nclass Enemy : public GameObject {\n  void doSomething() {\n    getLog().write(\"I can log!\");\n  }\n};"
         },
         {
-          "subsection": { "en": "To provide convenient access to an instance", "zh": "为了方便地访问实例" },
-          "title": { "en": "Piggyback on an existing global, or use a Service Locator", "zh": "借助已有的全局对象，或使用服务定位器" },
+          "subsection": {
+            "en": "To provide convenient access to an instance",
+            "zh": "为了方便地访问实例"
+          },
+          "title": {
+            "en": "Piggyback on an existing global, or use a Service Locator",
+            "zh": "借助已有的全局对象，或使用服务定位器"
+          },
           "body": {
             "en": "Instead of making Log, FileSystem, and AudioPlayer singletons, hang them off one existing global like Game. Purists say this violates the Law of Demeter, but it beats a pile of singletons, and the subsystems are unaffected if multiple Game instances are later supported. Alternatively, a Service Locator is a class whose sole purpose is giving global access to objects.",
             "zh": "与其把 Log、FileSystem、AudioPlayer 都做成单例，不如把它们挂在一个已有的全局对象（比如 Game）上。纯粹主义者会说这违反了迪米特法则，但这总比一大堆单例强；而且如果以后要支持多个 Game 实例，这些子系统完全不受影响。另一种选择是服务定位器，它是一个专门用来提供全局访问的类。"
@@ -171,10 +273,16 @@
     },
     {
       "num": "6.5",
-      "title": { "en": "What's Left for Singleton", "zh": "单例还剩下什么用处" },
+      "title": {
+        "en": "What's Left for Singleton",
+        "zh": "单例还剩下什么用处"
+      },
       "points": [
         {
-          "title": { "en": "The author's practice", "zh": "作者的做法" },
+          "title": {
+            "en": "The author's practice",
+            "zh": "作者的做法"
+          },
           "body": {
             "en": "The author has never used the full GoF Singleton in a game. To ensure single instantiation he uses a static class, or failing that a static flag checked at runtime. Subclass Sandbox shares state among instances without making it global, and Service Locator offers global access with more flexibility in configuration.",
             "zh": "作者从未在游戏中使用过完整的 GoF 单例实现。为了保证单实例，他通常直接用静态类；如果不行，就用静态标志在运行时检查。子类沙盒模式能让类的实例共享状态而不必将其全局化；服务定位器虽然提供全局访问，但在配置对象方面更灵活。"
@@ -184,31 +292,72 @@
     }
   ],
   "terms": [
-    { "en": "global point of access", "zh": "全局访问点" },
-    { "en": "lazy initialization", "zh": "惰性初始化（延迟初始化）" },
-    { "en": "static class", "zh": "静态类" },
-    { "en": "pure function", "zh": "纯函数" },
-    { "en": "coupling", "zh": "耦合" },
-    { "en": "race condition / deadlock", "zh": "竞态条件 / 死锁" },
-    { "en": "assertion", "zh": "断言" },
-    { "en": "dependency injection", "zh": "依赖注入" },
-    { "en": "cross-cutting concern", "zh": "横切关注点" },
-    { "en": "Law of Demeter", "zh": "迪米特法则" },
-    { "en": "Service Locator", "zh": "服务定位器" }
+    {
+      "en": "global point of access",
+      "zh": "全局访问点"
+    },
+    {
+      "en": "lazy initialization",
+      "zh": "惰性初始化（延迟初始化）"
+    },
+    {
+      "en": "static class",
+      "zh": "静态类"
+    },
+    {
+      "en": "pure function",
+      "zh": "纯函数"
+    },
+    {
+      "en": "coupling",
+      "zh": "耦合"
+    },
+    {
+      "en": "race condition / deadlock",
+      "zh": "竞态条件 / 死锁"
+    },
+    {
+      "en": "assertion",
+      "zh": "断言"
+    },
+    {
+      "en": "dependency injection",
+      "zh": "依赖注入"
+    },
+    {
+      "en": "cross-cutting concern",
+      "zh": "横切关注点"
+    },
+    {
+      "en": "Law of Demeter",
+      "zh": "迪米特法则"
+    },
+    {
+      "en": "Service Locator",
+      "zh": "服务定位器"
+    }
   ],
   "exercises": [
     {
       "type": "fill",
       "ref": "6.1",
       "q": "GoF：Ensure a class has one instance, and provide a ___ point of access to it.",
-      "answer": ["global", "全局"],
+      "answer": [
+        "global",
+        "全局"
+      ],
       "explain": "单例的两半：单一实例 + 全局访问点。作者建议在 \"and\" 处把它拆开分别考虑。"
     },
     {
       "type": "choice",
       "ref": "6.1",
       "q": "Why is the C++11 version with a function-local static thread-safe? 为什么它是线程安全的？",
-      "options": ["Because the class has a private constructor", "Because C++11 guarantees a local static's initializer runs only once, even with concurrency", "Because new is atomic", "Because the whole singleton class becomes thread-safe automatically"],
+      "options": [
+        "Because the class has a private constructor",
+        "Because C++11 guarantees a local static's initializer runs only once, even with concurrency",
+        "Because new is atomic",
+        "Because the whole singleton class becomes thread-safe automatically"
+      ],
       "answer": 1,
       "explain": "只保证“初始化”线程安全；单例类本身的线程安全是另一回事。"
     },
@@ -223,7 +372,12 @@
       "type": "choice",
       "ref": "6.2",
       "q": "单例的哪个特性让 FileSystem 可以按平台选择 PS3FileSystem 或 WiiFileSystem？",
-      "options": ["Lazy initialization", "Private destructor", "Static member variables", "It can be subclassed; instance() picks the concrete type"],
+      "options": [
+        "Lazy initialization",
+        "Private destructor",
+        "Static member variables",
+        "It can be subclassed; instance() picks the concrete type"
+      ],
       "answer": 3,
       "explain": "instance() 在实现文件中用编译开关创建具体子类，其余代码不与平台代码耦合。"
     },
@@ -238,7 +392,12 @@
       "type": "choice",
       "ref": "6.3",
       "q": "In the Log example, what problem appears late in development? 开发后期遇到了什么问题？",
-      "options": ["The log class becomes too slow", "The team wants multiple loggers per domain, but the singleton forbids it and every call site hard-codes Log::instance()", "The log file can't be opened on consoles", "Lazy initialization fails on startup"],
+      "options": [
+        "The log class becomes too slow",
+        "The team wants multiple loggers per domain, but the singleton forbids it and every call site hard-codes Log::instance()",
+        "The log file can't be opened on consoles",
+        "Lazy initialization fails on startup"
+      ],
       "answer": 1,
       "explain": "为了方便访问而用单例，却意外得到“只能有一个实例”的限制，且这一限制渗透到每个调用点。"
     },
@@ -253,7 +412,12 @@
       "type": "choice",
       "ref": "6.4",
       "q": "How many instances of BulletManager does the author say we need? 需要几个 BulletManager？",
-      "options": ["One, as a singleton", "One per bullet", "Two, for double buffering", "Zero—move its behavior into Bullet itself"],
+      "options": [
+        "One, as a singleton",
+        "One per bullet",
+        "Two, for double buffering",
+        "Zero—move its behavior into Bullet itself"
+      ],
       "answer": 3,
       "explain": "OOP is about letting objects take care of themselves. 把 isOnScreen() 和 move() 移进 Bullet 即可。"
     },
@@ -261,14 +425,24 @@
       "type": "fill",
       "ref": "6.4",
       "q": "Using a static flag plus assert() in the constructor ensures a single instance, but the check only happens at ___ time（而单例在编译期保证）。",
-      "answer": ["run", "runtime", "运行", "运行时"],
+      "answer": [
+        "run",
+        "runtime",
+        "运行",
+        "运行时"
+      ],
       "explain": "这种做法不提供全局访问，但代价是检查从编译期推迟到了运行时。"
     },
     {
       "type": "choice",
       "ref": "6.4",
       "q": "Logging is called a \"___\" concern because it appears scattered throughout a codebase. 选择正确术语：",
-      "options": ["single-responsibility", "cross-cutting（横切）", "lazy", "pure"],
+      "options": [
+        "single-responsibility",
+        "cross-cutting（横切）",
+        "lazy",
+        "pure"
+      ],
       "answer": 1,
       "explain": "横切关注点不适合放进每个函数签名，可以通过基类、已有全局对象或服务定位器提供。"
     },
@@ -278,6 +452,86 @@
       "q": "作者实际怎样保证单实例？Which other patterns does he recommend instead of Singleton?",
       "answer": "EN: He uses a static class, or a static flag checked at runtime. He recommends Subclass Sandbox (shared state without global access) and Service Locator (global access with flexible configuration). 中：他用静态类，或者用在运行时检查的静态标志。推荐子类沙盒（共享状态而不全局化）和服务定位器（全局访问但配置更灵活）。",
       "explain": "作者从未在游戏中使用过完整的 GoF 单例。"
+    },
+    {
+      "type": "scenario",
+      "ref": "6.1",
+      "title": "跨平台存档文件系统 · Cross-platform save FileSystem",
+      "q": "你在做一款同时发行 PS5 和 Switch 的平台跳跃游戏。存档、日志、资源加载都要通过异步的 FileSystem wrapper 访问磁盘；多个异步操作（例如同时“写存档”和“删除旧存档”）必须相互协调，所以只能有一个实例。同事写了经典的 lazy singleton：if (instance_ == NULL) instance_ = new FileSystem();。请指出这个实现的问题，并给出一个线程安全、且能按平台选择具体实现的版本。",
+      "answer": "“只能有一个实例”在这里是合理需求：wrapper 需要知道所有正在进行的操作，多实例之间无法互相知晓。但经典实现的 if (instance_ == NULL) 不是线程安全的——两个线程同时首次调用可能各 new 一个实例。C++11 起，函数内 local static 的初始化保证只执行一次，即使有并发，所以写成 static FileSystem* instance = new PS5FileSystem(); 即可。按平台选择：FileSystem 设计为抽象接口（readFile/writeFile 纯虚），构造函数 protected，instance() 的实现文件里用编译开关创建 PS5FileSystem 或 SwitchFileSystem；调用方只依赖 FileSystem 接口，不耦合平台代码。注意：这只保证“初始化”线程安全，FileSystem 自身方法的线程安全（操作队列加锁）仍需自己处理。同时也应思考是否真的需要“全局访问”（见后面几题）。",
+      "code": "class FileSystem {\npublic:\n  static FileSystem& instance();\n  virtual ~FileSystem() {}\n  virtual char* readFile(char* path) = 0;\n  virtual void writeFile(char* path, char* contents) = 0;\nprotected:\n  FileSystem() {}\n};\n\nFileSystem& FileSystem::instance() {\n#if PLATFORM == PS5\n  static FileSystem* instance = new PS5FileSystem();\n#elif PLATFORM == SWITCH\n  static FileSystem* instance = new SwitchFileSystem();\n#endif\n  return *instance;  // C++11: init runs exactly once\n}",
+      "checklist": [
+        "说明为什么异步文件系统 wrapper 需要单一实例（协调所有操作）",
+        "指出经典 lazy 初始化在多线程下不安全",
+        "使用 C++11 local static 保证初始化只发生一次",
+        "利用可子类化的单例按平台选择实现，耦合封装在实现文件中",
+        "区分初始化线程安全与类本身的线程安全"
+      ],
+      "explain": "对应 §6.1 The Singleton Pattern 与 §6.2 中 “You can subclass the singleton” 的 PS3/Wii 例子；书中特别提醒 “the thread-safety of your singleton class itself is an entirely different question!”"
+    },
+    {
+      "type": "scenario",
+      "ref": "6.3",
+      "title": "开放世界的卡顿 · Lazy init hitch",
+      "q": "一款开放世界射击游戏里，AudioEngine 是 lazy singleton，第一次 AudioEngine::instance().play() 时才初始化：加载音频库、分配 64MB 混音缓冲。玩家反馈：第一次开枪时画面卡顿约 300ms；内存组还发现这块缓冲出现在堆中间，造成碎片。请解释原因，并给出不依赖 lazy initialization 的设计。如果改成 static 成员实例，又会失去什么？",
+      "answer": "原因：lazy initialization 把“何时初始化”的控制权交了出去。首次开枪恰好在激烈战斗中触发几百毫秒的初始化，导致掉帧；初始化时的大块堆分配发生在不可预测的时间点，也就无法控制它落在堆的什么位置，加剧碎片。修复：在加载阶段显式创建并初始化，例如 Game 启动时按确定顺序 audio_ = new AudioEngine(config); audio_->init();，并从预留的内存区域分配缓冲。若改成 static AudioEngine instance_; 成员：解决了时机问题，但失去单例相对全局变量的优点——无法多态（不能按平台选子类）、必须在静态初始化阶段可构造（不能用运行时配置文件，不同 static 之间初始化顺序不确定）、也无法在不用时释放内存。到那一步它其实就是 static class，不如直接用静态函数或干脆显式传入实例。",
+      "code": "class Game {\npublic:\n  void startup(const Config& config) {\n    // Loading screen: we decide exactly when and where\n    audio_ = new (audioArena_.alloc(sizeof(AudioEngine)))\n        AudioEngine(config.audio);\n    audio_->init();  // 300ms here is invisible\n  }\nprivate:\n  MemoryArena audioArena_;\n  AudioEngine* audio_;\n};",
+      "checklist": [
+        "指出卡顿来源：lazy 初始化在战斗中首次被触发",
+        "指出无法控制初始化时的堆分配位置，导致碎片",
+        "改为在加载阶段显式、按顺序初始化",
+        "说明 static 实例的代价：失去多态、静态初始化限制、无法释放内存",
+        "意识到 static instance 本质是 static class"
+      ],
+      "explain": "对应 §6.3 Lazy initialization takes control away from you：“If we let it lazy-initialize itself the first time a sound plays, that could be in the middle of an action-packed part of the game”。placement new + arena 是书外的工程示意。"
+    },
+    {
+      "type": "scenario",
+      "ref": "6.3",
+      "title": "日志单例的后遗症 · The Log singleton regret",
+      "q": "一款 MMO 的客户端从第一天起就用 Log::instance().write(...) 记录日志，现在全工程有 3000 处调用。项目后期日志文件变成垃圾场，网络组、UI 组、音频组都想要各自独立的日志文件和日志级别；而且 Log 类在公司共享库里，另外两个项目也在用。请分析这个设计为什么会走到这一步，并提出一个迁移方案，让以后不会再被锁死。",
+      "answer": "根本原因：Singleton 同时解决了两个问题——“只能有一个实例”和“全局访问”，而团队其实只想要后者（方便访问）。为了方便，他们顺带接受了“只能有一个 logger”这个限制，并把这个限制写进了每一个调用点 Log::instance()。现在要多实例，就得改 Log 类本身和全部 3000 处调用，还要跨团队协调共享库。迁移方案：(1) Log 恢复为普通可多实例的类：Log(const char* file, Level level)。(2) 提供访问而不强加单实例：通过 GameObject 基类的 protected getLog()（Subclass Sandbox），或从已有的全局对象 Game 获取：Game::instance().getLog(LOG_NETWORK)，或使用 Service Locator；在核心渲染等地方直接传入 context。(3) 过渡期保留一个 Log::instance() 返回“默认 logger”的兼容 shim，逐步把调用改成按 domain 获取的 logger，最后删除 shim。教训：需要全局访问时，不要顺手把“单实例”也锁死。",
+      "code": "class Log {\npublic:\n  Log(const char* file, Level level);  // multiple instances OK\n  void write(const char* msg);\n};\n\nclass Game {\npublic:\n  static Game& instance() { return instance_; }\n  Log& getLog(LogDomain d) { return *logs_[d]; }\nprivate:\n  static Game instance_;\n  Log* logs_[LOG_DOMAIN_COUNT];  // online, UI, audio, gameplay\n};\n\nGame::instance().getLog(LOG_NETWORK).write(\"Packet lost\");",
+      "checklist": [
+        "指出 Singleton 同时解决两个问题，而团队只需要“便捷访问”",
+        "说明单实例限制被固化在所有调用点中，修改成本巨大（共享库更甚）",
+        "让 Log 恢复可多实例",
+        "用替代方式提供访问：传参、基类 getLog()、挂在 Game 上、Service Locator",
+        "给出渐进迁移（兼容 shim）"
+      ],
+      "explain": "对应 §6.3 It solves two problems even when you just have one：“that design limitation is entrenched in every single call site that uses it”。兼容 shim 的迁移步骤是书外工程实践。"
+    },
+    {
+      "type": "scenario",
+      "ref": "6.4",
+      "title": "砍掉 Manager · Killing the managers",
+      "q": "你加入一个弹幕射击（bullet hell）手游项目，代码里有 BulletManager、EnemyManager、ParticleManager、SoundManager，全是 singleton。以 BulletManager 为例：它提供 create(x, y)、isOnScreen(Bullet&)、move(Bullet&)，而 Bullet 只有 getX/setX/getY/setY。新人还在物理代码里 #include \"SoundManager.h\" 直接播放音效。请重构 BulletManager，并说明对 SoundManager 的耦合问题应如何处理。",
+      "answer": "BulletManager 是典型的“保姆类”，它只是给 Bullet 添加功能的 helper，反映了对 OOP 的不熟悉。需要几个 BulletManager 实例？零个。把行为搬回它所服务的类：Bullet(int x, int y) 构造、bool isOnScreen()、void move()——让对象照顾好自己。若确实需要管理大量子弹的存储（如复用内存），那是一个由 Game/World 持有的普通对象（例如 Object Pool），而不是全局单例。SoundManager：全局可见让新人一行 #include 就把 physics 和 audio 耦合起来，破坏了架构。去掉全局访问后，即使 include 了也拿不到实例，这本身就向他传递了“这两个模块不应互相知道”的信号。正确做法：physics 发出“boulder landed”通知（Observer）或事件队列，由音频系统自己订阅并播放。By controlling access to instances, you control coupling.",
+      "code": "class Bullet {\npublic:\n  Bullet(int x, int y) : x_(x), y_(y) {}\n  bool isOnScreen() const {\n    return x_ >= 0 && x_ < SCREEN_WIDTH &&\n           y_ >= 0 && y_ < SCREEN_HEIGHT;\n  }\n  void move() { x_ += 5; }\nprivate:\n  int x_, y_;\n};\n// No BulletManager at all.",
+      "checklist": [
+        "识别 Manager 只是 helper，行为应搬回 Bullet 自身",
+        "回答需要的 BulletManager 数量是 0",
+        "若需集中存储，用普通对象（如由 World 持有的 pool），不是全局单例",
+        "指出全局 SoundManager 会鼓励 physics→audio 的耦合",
+        "通过限制实例访问来控制耦合，改用通知/事件解耦"
+      ],
+      "explain": "对应 §6.4 See if you need the class at all（“The answer here is zero, actually”）以及 §6.3 “They encourage coupling” 中新人让 physics 播放音效的例子：“By controlling access to instances, you control coupling.”"
+    },
+    {
+      "type": "scenario",
+      "ref": "6.4",
+      "title": "可测试的 AI 与渲染上下文 · Access without globals",
+      "q": "一款 RTS 的 AI、渲染和网络代码都依赖 Renderer::instance()、Log::instance()、Network::instance()。现在团队想 (1) 写单元测试，在测试里用 mock Network；(2) 支持同一进程内跑两个 Game 实例做 replay 对比；(3) 保证 Network 只被创建一次，但不希望任意模块都能拿到它。请为这三类依赖分别选择一种访问方式，并说明理由和取舍。",
+      "answer": "按“作用域越小越好”逐个选择。Renderer：渲染函数的核心依赖，直接传入（pass it in / dependency injection），如 render(RenderContext& ctx)，测试和多实例都自然支持。Log：cross-cutting concern，放进参数列表很怪；用基类提供——GameObject 有 protected getLog()（Subclass Sandbox），派生的单位类都能用，外部拿不到；GameObject 的 Log 可由初始化函数或 Service Locator 注入，测试时换成 NullLog。Network：用“单实例但非全局”的方式保证唯一——构造函数里 assert(!instantiated_)，由 Game 创建并持有，只把引用交给需要的子系统；或通过 Service Locator 注册，测试时注册 MockNetwork。取舍：assert 只在运行时检查，不像 Singleton 有编译期保证；挂在 Game 上会让更多代码耦合 Game，且有 Law of Demeter 争议，但比一堆单例好，且支持多 Game 实例时这些子系统无需改动。",
+      "code": "class Network {\npublic:\n  Network()  { assert(!instantiated_); instantiated_ = true; }\n  ~Network() { instantiated_ = false; }\nprivate:\n  static bool instantiated_;\n};\nbool Network::instantiated_ = false;\n\nclass GameObject {\nprotected:\n  Log& getLog() { return *log_; }\npublic:\n  static void setLog(Log* log) { log_ = log; }  // NullLog in tests\nprivate:\n  static Log* log_;\n};\n\nvoid renderUnits(RenderContext& ctx, const World& world);",
+      "checklist": [
+        "Renderer 等核心依赖用参数传入（dependency injection）",
+        "Log 等 cross-cutting concern 用基类 protected 访问或 Service Locator",
+        "单实例用构造函数 assert 保证，不提供全局访问",
+        "指出 assert 只是运行时检查（vs Singleton 编译期保证）",
+        "说明这些方式如何支持 mock 测试与多 Game 实例"
+      ],
+      "explain": "对应 §6.4 What We Can Do Instead：To limit a class to a single instance（静态标志 + assert）与 To provide convenient access（Pass it in / base class / something already global / Service Locator），原则是 “we want variables to be as narrowly scoped as possible”。mock 测试是书外的实践动机。"
     }
   ]
 }

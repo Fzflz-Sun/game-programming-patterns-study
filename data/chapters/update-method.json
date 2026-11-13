@@ -1,6 +1,9 @@
 {
   "id": "update-method",
-  "title": { "en": "Update Method", "zh": "更新方法" },
+  "title": {
+    "en": "Update Method",
+    "zh": "更新方法"
+  },
   "summary": {
     "en": "The game world keeps a collection of objects, each implementing an update() method that simulates one frame of its behavior. Every frame, the game loop updates each object, so every entity encapsulates its own behavior and the loop stays uncluttered.",
     "zh": "游戏世界维护一个对象集合，每个对象都实现一个 update() 方法，用来模拟自身一帧的行为。游戏循环每帧更新每个对象，于是每个实体都封装了自己的行为，游戏循环也保持整洁。"
@@ -8,10 +11,16 @@
   "sections": [
     {
       "num": "10.1",
-      "title": { "en": "Intent", "zh": "意图" },
+      "title": {
+        "en": "Intent",
+        "zh": "意图"
+      },
       "points": [
         {
-          "title": { "en": "One frame of behavior at a time", "zh": "每次处理一帧的行为" },
+          "title": {
+            "en": "One frame of behavior at a time",
+            "zh": "每次处理一帧的行为"
+          },
           "body": {
             "en": "The intent of Update Method is to simulate a collection of independent objects by telling each one to process one frame of behavior at a time.",
             "zh": "更新方法模式的意图是：通过让每个对象每次处理一帧的行为，来模拟一组相互独立的对象。"
@@ -21,10 +30,16 @@
     },
     {
       "num": "10.2",
-      "title": { "en": "Motivation", "zh": "动机" },
+      "title": {
+        "en": "Motivation",
+        "zh": "动机"
+      },
       "points": [
         {
-          "title": { "en": "Naive loops lock up the game", "zh": "朴素的循环会让游戏卡死" },
+          "title": {
+            "en": "Naive loops lock up the game",
+            "zh": "朴素的循环会让游戏卡死"
+          },
           "body": {
             "en": "The simplest way to make a skeleton guard patrol is two for loops moving it right then left. But the program is stuck in an infinite loop, so the player never sees the skeleton move. We want it to move one step per frame and rely on the outer game loop for iteration.",
             "zh": "让骷髅守卫来回巡逻最简单的写法，是用两个 for 循环先向右再向左移动它。但程序会陷入死循环，玩家根本看不到骷髅移动。我们真正想要的是让它每帧移动一步，并依靠外层的游戏循环来迭代。"
@@ -32,7 +47,10 @@
           "code": "while (true) {\n  // Patrol right.\n  for (double x = 0; x < 100; x++) {\n    skeleton.setX(x);\n  }\n\n  // Patrol left.\n  for (double x = 100; x > 0; x--) {\n    skeleton.setX(x);\n  }\n}"
         },
         {
-          "title": { "en": "Behavior mushed into the game loop", "zh": "所有行为都糊在游戏循环里" },
+          "title": {
+            "en": "Behavior mushed into the game loop",
+            "zh": "所有行为都糊在游戏循环里"
+          },
           "body": {
             "en": "Moving the logic into the game loop requires an explicit patrollingLeft variable, and adding two lightning-shooting statues adds more counters and imperative code. The game loop becomes a growing pile of variables and code for specific entities, all mushed together — and anytime \"mushed\" describes your architecture, you likely have a problem.",
             "zh": "把逻辑移进游戏循环后，需要显式的 patrollingLeft 变量；再加入两座会放闪电的雕像，又多了一堆计数器和命令式代码。游戏循环变成了一大堆针对特定实体的变量和代码，全都糊在一起——如果“糊在一起”能准确描述你的架构，那你多半遇到麻烦了。"
@@ -40,14 +58,20 @@
           "code": "if (++leftStatueFrames == 90) {\n  leftStatueFrames = 0;\n  leftStatue.shootLightning();\n}\n\nif (++rightStatueFrames == 80) {\n  rightStatueFrames = 0;\n  rightStatue.shootLightning();\n}"
         },
         {
-          "title": { "en": "Each entity encapsulates its own behavior", "zh": "每个实体封装自己的行为" },
+          "title": {
+            "en": "Each entity encapsulates its own behavior",
+            "zh": "每个实体封装自己的行为"
+          },
           "body": {
             "en": "The fix: define an abstract update() method. The game loop keeps a collection of objects whose concrete types it doesn't know — only that they can be updated — and calls update() on each once per frame. This separates each object's behavior from the game loop and from other objects, and they appear to behave simultaneously.",
             "zh": "解决办法是定义一个抽象的 update() 方法。游戏循环维护一个对象集合，它不知道这些对象的具体类型，只知道它们可以被更新，并在每帧对每个对象调用一次 update()。这把每个对象的行为与游戏循环以及其他对象分离开来，它们看起来是同时行动的。"
           }
         },
         {
-          "title": { "en": "A dynamic collection makes levels data-driven", "zh": "动态集合让关卡可以由数据驱动" },
+          "title": {
+            "en": "A dynamic collection makes levels data-driven",
+            "zh": "动态集合让关卡可以由数据驱动"
+          },
           "body": {
             "en": "Because the game loop holds a dynamic collection, adding or removing objects from a level just means adding or removing them from the collection. Nothing is hardcoded, so levels can even be populated from a data file, which is exactly what level designers want.",
             "zh": "由于游戏循环持有的是一个动态集合，在关卡中增删对象只需在集合中增删即可。没有任何硬编码，甚至可以用数据文件来填充关卡，这正是关卡设计师想要的。"
@@ -57,10 +81,16 @@
     },
     {
       "num": "10.3",
-      "title": { "en": "The Pattern", "zh": "模式描述" },
+      "title": {
+        "en": "The Pattern",
+        "zh": "模式描述"
+      },
       "points": [
         {
-          "title": { "en": "Pattern definition", "zh": "模式定义" },
+          "title": {
+            "en": "Pattern definition",
+            "zh": "模式定义"
+          },
           "body": {
             "en": "The game world maintains a collection of objects. Each object implements an update method that simulates one frame of the object's behavior. Each frame, the game updates every object in the collection.",
             "zh": "游戏世界维护一个对象集合。每个对象实现一个更新方法，用来模拟该对象一帧的行为。每一帧，游戏都会更新集合中的每个对象。"
@@ -70,17 +100,26 @@
     },
     {
       "num": "10.4",
-      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "title": {
+        "en": "When to Use It",
+        "zh": "何时使用"
+      },
       "points": [
         {
-          "title": { "en": "The butter to Game Loop's bread", "zh": "游戏循环是面包，更新方法是黄油" },
+          "title": {
+            "en": "The butter to Game Loop's bread",
+            "zh": "游戏循环是面包，更新方法是黄油"
+          },
           "body": {
             "en": "Games with live entities — space marines, dragons, ghosts, athletes — very likely use this pattern. It fits poorly for abstract games like chess, where pieces need not be simulated concurrently, though even there it can help update animations every frame.",
             "zh": "拥有“活”实体的游戏——太空陆战队、龙、幽灵、运动员——很可能都用到了这个模式。对于国际象棋这类抽象游戏，棋子无需同时模拟，这个模式就不太适合，不过即便如此，它仍可用于每帧更新动画。"
           }
         },
         {
-          "title": { "en": "Conditions for a good fit", "zh": "适用的条件" },
+          "title": {
+            "en": "Conditions for a good fit",
+            "zh": "适用的条件"
+          },
           "body": {
             "en": "Update methods work well when your game has a number of objects or systems that need to run simultaneously, each object's behavior is mostly independent of the others, and the objects need to be simulated over time.",
             "zh": "当游戏中有许多需要同时运行的对象或系统、每个对象的行为基本独立于其他对象、并且这些对象需要随时间进行模拟时，更新方法就很适用。"
@@ -90,35 +129,62 @@
     },
     {
       "num": "10.5",
-      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "title": {
+        "en": "Keep in Mind",
+        "zh": "注意事项"
+      },
       "points": [
         {
-          "title": { "en": "Frame slicing adds complexity", "zh": "按帧切分代码会增加复杂度" },
-          "subsection": { "en": "Splitting code into single frame slices makes it more complex", "zh": "把代码切分成单帧片段会让它更复杂" },
+          "title": {
+            "en": "Frame slicing adds complexity",
+            "zh": "按帧切分代码会增加复杂度"
+          },
+          "subsection": {
+            "en": "Splitting code into single frame slices makes it more complex",
+            "zh": "把代码切分成单帧片段会让它更复杂"
+          },
           "body": {
             "en": "Code that yields to the game loop every frame is notably more complex than straight-line code. You can sometimes avoid this with lightweight concurrency — generators, coroutines, or fibers — that let an object's code pause and resume mid-way; real threads are usually too heavyweight. The Bytecode pattern is another option.",
             "zh": "每帧都要把控制权交还给游戏循环的代码，明显比顺序执行的代码复杂。有时可以借助轻量级并发机制——生成器、协程或纤程——让对象的代码在中途暂停和恢复，从而避免这种复杂性；真正的线程通常太重。字节码模式也是一种选择。"
           }
         },
         {
-          "title": { "en": "Storing state to resume next frame", "zh": "需要存储状态以便下一帧继续" },
-          "subsection": { "en": "You have to store state to resume where you left off each frame", "zh": "必须存储状态，才能在每帧从上次中断处继续" },
+          "title": {
+            "en": "Storing state to resume next frame",
+            "zh": "需要存储状态以便下一帧继续"
+          },
+          "subsection": {
+            "en": "You have to store state to resume where you left off each frame",
+            "zh": "必须存储状态，才能在每帧从上次中断处继续"
+          },
           "body": {
             "en": "In straight-line code, the direction was implicit in which loop was running. Once code returns every frame, the execution position is lost, so you must explicitly store enough state (like patrollingLeft) to restore it. The State pattern often helps; state machines are common in games partly for this reason.",
             "zh": "在顺序执行的代码中，方向隐含在当前执行的是哪个循环里。一旦代码每帧都要返回，执行位置就丢失了，所以必须显式存储足够的状态（如 patrollingLeft）来恢复它。状态模式通常能帮上忙；状态机在游戏中常见，部分原因就在于此。"
           }
         },
         {
-          "title": { "en": "Sequential, not truly concurrent", "zh": "顺序执行，而非真正并发" },
-          "subsection": { "en": "Objects all simulate each frame but are not truly concurrent", "zh": "所有对象每帧都会模拟，但并非真正并发" },
+          "title": {
+            "en": "Sequential, not truly concurrent",
+            "zh": "顺序执行，而非真正并发"
+          },
+          "subsection": {
+            "en": "Objects all simulate each frame but are not truly concurrent",
+            "zh": "所有对象每帧都会模拟，但并非真正并发"
+          },
           "body": {
             "en": "Update order matters: if A precedes B, A sees B's previous state while B sees A's new state. The game is effectively turn-based with one-frame turns. Use Double Buffer if you want order not to matter, but sequential updates are mostly good: each update moves the world from one valid state to the next, avoiding conflicts like two chess pieces moving into the same square, and it yields a serialized move list for online play.",
             "zh": "更新顺序很重要：如果 A 排在 B 前面，A 看到的是 B 的旧状态，而 B 看到的是 A 的新状态。游戏实际上是回合制的，只是一个回合只有一帧长。若希望顺序无关，可以使用双缓冲模式；但顺序更新大体上是好事：每次更新都把世界从一个有效状态推进到下一个有效状态，避免了两个棋子同时走进同一格这类冲突，还能为联机游戏提供一组序列化的走法。"
           }
         },
         {
-          "title": { "en": "Adding objects during update", "zh": "在更新期间添加对象" },
-          "subsection": { "en": "Be careful modifying the object list while updating", "zh": "更新时修改对象列表要小心" },
+          "title": {
+            "en": "Adding objects during update",
+            "zh": "在更新期间添加对象"
+          },
+          "subsection": {
+            "en": "Be careful modifying the object list while updating",
+            "zh": "更新时修改对象列表要小心"
+          },
           "body": {
             "en": "Objects added to the end of the list during an update get to act in the frame they spawned, before the player sees them. To prevent this, cache the object count at the start of the loop and update only that many.",
             "zh": "在更新过程中加到列表末尾的对象，会在它诞生的那一帧就开始行动，而此时玩家还没看到它。要避免这一点，可以在循环开始时缓存对象数量，只更新那么多个对象。"
@@ -126,8 +192,14 @@
           "code": "int numObjectsThisTurn = numObjects_;\nfor (int i = 0; i < numObjectsThisTurn; i++) {\n  objects_[i]->update();\n}"
         },
         {
-          "title": { "en": "Removing objects during update", "zh": "在更新期间移除对象" },
-          "subsection": { "en": "Be careful modifying the object list while updating", "zh": "更新时修改对象列表要小心" },
+          "title": {
+            "en": "Removing objects during update",
+            "zh": "在更新期间移除对象"
+          },
+          "subsection": {
+            "en": "Be careful modifying the object list while updating",
+            "zh": "更新时修改对象列表要小心"
+          },
           "body": {
             "en": "Removing an object earlier in the array shifts the rest down, so the index skips one object entirely. Fixes: iterate backwards, carefully adjust iteration variables on removal, or defer removal — mark objects \"dead\", skip them during updating, and remove the corpses afterwards. With multiple threads, deferring is even more attractive.",
             "zh": "移除数组中靠前的对象会让后面的元素前移，导致索引直接跳过一个对象。解决方法：倒序遍历；移除时小心调整迭代变量；或者延迟移除——把对象标记为“死亡”，更新时跳过它们，结束后再统一清理“尸体”。如果有多个线程处理更新循环，延迟修改就更有吸引力了。"
@@ -137,10 +209,16 @@
     },
     {
       "num": "10.6",
-      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "title": {
+        "en": "Sample Code",
+        "zh": "示例代码"
+      },
       "points": [
         {
-          "title": { "en": "Entity and World", "zh": "Entity 与 World" },
+          "title": {
+            "en": "Entity and World",
+            "zh": "Entity 与 World"
+          },
           "body": {
             "en": "The Entity class has position accessors and, most importantly, an abstract update() method. A World class holds an array of entities, and its gameLoop() calls update() on each entity every frame — itself an instance of the Game Loop pattern.",
             "zh": "Entity 类提供位置的访问方法，最重要的是一个抽象的 update() 方法。World 类持有一个实体数组，它的 gameLoop() 每帧对每个实体调用 update()——这本身就是游戏循环模式的一个实例。"
@@ -148,16 +226,28 @@
           "code": "void World::gameLoop() {\n  while (true) {\n    // Handle user input...\n\n    // Update each entity.\n    for (int i = 0; i < numEntities_; i++) {\n      entities_[i]->update();\n    }\n\n    // Physics and rendering...\n  }\n}"
         },
         {
-          "title": { "en": "Why subclass Entity here?", "zh": "这里为什么继承 Entity？" },
-          "subsection": { "en": "Subclassing entities?!", "zh": "继承实体类？！" },
+          "title": {
+            "en": "Why subclass Entity here?",
+            "zh": "这里为什么继承 Entity？"
+          },
+          "subsection": {
+            "en": "Subclassing entities?!",
+            "zh": "继承实体类？！"
+          },
           "body": {
             "en": "The industry once built towering inheritance hierarchies that became unmaintainable; the remedy was the Component pattern, where update() lives on components and behavior comes from mixing components. The author would use components in a real game, but subclassing Entity is the simplest way to show update(). He also warns that being dogmatic against inheritance is as bad as being dogmatic for it.",
             "zh": "游戏业曾经构建过高耸的继承层次，最终变得无法维护；补救办法是组件模式：update() 放在组件上，通过组合组件来获得行为。作者在真实游戏中也会使用组件，但继承 Entity 是展示 update() 最简单的方式。他还提醒，教条地反对继承和教条地滥用继承一样糟糕。"
           }
         },
         {
-          "title": { "en": "Skeleton and Statue subclasses", "zh": "Skeleton 与 Statue 子类" },
-          "subsection": { "en": "Defining entities", "zh": "定义实体" },
+          "title": {
+            "en": "Skeleton and Statue subclasses",
+            "zh": "Skeleton 与 Statue 子类"
+          },
+          "subsection": {
+            "en": "Defining entities",
+            "zh": "定义实体"
+          },
           "body": {
             "en": "Skeleton's update() is the old game-loop code, with patrollingLeft_ now a field so it persists between calls. Statue keeps its own frames_ counter and delay_, so you can create as many statues as you like, each with its own timer. Each entity brings everything it needs, which separates populating the world from implementing it.",
             "zh": "Skeleton 的 update() 就是原来游戏循环里的那段代码，只是 patrollingLeft_ 变成了字段，从而在多次调用之间保持值。Statue 保存自己的 frames_ 计数器和 delay_，所以你可以创建任意多座雕像，每座都有自己的计时器。每个实体都自带所需的一切，这就把“填充世界”和“实现世界”分离开来。"
@@ -165,8 +255,14 @@
           "code": "class Statue : public Entity {\npublic:\n  Statue(int delay) : frames_(0), delay_(delay) {}\n\n  virtual void update() {\n    if (++frames_ == delay_) {\n      shootLightning();\n      // Reset the timer.\n      frames_ = 0;\n    }\n  }\n\nprivate:\n  int frames_;\n  int delay_;\n  void shootLightning() { /* Shoot the lightning... */ }\n};"
         },
         {
-          "title": { "en": "Passing elapsed time", "zh": "传入经过的时间" },
-          "subsection": { "en": "Passing time", "zh": "时间的流逝" },
+          "title": {
+            "en": "Passing elapsed time",
+            "zh": "传入经过的时间"
+          },
+          "subsection": {
+            "en": "Passing time",
+            "zh": "时间的流逝"
+          },
           "body": {
             "en": "With a variable time step, update() receives the elapsed time, and movement scales with it. This adds complexity: with a large time slice the skeleton may overshoot its patrol bounds, which must be handled carefully.",
             "zh": "如果使用可变时间步长，update() 会接收经过的时间，移动距离随之缩放。这会增加复杂度：时间片较大时，骷髅可能越过巡逻边界，必须小心处理。"
@@ -177,11 +273,20 @@
     },
     {
       "num": "10.7",
-      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "title": {
+        "en": "Design Decisions",
+        "zh": "设计决策"
+      },
       "points": [
         {
-          "title": { "en": "Where update() lives: entity, component, or delegate", "zh": "update() 放在哪里：实体、组件还是委托对象" },
-          "subsection": { "en": "What class does the update method live on?", "zh": "更新方法放在哪个类上？" },
+          "title": {
+            "en": "Where update() lives: entity, component, or delegate",
+            "zh": "update() 放在哪里：实体、组件还是委托对象"
+          },
+          "subsection": {
+            "en": "What class does the update method live on?",
+            "zh": "更新方法放在哪个类上？"
+          },
           "body": {
             "en": "On the entity class: simplest, but subclassing Entity for every new behavior is brittle and doesn't map to single inheritance. On the component class: a no-brainer with the Component pattern, decoupling parts of one entity from each other. On a delegate class (State or Type Object): Entity's non-virtual update() simply forwards to the delegate, so behavior changes by swapping the delegated object.",
             "zh": "放在实体类上：最简单，但每种新行为都要继承 Entity，既脆弱又难以用单继承表达复用。放在组件类上：使用组件模式时这是不二之选，它让同一实体的各部分彼此解耦。放在委托类上（状态模式或类型对象模式）：Entity 的非虚 update() 只是转发给委托对象，更换委托对象即可改变行为。"
@@ -189,8 +294,14 @@
           "code": "void Entity::update() {\n  // Forward to state object.\n  state_->update();\n}"
         },
         {
-          "title": { "en": "Handling dormant objects", "zh": "如何处理休眠对象" },
-          "subsection": { "en": "How are dormant objects handled?", "zh": "如何处理休眠对象？" },
+          "title": {
+            "en": "Handling dormant objects",
+            "zh": "如何处理休眠对象"
+          },
+          "subsection": {
+            "en": "How are dormant objects handled?",
+            "zh": "如何处理休眠对象？"
+          },
           "body": {
             "en": "Keeping inactive objects in a single collection wastes time checking flags or calling no-op methods, and skipping over objects can blow the data cache. A separate collection of only active objects costs extra memory and must be kept in sync with the master collection. The deciding metric is how many inactive objects you tend to have.",
             "zh": "如果把不活跃对象也放在同一个集合中，就要浪费时间检查标志或调用空方法，而且跳过对象还可能破坏数据缓存。单独维护一个只含活跃对象的集合则需要额外内存，并且必须与主集合保持同步。决定取舍的指标是：不活跃对象通常有多少。"
@@ -200,10 +311,16 @@
     },
     {
       "num": "10.8",
-      "title": { "en": "See Also", "zh": "参见" },
+      "title": {
+        "en": "See Also",
+        "zh": "参见"
+      },
       "points": [
         {
-          "title": { "en": "The engine trinity and real-world uses", "zh": "引擎三件套与实际应用" },
+          "title": {
+            "en": "The engine trinity and real-world uses",
+            "zh": "引擎三件套与实际应用"
+          },
           "body": {
             "en": "Update Method, Game Loop, and Component form a trinity that often makes up the nucleus of a game engine. Data Locality can speed up cache performance when updating many entities. Unity's MonoBehaviour, XNA's Game and GameComponent, and Quintus's Sprite class all use this pattern.",
             "zh": "更新方法、游戏循环和组件三者构成的“三位一体”往往是游戏引擎的核心。当你关心批量更新实体时的缓存性能，数据局部性模式可以帮助提速。Unity 的 MonoBehaviour、XNA 的 Game 与 GameComponent，以及 Quintus 的 Sprite 类都使用了这个模式。"
@@ -213,25 +330,66 @@
     }
   ],
   "terms": [
-    { "en": "update method", "zh": "更新方法" },
-    { "en": "entity", "zh": "实体" },
-    { "en": "abstract method", "zh": "抽象方法" },
-    { "en": "coroutine / generator / fiber", "zh": "协程 / 生成器 / 纤程" },
-    { "en": "state machine", "zh": "状态机" },
-    { "en": "sequential update", "zh": "顺序更新" },
-    { "en": "deferred removal", "zh": "延迟移除" },
-    { "en": "variable time step", "zh": "可变时间步长" },
-    { "en": "component", "zh": "组件" },
-    { "en": "delegate", "zh": "委托对象" },
-    { "en": "dormant / inactive object", "zh": "休眠 / 不活跃对象" },
-    { "en": "data cache", "zh": "数据缓存" }
+    {
+      "en": "update method",
+      "zh": "更新方法"
+    },
+    {
+      "en": "entity",
+      "zh": "实体"
+    },
+    {
+      "en": "abstract method",
+      "zh": "抽象方法"
+    },
+    {
+      "en": "coroutine / generator / fiber",
+      "zh": "协程 / 生成器 / 纤程"
+    },
+    {
+      "en": "state machine",
+      "zh": "状态机"
+    },
+    {
+      "en": "sequential update",
+      "zh": "顺序更新"
+    },
+    {
+      "en": "deferred removal",
+      "zh": "延迟移除"
+    },
+    {
+      "en": "variable time step",
+      "zh": "可变时间步长"
+    },
+    {
+      "en": "component",
+      "zh": "组件"
+    },
+    {
+      "en": "delegate",
+      "zh": "委托对象"
+    },
+    {
+      "en": "dormant / inactive object",
+      "zh": "休眠 / 不活跃对象"
+    },
+    {
+      "en": "data cache",
+      "zh": "数据缓存"
+    }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "10.2",
       "q": "What does the game loop know about the objects in its collection? 游戏循环对集合中的对象知道什么？",
-      "options": ["它们的具体类型", "它们的位置和速度", "Only that they can be updated（只知道它们可以被更新）", "它们的渲染方式"],
+      "options": [
+        "它们的具体类型",
+        "它们的位置和速度",
+        "Only that they can be updated（只知道它们可以被更新）",
+        "它们的渲染方式"
+      ],
       "answer": 2,
       "explain": "The abstract update() is the only thing the loop relies on. 抽象的 update() 把对象行为与循环解耦。"
     },
@@ -246,14 +404,23 @@
       "type": "fill",
       "ref": "10.5",
       "q": "Lightweight concurrency constructs such as generators, ___, or fibers let an object's code pause and resume mid-way.",
-      "answer": ["coroutines", "coroutine", "协程"],
+      "answer": [
+        "coroutines",
+        "coroutine",
+        "协程"
+      ],
       "explain": "协程能让代码在中途暂停与恢复，从而写成顺序形式，避免按帧切分的复杂度。"
     },
     {
       "type": "choice",
       "ref": "10.5",
       "q": "若 A 在列表中排在 B 前面，那么 B 更新时看到的是 A 的什么状态？",
-      "options": ["A's state from the previous frame（上一帧的状态）", "A's new state from this frame（本帧的新状态）", "A 的初始状态", "取决于随机顺序"],
+      "options": [
+        "A's state from the previous frame（上一帧的状态）",
+        "A's new state from this frame（本帧的新状态）",
+        "A 的初始状态",
+        "取决于随机顺序"
+      ],
       "answer": 1,
       "explain": "A has already been updated this frame, so B sees A's new state. 这就是“非真正并发”——游戏本质上是一帧一回合的回合制。"
     },
@@ -261,7 +428,12 @@
       "type": "fill",
       "ref": "10.5",
       "q": "If you want update order not to matter, so every object sees the previous frame's state, use the ___ pattern.",
-      "answer": ["Double Buffer", "double buffer", "双缓冲", "双缓冲模式"],
+      "answer": [
+        "Double Buffer",
+        "double buffer",
+        "双缓冲",
+        "双缓冲模式"
+      ],
       "explain": "双缓冲让 A 和 B 都读取上一帧的状态，更新顺序就无关紧要了。"
     },
     {
@@ -282,7 +454,12 @@
       "type": "choice",
       "ref": "10.6",
       "q": "In the Skeleton class, why is patrollingLeft_ a field instead of a local variable? 为什么改成字段？",
-      "options": ["为了让多个骷髅共享方向", "So its value persists between calls to update()（在多次 update() 之间保持）", "因为 C++ 不允许局部 bool 变量", "为了节省内存"],
+      "options": [
+        "为了让多个骷髅共享方向",
+        "So its value persists between calls to update()（在多次 update() 之间保持）",
+        "因为 C++ 不允许局部 bool 变量",
+        "为了节省内存"
+      ],
       "answer": 1,
       "explain": "Execution position is lost when update() returns, so the state must be stored on the object. 每帧返回后需要显式保存状态。"
     },
@@ -290,7 +467,12 @@
       "type": "choice",
       "ref": "10.7",
       "q": "When update() lives on a delegate class (State / Type Object), what does Entity::update() typically do?",
-      "options": ["什么都不做", "It is pure virtual and must be overridden", "它遍历所有组件", "It is non-virtual and simply forwards to the delegated object（非虚，仅转发）"],
+      "options": [
+        "什么都不做",
+        "It is pure virtual and must be overridden",
+        "它遍历所有组件",
+        "It is non-virtual and simply forwards to the delegated object（非虚，仅转发）"
+      ],
       "answer": 3,
       "explain": "Behavior is changed by swapping the delegate, not by subclassing. 更换委托对象即可改变行为。"
     },
@@ -300,6 +482,84 @@
       "q": "比较“单一集合包含不活跃对象”与“单独的活跃对象集合”的取舍。Answer in both languages.",
       "answer": "EN: A single collection wastes CPU checking flags or calling no-op updates and can thrash the data cache. A separate active collection is faster to iterate but uses extra memory and must be kept in sync with the master list. Choose based on how many inactive objects you usually have. 中：单一集合会浪费 CPU 去检查标志或调用空方法，还会破坏数据缓存；单独的活跃集合遍历更快，但占用额外内存并需与主集合保持同步。依据不活跃对象的数量来选择。",
       "explain": "不活跃对象越多，单独维护活跃集合就越值得。"
+    },
+    {
+      "type": "scenario",
+      "ref": "10.2",
+      "title": "塔防的主循环清理 · Untangling a tower-defense main loop",
+      "q": "一款塔防游戏的 main loop 里塞满了代码：arrowTower1Cooldown、arrowTower2Cooldown、cannonTowerCooldown 等变量，以及每种敌人移动的 if/else 分支，每加一种塔都要改 main loop。关卡策划希望用关卡文件自由摆放任意数量的塔和敌人。请用 Update Method 重构：定义哪些类？每个实例的状态放在哪里？关卡加载器和 game loop 各自负责什么？",
+      "answer": "定义抽象基类 Entity { virtual void update() = 0; }，每种行为一个子类：ArrowTower、CannonTower、Creep 等。原先散落在 main loop 中的局部变量变成各实例的字段，例如 ArrowTower 持有 cooldown_ 和 fireDelay_，所以摆 20 座塔就自动拥有 20 个独立计时器，不需要 tower1Cooldown 这种变量。World 持有一个动态集合 std::vector<Entity*> entities_。game loop 每帧遍历调用 update()，它只知道“对象可以 update”，不知道具体类型。LevelLoader 读取关卡文件，根据 type 字段创建对应实例并加入集合。这样“填充世界”与“实现世界”就分离了，新增一种塔只需新增一个类，main loop 一行不改。",
+      "code": "class ArrowTower : public Entity {\npublic:\n  explicit ArrowTower(int fireDelay)\n    : frames_(0), fireDelay_(fireDelay) {}\n\n  virtual void update() {\n    if (++frames_ == fireDelay_) {\n      fireAtNearestCreep();\n      frames_ = 0;\n    }\n  }\n\nprivate:\n  int frames_;\n  int fireDelay_;\n};\n\nvoid World::gameLoop() {\n  while (true) {\n    // Handle input...\n    for (Entity* e : entities_) e->update();\n    // Physics and rendering...\n  }\n}",
+      "checklist": [
+        "抽象 update() 方法，game loop 不知道具体类型",
+        "每个实例把计时器等状态存为字段，可以任意创建多个",
+        "World 维护动态集合，增删实体只需修改集合",
+        "关卡文件 / 编辑器负责填充世界，与行为实现分离"
+      ],
+      "explain": "§10.2 中雕像的例子：把 leftStatueFrames 这类变量移入 Statue 后，“each instance will have its own little timer”；§10.6 提到该模式“lets us separate populating the game world from implementing it”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "10.5",
+      "title": "Boss 技能序列的逐帧拆分 · A boss attack script, one frame at a time",
+      "q": "一个动作 RPG 的 Boss 招式是：咆哮 1 秒 → 冲向玩家 → 连续砍三刀，每刀间隔 0.3 秒 → 原地喘息 2 秒 → 循环。新人写成了一段带 sleep() 和 for 循环的直线代码，放进 Boss::update() 后整个游戏卡死。请解释原因，用 Update Method 的约束重写这段行为，说明需要额外存哪些状态，并提出一种能保留“直线写法”的替代方案。",
+      "answer": "update() 必须只执行“一帧的行为”然后返回；sleep 或循环会把控制权一直留在 Boss 里，game loop 无法处理输入和渲染。拆分后，执行位置（程序计数器）在 return 时丢失，所以必须显式存储状态：phase_ 枚举（Roar、Charge、Slash、Rest），phaseTimer_ 计时，slashCount_ 记录已经砍了几刀。每帧根据 phase_ 只做一小步，条件满足时切换 phase。这正是 Keep in Mind 所说的代价：拆成单帧切片后代码更复杂，需要存储状态以便下帧继续，而 State pattern / 状态机正适合承载这些状态。替代方案：用 coroutine、fiber 或 generator（例如 C++20 coroutine、Lua coroutine），在需要等待的地方 yield，行为又可以写成直线代码；或者用 Bytecode pattern 让 VM 维护每个脚本的执行位置。",
+      "code": "void Boss::update(double dt) {\n  phaseTimer_ += dt;\n  switch (phase_) {\n    case Phase::Roar:\n      if (phaseTimer_ >= 1.0) enter(Phase::Charge);\n      break;\n    case Phase::Charge:\n      moveToward(player(), CHARGE_SPEED * dt);\n      if (inMeleeRange()) { slashCount_ = 0; enter(Phase::Slash); }\n      break;\n    case Phase::Slash:\n      if (phaseTimer_ >= 0.3) {\n        slash();\n        phaseTimer_ = 0;\n        if (++slashCount_ == 3) enter(Phase::Rest);\n      }\n      break;\n    case Phase::Rest:\n      if (phaseTimer_ >= 2.0) enter(Phase::Roar);\n      break;\n  }\n}",
+      "checklist": [
+        "指出 update() 中阻塞或循环会冻结整个 game loop",
+        "显式保存执行位置：phase 枚举 + 计时器 + 计数器",
+        "承认拆成单帧切片会增加复杂度",
+        "提到 State pattern / 状态机来组织这些状态",
+        "给出 coroutine / fiber / generator 或 Bytecode 作为保留直线写法的替代"
+      ],
+      "explain": "§10.5 前两条注意事项：“Splitting code into single frame slices makes it more complex”与“You have to store state to resume where you left off each frame”，并提到 generators、coroutines、fibers 以及 Bytecode 都可作为替代。"
+    },
+    {
+      "type": "scenario",
+      "ref": "10.5",
+      "title": "迭代时增删实体 · Spawning and killing during update",
+      "q": "在一款 twin-stick shooter 中，World::update() 用 for (int i = 0; i < numObjects_; i++) objects_[i]->update(); 遍历实体。出现两个 bug：(1) 敌人死亡时立刻从数组中移除（后面的元素整体前移），偶尔导致紧随其后的另一个敌人这一帧没有 update；(2) 炮塔在 update() 中生成的子弹被追加到数组末尾，生成当帧就移动了一步，玩家从来看不到它出现在炮口。请设计一个安全的更新流程。",
+      "answer": "(1) 删除导致后续元素前移，而 i 照常递增，结果跳过了一个对象。最稳妥的修法是延迟删除：kill() 只设置 dead_ = true；update 循环中跳过 dead 对象；整轮遍历结束后再统一清除尸体（例如 erase-remove）。备选方案：倒序遍历，删除时只移动已经更新过的元素；或者删除时手动修正 i。(2) 在循环开始时缓存 numObjectsThisTurn = numObjects_，只更新这么多个对象，新生成的子弹下一帧才开始行动。也可以把新实体先放进 pending 列表，帧末再合并。延迟修改的另一个好处是：将来若用多线程并行 update，可以避免在迭代中同步集合。",
+      "code": "void World::update() {\n  int numObjectsThisTurn = numObjects_;   // new spawns wait a frame\n  for (int i = 0; i < numObjectsThisTurn; i++) {\n    if (objects_[i]->isDead()) continue;  // skip corpses\n    objects_[i]->update();\n  }\n\n  // Remove the dead after iteration is finished.\n  int alive = 0;\n  for (int i = 0; i < numObjects_; i++) {\n    if (objects_[i]->isDead()) delete objects_[i];\n    else objects_[alive++] = objects_[i];\n  }\n  numObjects_ = alive;\n}",
+      "checklist": [
+        "解释删除造成元素前移 + i 递增 → 跳过对象",
+        "延迟删除：标记 dead，遍历结束后统一移除（或倒序遍历）",
+        "缓存本轮数量，使新生成对象下一帧才 update",
+        "提到多线程场景下更倾向于延迟修改"
+      ],
+      "explain": "§10.5 “Be careful modifying the object list while updating” 给出了 numObjectsThisTurn、倒序遍历、标记 dead 后延迟删除等解法，并指出多线程时“even more likely to defer any modification”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "10.6",
+      "title": "变步长巡逻越界 · Overshoot with a variable time step",
+      "q": "一款手机平台跳跃游戏使用 variable time step，Patroller 敌人在 [minX, maxX] 之间来回巡逻，update(double elapsed) 中写的是 x += speed * elapsed; if (x == maxX) turnAround();。低端机卡顿一下（elapsed 很大）后，敌人直接穿过边界，从平台上掉了下去，再也不回头。请修正这个 update，并说明 variable time step 给 Update Method 带来的额外负担，以及你会如何从根本上避免。",
+      "answer": "Bug 有两层：一是用 == 比较浮点数，几乎永远不会恰好相等；二是 elapsed 很大时，一步就可能越过边界很远。修正：使用 >= / <= 判断，越界时把超出的距离反射回来（x = maxX - (x - maxX)），同时翻转方向，就像书中 Skeleton::update(double elapsed) 的写法；如果 elapsed 极大，反射后仍可能越界，因此要 clamp 到区间内，或者在循环中多次反射。负担：每个实体的 update 都必须正确处理“任意长度的时间片”，overshoot、碰撞穿透（tunneling）等问题会散落在所有实体代码里。根本办法：在 Game Loop 层采用 fixed time step，让 update() 永远推进固定的时间，实体代码就简单许多；作者本人也表示“I happen to prefer that”。",
+      "code": "void Patroller::update(double elapsed) {\n  double step = speed_ * elapsed;\n  if (movingLeft_) {\n    x_ -= step;\n    if (x_ <= minX_) { x_ = minX_ + (minX_ - x_); movingLeft_ = false; }\n  } else {\n    x_ += step;\n    if (x_ >= maxX_) { x_ = maxX_ - (x_ - maxX_); movingLeft_ = true; }\n  }\n  x_ = std::clamp(x_, minX_, maxX_);  // huge elapsed: stay in range\n}",
+      "checklist": [
+        "指出浮点 == 比较与大步长 overshoot 两个问题",
+        "使用 >= / <= 判断，把超出部分反射回来并翻转方向",
+        "对极大 elapsed 进行 clamp",
+        "说明 variable time step 把复杂度分散到每个 update()",
+        "建议在 game loop 层改用 fixed time step"
+      ],
+      "explain": "§10.6 “Passing time”：“The skeleton may overshoot the bounds of its patrol with a large time slice, and we have to handle that carefully.” clamp 与 tunneling 是书外的补充，fixed step 的取舍详见 Game Loop 一章。"
+    },
+    {
+      "type": "scenario",
+      "ref": "10.7",
+      "title": "MMO 中休眠的怪物 · Ten thousand sleeping monsters",
+      "q": "一款 MMO 的服务器进程中每个 zone 有约 10000 个怪物与 NPC，但任一时刻只有玩家附近约 500 个需要模拟，其余都“休眠”。目前每帧遍历全部 10000 个，每个 update() 开头写 if (!active_) return;。此外，怪物行为种类越来越多（巡逻、逃跑、召唤……），Monster 的子类层级已经有 4 层深，难以复用。请就“update() 放在哪个类”和“休眠对象如何处理”两个设计决策给出方案，并讨论取舍。",
+      "answer": "休眠对象：在单一集合中遍历 9500 个无事可做的对象，既浪费 CPU 检查标志，又污染 data cache。改为维护一个只包含活跃对象的 activeList_，再加上包含全部对象的 master list（用于存档、查询）。玩家靠近时 activate() 把对象加入 activeList_，离开时移出；创建或彻底销毁对象时要同时维护两个集合，这是保持同步的成本，另外还要多占一份内存。书中给出的判断指标：休眠对象越多，分离集合就越划算，这里比例是 95%，所以明显值得。update() 的位置：放在 Entity 子类上会形成脆弱的深层继承。改为 Component 方式：AIComponent、PhysicsComponent 各自 update；或者采用委托方式，Monster::update() 非虚，只转发给 state_ 或 behavior_ 对象（State / Type Object pattern），更换行为只需替换委托对象，不必新增子类。",
+      "code": "class Monster {\npublic:\n  void update() { behavior_->update(*this); } // non-virtual, delegates\n  void setBehavior(Behavior* b) { behavior_ = b; }\nprivate:\n  Behavior* behavior_;\n};\n\nclass Zone {\npublic:\n  void activate(Monster* m)   { activeList_.push_back(m); }\n  void deactivate(Monster* m) { removeFrom(activeList_, m); }\n  void update() {\n    for (Monster* m : activeList_) m->update();  // ~500, not 10000\n  }\nprivate:\n  std::vector<Monster*> all_;         // master list\n  std::vector<Monster*> activeList_;  // only live objects\n};",
+      "checklist": [
+        "指出单集合遍历休眠对象会浪费 CPU 并破坏 cache",
+        "维护单独的 active 集合，并说明额外内存与同步成本",
+        "以休眠对象的数量 / 比例作为决策依据",
+        "update() 放在 component 或 delegate（State / Type Object）上，避免深层继承",
+        "委托方式下 Entity::update() 非虚，只做转发"
+      ],
+      "explain": "§10.7 的两个决策：“What class does the update method live on?”（entity / component / delegate）与 “How are dormant objects handled?”，书中原话：“The more you have, the more useful it is to have a separate collection.”"
     }
   ]
 }

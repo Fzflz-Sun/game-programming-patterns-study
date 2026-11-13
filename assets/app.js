@@ -160,7 +160,7 @@
     }).then(function (j) { cache[id] = j; return j; });
   }
 
-  var TYPE_LABEL = { choice: '单选 Choice', truefalse: '判断 True/False', fill: '填空 Fill-in', open: '简答 Open' };
+  var TYPE_LABEL = { choice: '单选 Choice', truefalse: '判断 True/False', fill: '填空 Fill-in', open: '简答 Open', scenario: '场景设计 Design' };
 
   function sectionRef(meta, ch, num) {
     var s = ch.sections.filter(function (x) { return x.num === num; })[0];
@@ -179,7 +179,14 @@
       '<button data-v="practice" class="' + (view === 'practice' ? 'on' : '') + '">练习 Practice<span class="count">' + ch.exercises.length + '</span></button></div>';
 
     if (view === 'practice') {
+      var nScn = ch.exercises.filter(function (e) { return e.type === 'scenario'; }).length;
       h += '<div class="ex-head"><span class="ex-score" id="exScore"></span><button class="btn" id="exReset">重做 Reset</button></div>';
+      if (nScn) {
+        h += '<div class="ex-filter" role="group" aria-label="题型筛选 Filter">' +
+          '<button data-f="all" class="on">全部 All<span>' + ch.exercises.length + '</span></button>' +
+          '<button data-f="basic">基础题 Basics<span>' + (ch.exercises.length - nScn) + '</span></button>' +
+          '<button data-f="scenario">场景设计 Design<span>' + nScn + '</span></button></div>';
+      }
       ch.exercises.forEach(function (e, i) { h += renderExercise(meta, ch, e, i); });
     } else {
       var A = window.GPPAnnot.state, starredOnly = view === 'starred', shown = 0;
@@ -437,9 +444,18 @@
   lastSig = sig();
   paintSync();
 
+  function draftKey(meta, i) { return 'gpp-draft:' + meta.id + ':' + i; }
+
   function renderExercise(meta, ch, e, i) {
-    var h = '<div class="ex" data-i="' + i + '"><div class="ex-meta"><span class="type">' + TYPE_LABEL[e.type] + '</span><span>Q' + (i + 1) +
+    var scn = e.type === 'scenario';
+    var h = '<div class="ex' + (scn ? ' ex-scn' : '') + '" data-i="' + i + '" data-kind="' + (scn ? 'scenario' : 'basic') + '"><div class="ex-meta"><span class="type">' + TYPE_LABEL[e.type] + '</span><span>Q' + (i + 1) +
       '</span><span>考点 · ' + esc(sectionRef(meta, ch, e.ref)) + '</span></div>';
+    if (scn) {
+      var draft = store(draftKey(meta, i)) || '';
+      return h + '<h3 class="scn-title">' + esc(e.title) + '</h3><p class="ex-q scn-q">' + esc(e.q) + '</p>' +
+        '<textarea class="open-area scn-area" placeholder="写下你的设计：需要哪些类/数据结构？它们如何协作？有什么取舍？（中英文皆可，草稿自动保存在本机）Sketch your design — classes, data, interactions, trade-offs.">' + esc(draft) + '</textarea>' +
+        '<button class="btn primary reveal">查看参考设计 Reveal reference design</button><div class="fb"></div></div>';
+    }
     var q = esc(e.q);
     if (e.type === 'fill') q = q.replace(/_{3,}/g, '<span class="ex-blank"></span>');
     h += '<p class="ex-q">' + q + '</p>';
@@ -467,8 +483,11 @@
     function update() {
       var n = Object.keys(results).length, ok = 0;
       for (var k in results) if (results[k]) ok++;
-      var gradable = ch.exercises.filter(function (e) { return e.type !== 'open'; }).length;
-      scoreEl.textContent = '已作答 ' + n + ' / ' + ch.exercises.length + ' · 客观题得分 ' + ok + ' / ' + gradable;
+      var gradable = ch.exercises.filter(function (e) { return e.type !== 'open' && e.type !== 'scenario'; }).length;
+      var nScn = ch.exercises.length - ch.exercises.filter(function (e) { return e.type !== 'scenario'; }).length;
+      var scnDone = main.querySelectorAll('.ex-scn .reveal:disabled').length;
+      scoreEl.textContent = '已作答 ' + n + ' / ' + ch.exercises.length + ' · 客观题得分 ' + ok + ' / ' + gradable +
+        (nScn ? ' · 场景设计 ' + scnDone + ' / ' + nScn : '');
       var p = getProgress();
       p[meta.id] = p[meta.id] || {};
       if (n >= gradable) { p[meta.id].score = ok; p[meta.id].total = gradable; saveProgress(p); }
@@ -508,13 +527,52 @@
           box.querySelector('button').disabled = true;
           results[i] = correct; feedback(box, e, correct); update();
         });
+      } else if (e.type === 'scenario') {
+        var ta = box.querySelector('textarea');
+        var saveT = null;
+        ta.addEventListener('input', function () {
+          clearTimeout(saveT);
+          saveT = setTimeout(function () { store(draftKey(meta, i), ta.value); }, 400);
+        });
+        box.querySelector('.reveal').addEventListener('click', function (ev) {
+          ev.target.disabled = true;
+          var fb = box.querySelector('.fb');
+          fb.innerHTML = '<div class="feedback scn-fb"><b>参考设计 Reference design</b><div class="ans scn-ans">' + esc(e.answer) + '</div>' +
+            (e.code ? '<pre><code>' + highlight(e.code) + '</code></pre>' : '') +
+            '<div class="scn-check"><b>自查要点 Self-check</b>' +
+            e.checklist.map(function (c, k) {
+              return '<label><input type="checkbox" data-k="' + k + '"><span>' + esc(c) + '</span></label>';
+            }).join('') + '<div class="scn-score"></div></div>' +
+            '<div class="scn-explain">' + esc(e.explain) + '</div></div>';
+          var boxes = fb.querySelectorAll('input[type=checkbox]');
+          var sc = fb.querySelector('.scn-score');
+          function tally() {
+            var hit = 0; boxes.forEach(function (b) { if (b.checked) hit++; });
+            sc.textContent = '覆盖要点 Covered ' + hit + ' / ' + boxes.length;
+          }
+          fb.addEventListener('change', tally);
+          tally();
+          update();
+        });
       } else {
         box.querySelector('.reveal').addEventListener('click', function (ev) {
           ev.target.disabled = true; feedback(box, e, null);
         });
       }
     });
-    document.getElementById('exReset').addEventListener('click', function () { renderChapter(meta, ch, 'practice'); });
+    var filt = main.querySelector('.ex-filter');
+    if (filt) filt.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button');
+      if (!b) return;
+      filt.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      main.querySelectorAll('.ex').forEach(function (x) {
+        x.style.display = b.dataset.f === 'all' || x.dataset.kind === b.dataset.f ? '' : 'none';
+      });
+    });
+    document.getElementById('exReset').addEventListener('click', function () {
+      ch.exercises.forEach(function (e, i) { if (e.type === 'scenario') store(draftKey(meta, i), ''); });
+      renderChapter(meta, ch, 'practice');
+    });
     update();
   }
 

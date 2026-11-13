@@ -477,6 +477,83 @@
       "q": "When data is distributed across many objects, how can you get monolithic-buffer swap performance? 请说明作者的优化。",
       "answer": "EN: Give each object a two-element array (slapped_[2]) and keep a single static current_ index; next() is 1 - current_. A single static swap() flips the index, swapping every object's state at once. 中：让每个对象保存两元素数组 slapped_[2]，并使用一个静态的 current_ 索引，next() 为 1 - current_。只需调用一次静态 swap() 翻转索引，就能同时交换所有对象的状态。",
       "explain": "适用于不需要额外访问旧缓冲区数据的情况；把“当前/下一”指针变成对象内的相对偏移。"
+    },
+    {
+      "type": "scenario",
+      "ref": "8.2",
+      "title": "软件渲染器的撕裂与残影 · Tearing and a ghost trail",
+      "q": "你在为一款复古像素风 platformer 写 software renderer：CPU 逐像素往 framebuffer 写颜色，而显示硬件随时都在从同一块内存扫描输出。测试时角色快速移动会出现“只画了上半身”的 tearing。美术还提出一个 ghost trail 效果：新一帧要与“上一帧”做半透明混合。请设计 Renderer 的缓冲结构，说明 swap 应在何时发生，并指出实现 ghost trail 时最容易踩的坑。",
+      "answer": "结构：Renderer 持有 Framebuffer buffers_[2] 以及两个指针 current_、next_。所有绘制只写 next_；显示驱动只通过 getBuffer() 读 current_，永远看不到画到一半的帧。整帧画完后调用 swap()：交换两个指针，O(1)，与 buffer 大小无关；swap 的时机要对齐到一次刷新结束（vblank），否则仍可能在扫描中途换图。Ghost trail 的坑：用 pointer swap 时帧轮流画在 A、B 上，没有数据拷贝，所以开始画第 N 帧时 next_ 里残留的是第 N-2 帧，而不是上一帧。若直接在 next_ 上“叠加旧内容”，拖影会落后一帧且会抖。正确做法：显式读取 current_（上一帧，只读）与新内容混合写入 next_；或者改用 copy swap，代价是每帧拷贝整块 framebuffer。另外，如果硬件要求 framebuffer 固定在某个地址，就不能用 pointer swap，只能拷贝。",
+      "code": "class Renderer {\npublic:\n  Renderer() : current_(&buffers_[0]), next_(&buffers_[1]) {}\n\n  void renderFrame(const World& world) {\n    next_->clear();\n    world.drawInto(*next_);\n    // Ghost trail: blend with the LAST frame, which lives in current_,\n    // not with whatever is left over in next_ (that is two frames old).\n    next_->blendFrom(*current_, 0.3f);\n    waitForVBlank();\n    swap();\n  }\n\n  const Framebuffer& getBuffer() const { return *current_; } // video driver\n\nprivate:\n  void swap() { std::swap(current_, next_); }\n\n  Framebuffer buffers_[2];\n  Framebuffer* current_;\n  Framebuffer* next_;\n};",
+      "checklist": [
+        "两个 buffer：只写 next，只读 current (write next, read current)",
+        "整帧完成后 swap，且对齐到刷新结束 / vblank，避免 tearing",
+        "pointer swap 只交换指针，O(1)",
+        "指出 pointer swap 下 next 中残留的是两帧前的数据 (data from two frames ago)",
+        "ghost trail 应混合 current_，或改用 copy swap 并接受拷贝代价"
+      ],
+      "explain": "对应 §8.2 的 tearing 与“two stages”比喻，以及 §8.7 的结论：“Existing data on the buffer will be from two frames ago, not the last frame”，书中正好用 motion blur 举例。vblank 对齐出自原文“As long as it times that switch at the end of a refresh”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "8.4",
+      "title": "哪些状态值得双缓冲 · Which state needs it?",
+      "q": "在一款开放世界 RPG 中，同事提议给三样东西都加 Double Buffer：(a) HUD 上的金币数 gold，每次交易时被一次赋值；(b) AI 用的 NavGrid，地形被破坏后要分摊到多帧（time-sliced）逐块重建，而重建期间几百个 NPC 仍在每帧调用 findPath()；(c) 启动时从 JSON 读取的 GameConfig，读完后只读。请逐个判断是否适用，说明理由，并给出适用项的设计。",
+      "answer": "依据书中四个条件全部成立才用：状态被 incrementally 修改；修改途中可能被访问；不希望访问方看到 work in progress；读取方不想等待写入完成。(a) 不适用：一次赋值本身就是原子的，不存在“改了一半”的状态。(b) 适用：重建跨越多帧，是典型的增量修改；NPC 在重建中途查询，若读到一半新一半旧的网格，可能算出穿墙路径；又不能让 NPC 停下来等待。设计：NavGridManager 持有 current_/next_ 两份网格，后台 rebuild 每帧只写 next_ 的若干 chunk；findPath() 永远读 current_；全部 chunk 完成后才 swap 指针，所有 NPC 在同一帧看到完整新网格。代价是内存翻倍，以及 NPC 在重建期间用的是旧地形，可接受。(c) 不适用：加载阶段没有人读它，加载完成后不再修改。",
+      "code": "class NavGridManager {\npublic:\n  NavGridManager() : current_(&grids_[0]), next_(&grids_[1]) {}\n\n  // Called every frame; does a slice of the rebuild work.\n  void tickRebuild() {\n    if (!rebuilding_) return;\n    next_->rebuildChunk(chunk_++);\n    if (chunk_ == NavGrid::NUM_CHUNKS) {\n      std::swap(current_, next_);  // publish atomically\n      rebuilding_ = false;\n    }\n  }\n\n  Path findPath(Vec2 from, Vec2 to) const {\n    return current_->findPath(from, to);  // never sees half-built data\n  }\n\nprivate:\n  NavGrid grids_[2];\n  NavGrid* current_;\n  NavGrid* next_;\n  int chunk_ = 0;\n  bool rebuilding_ = false;\n};",
+      "checklist": [
+        "能复述 When to Use It 的四个条件，并要求同时成立",
+        "(a) 单次原子写入不需要双缓冲",
+        "(b) 跨帧增量重建 + 中途被读取 → 适用；读 current，写 next，完成后 swap",
+        "(c) 修改期间无人访问 → 不需要",
+        "指出代价：内存翻倍，读方在重建期间看到的是旧数据"
+      ],
+      "explain": "§8.4 明确说该模式适用于“all of these are true”的情况：incrementally modified、accessed in the middle of modification、不让读者看到 work in progress、读者不愿等待。NavGrid 分帧重建是书外的工程例子，但完全符合这四条。"
+    },
+    {
+      "type": "scenario",
+      "ref": "8.5",
+      "title": "手机 RTS 的昂贵 swap · The swap costs more than the work",
+      "q": "一款手机 RTS 为 4 个阵营各维护一张 512×512 的 float influence map，AI 每帧读取它来决定进攻方向。之前的实现是：每帧把所有阵营的 next map 用 memcpy 整块拷进 current map。Profiler 显示这一步在低端 Android 上占了好几毫秒，比实际更新 influence 的时间还长，同时还收到了内存告警。请分析问题根源，并给出改进方案及其限制。",
+      "answer": "根源是 Keep in Mind 的两条代价同时爆发。(1) The swap itself takes time：swap 期间任何人都不能读写两个 buffer，而 copy swap 是 O(N) 的整块拷贝；当拷贝比修改本身还慢，双缓冲就失去了意义。改为 pointer swap：每个阵营持有 maps_[2] 与 current_/next_ 指针，swap 只交换指针。限制：外部代码不能长期缓存指向 map 内部的指针或引用，必须每次通过 current() 访问；而且 next_ 中残留的是两帧前的数据，所以每次更新必须完整重写，或者只做增量时先从 current 复制必要区域。(2) We have to have two buffers：4 张 1MB 的图翻倍就是 8MB。可选手段：降低分辨率或改用 uint8 量化；只给真正存在“边写边读”问题的数据加双缓冲；如果更新是分阵营依次进行、AI 读取不与写入交错，可以完全不用双缓冲，原地更新即可。",
+      "code": "struct InfluenceLayer {\n  InfluenceMap maps[2];\n  int current = 0;\n\n  const InfluenceMap& read() const { return maps[current]; }\n  InfluenceMap& write() { return maps[1 - current]; }\n  void swap() { current = 1 - current; }   // O(1), no memcpy\n};\n\n// Do NOT do this anywhere in AI code:\n//   const float* cached = layer.read().data();  // stale after swap()",
+      "checklist": [
+        "指出 copy swap 是 O(N)，若 swap 比修改还慢就没有收益 (swap must be fast and atomic)",
+        "改为 pointer / index swap",
+        "说明 pointer swap 的限制：外部不能持久保存指向 buffer 的指针；next 中是两帧前的数据",
+        "承认内存翻倍，并给出降低内存或不用双缓冲的替代方案"
+      ],
+      "explain": "§8.5 两条注意事项：“if it takes longer to swap than it does to modify the state ... we haven't helped ourselves at all” 与 “increased memory usage”；pointer swap 的限制来自 §8.7。uint8 量化、只缓冲必要数据属于书外的工程补充。"
+    },
+    {
+      "type": "scenario",
+      "ref": "8.6",
+      "title": "Roguelike 火焰蔓延的方向偏差 · Fire spreads faster to the right",
+      "q": "一款 roguelike 用 Tile grid 模拟火焰：每个 tick 扫描网格，若某格 burning，则点燃上下左右的 flammable 邻格。Bug 报告：火向右、向下一个 tick 就能烧穿整片草地，向左、向上却每 tick 只前进一格。代码是 for y, for x 的双重循环，在同一个 grid 上原地修改。请解释原因，并用 Double Buffer 重新设计 FireSystem 的更新过程。",
+      "answer": "原因与书中 slapstick 演员的例子相同：更新代码读取的正是它正在修改的状态。扫描从左上到右下，(x,y) 点燃 (x+1,y) 后，循环随后就访问到 (x+1,y)，发现它已经 burning，又继续向右点燃，于是在一个 tick 内连锁到底；向左点燃的格子已经被扫描过，只能等下一个 tick。结果取决于遍历顺序，违反了“所有格子同时更新”的要求。设计：FireSystem 持有两张 grid，current_ 只读、next_ 只写。每个 tick 先把 current 的状态复制到 next 作为基准（或者对每个格子完整计算其新状态），根据 current 中的邻居决定 next 中的结果，全部格子算完后再 swap。这样每个 tick 火焰只向四个方向各前进一格，与扫描顺序无关。因为是一整块网格（monolithic buffer），交换两个指针即可。",
+      "code": "void FireSystem::tick() {\n  for (int y = 0; y < H; y++) {\n    for (int x = 0; x < W; x++) {\n      Tile t = current_->at(x, y);          // read old state only\n      if (t.flammable && !t.burning &&\n          current_->anyNeighborBurning(x, y)) {\n        t.burning = true;\n      }\n      next_->at(x, y) = t;                  // write every cell of next\n    }\n  }\n  std::swap(current_, next_);               // all tiles change at once\n}",
+      "checklist": [
+        "指出根因：更新时读取了本 tick 已被修改的状态，结果依赖遍历顺序",
+        "读 current、写 next，全部格子更新完后再 swap",
+        "next 的每个格子都要被完整写入（否则残留两帧前的数据）",
+        "说明修复后结果与遍历顺序无关，每 tick 均匀扩散一格"
+      ],
+      "explain": "§8.6 “Not just for graphics” 指出第二类原因：“the code doing the modification is accessing the same state that it's modifying”。Buffered slaps 中 actor 只在下一帧看到 slap，火焰格子同理。"
+    },
+    {
+      "type": "scenario",
+      "ref": "8.7",
+      "title": "两千个 NPC 的分布式缓冲 · Buffer granularity for a crowd",
+      "q": "一款 open-world brawler 的城镇里有 2000 个 crowd NPC。每个 NPC 每帧根据邻居上一帧的 alertLevel 重新计算自己的 alertLevel（会被完整覆盖）；另外还有一个 wasHit 事件标志，被别人打中时置为 true，下一帧响应一次后必须清零。当前做法是每个 NPC 存 current/next 两份字段，每帧末尾遍历全部 NPC 调用 swap()。请讨论 buffer granularity 的选择，并分别为 alertLevel 和 wasHit 给出合适的方案。",
+      "answer": "分布式缓冲（数据散在每个对象上）的代价是 swap 必须遍历所有对象，2000 次调用再加上 cache miss。书中的优化：把 current/next 变成对象内的下标 offset，每个 NPC 存 alert_[2]，用 static int current_ 指示哪一格是当前值，next() = 1 - current_；static swap() 只翻转一次下标，所有 NPC 同时完成交换，性能等同 monolithic buffer。alertLevel 适合这个方案，因为它每帧都会被完整写入，next 格里残留的旧值会被直接覆盖。wasHit 不行：它是事件标志，不会每帧被写，next 格里留着两帧前的 true，会被误判为新的命中。这种情况需要清零，正如书中 comedian 的例子“we needed to clear the next slap state anyway”，此时逐对象 swap 并清零反而合理。另一种做法是改成 monolithic：把所有 NPC 的 wasHit 放进一个按 NPC index 索引的 bitset 对，pointer swap 后对 next 做一次 memset 清零，一次连续写比遍历对象快得多。",
+      "code": "class CrowdNpc {\npublic:\n  static void swapAll() { current_ = next(); }   // once per frame\n\n  void setAlert(float a) { alert_[next()] = a; } // fully rewritten each frame\n  float alert() const { return alert_[current_]; }\n\nprivate:\n  static int current_;\n  static int next() { return 1 - current_; }\n  float alert_[2];\n};\n\n// Event flags: monolithic, cleared in one pass.\nstruct HitBuffer {\n  std::bitset<MAX_NPCS> bits[2];\n  int cur = 0;\n  void hit(int npc) { bits[1 - cur].set(npc); }\n  bool wasHit(int npc) const { return bits[cur].test(npc); }\n  void swap() { cur = 1 - cur; bits[1 - cur].reset(); }\n};",
+      "checklist": [
+        "说明分布式缓冲每帧要遍历所有对象 swap 的成本",
+        "给出 static current_ 下标 + 每对象 [2] 数组、O(1) static swap 的方案",
+        "区分每帧被完整覆盖的数据 vs 需要清零的事件标志 (stale data from two frames ago)",
+        "为 wasHit 选择逐对象清零或 monolithic 的 bitset + 一次性清零"
+      ],
+      "explain": "§8.7 “What is the granularity of the buffer?”：monolithic 时 swap 更简单；分布式时可用 object-relative offsets，让 swap() 成为只需调用一次的 static 函数。但书中强调前提是“if we don't need to otherwise touch the old buffer”，wasHit 正好不满足；bitset 方案是书外的工程补充。"
     }
   ]
 }

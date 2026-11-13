@@ -1,6 +1,9 @@
 {
   "id": "state",
-  "title": { "en": "State", "zh": "状态模式" },
+  "title": {
+    "en": "State",
+    "zh": "状态模式"
+  },
   "summary": {
     "en": "Tangled flags and branches are replaced by a finite state machine: a fixed set of states, one current state, and transitions driven by inputs. The State pattern implements it by delegating to state objects. The chapter also covers enter/exit actions and FSM limits with their extensions: concurrent, hierarchical, and pushdown state machines.",
     "zh": "用有限状态机取代纠缠的标志位和分支：固定的状态集合、唯一的当前状态，以及由输入驱动的转换。状态模式通过把行为委托给状态对象来实现它。本章还介绍了进入/退出动作、有限状态机的局限，以及它的扩展：并发状态机、分层状态机和下推自动机。"
@@ -8,17 +11,26 @@
   "sections": [
     {
       "num": "7.0",
-      "title": { "en": "State (Introduction)", "zh": "状态模式（引言）" },
+      "title": {
+        "en": "State (Introduction)",
+        "zh": "状态模式（引言）"
+      },
       "points": [
         {
-          "title": { "en": "More than just the State pattern", "zh": "不只是状态模式" },
+          "title": {
+            "en": "More than just the State pattern",
+            "zh": "不只是状态模式"
+          },
           "body": {
             "en": "The chapter is ostensibly about the State design pattern, but it covers the more fundamental concept of finite state machines (FSMs), plus hierarchical state machines and pushdown automata. Code samples omit some details to stay short.",
             "zh": "本章名义上讲状态设计模式，但会深入更基础的概念——有限状态机（FSM），还会介绍分层状态机和下推自动机。为了简洁，示例代码省略了一些细节。"
           }
         },
         {
-          "title": { "en": "State machines beyond AI and compilers", "zh": "状态机不只属于 AI 和编译器" },
+          "title": {
+            "en": "State machines beyond AI and compilers",
+            "zh": "状态机不只属于 AI 和编译器"
+          },
           "body": {
             "en": "State machines are well known to AI and compiler hackers but less familiar elsewhere. This echoes early AI research in the '50s and '60s, which focused on language processing; many parsing techniques compilers use were invented for human languages.",
             "zh": "状态机在 AI 和编译器开发者中广为人知，但在其他编程领域并不常见。这呼应了早期人工智能的历史：上世纪五六十年代的 AI 研究集中在语言处理上，编译器如今使用的很多解析技术最初是为解析人类语言而发明的。"
@@ -28,10 +40,16 @@
     },
     {
       "num": "7.1",
-      "title": { "en": "We've All Been There", "zh": "我们都经历过" },
+      "title": {
+        "en": "We've All Been There",
+        "zh": "我们都经历过"
+      },
       "points": [
         {
-          "title": { "en": "Flag after flag, bug after bug", "zh": "一个标志接一个标志，一个 bug 接一个 bug" },
+          "title": {
+            "en": "Flag after flag, bug after bug",
+            "zh": "一个标志接一个标志，一个 bug 接一个 bug"
+          },
           "body": {
             "en": "Making the heroine jump on B allows infinite \"air jumping\", fixed with an isJumping_ flag. Adding ducking lets her switch to the standing graphic mid-jump, needing isDucking_. Adding a dive attack reopens air jumping while diving. Every change to the code breaks something.",
             "zh": "按 B 让女主角跳跃，却会出现无限“空中连跳”，于是加了 isJumping_ 标志。加入下蹲后，她可能在跳跃中途切换成站立图像，又得加 isDucking_。再加上俯冲攻击，俯冲时又能空中跳跃了。每改动一次代码都会弄坏点什么。"
@@ -39,7 +57,10 @@
           "code": "void Heroine::handleInput(Input input) {\n  if (input == PRESS_B) {\n    if (!isJumping_ && !isDucking_) {\n      // Jump...\n    }\n  } else if (input == PRESS_DOWN) {\n    if (!isJumping_) {\n      isDucking_ = true;\n      setGraphics(IMAGE_DUCK);\n    } else {\n      isJumping_ = false;\n      setGraphics(IMAGE_DIVE);\n    }\n  } else if (input == RELEASE_DOWN) {\n    if (isDucking_) {\n      // Stand...\n    }\n  }\n}"
         },
         {
-          "title": { "en": "Error-prone kinds of code", "zh": "容易出错的代码类型" },
+          "title": {
+            "en": "Error-prone kinds of code",
+            "zh": "容易出错的代码类型"
+          },
           "body": {
             "en": "Great coders aren't superhuman; they have an intuition for which kinds of code are error-prone and steer away. Complex branching and mutable state (fields that change over time) are two of those, and this example has both.",
             "zh": "那些写出近乎完美代码的程序员并非超人，他们只是对哪些代码容易出错有直觉，并会主动避开。复杂的分支和可变状态（随时间变化的字段）就是其中两种，而这个例子两者兼具。"
@@ -49,17 +70,26 @@
     },
     {
       "num": "7.2",
-      "title": { "en": "Finite State Machines to the Rescue", "zh": "有限状态机来救场" },
+      "title": {
+        "en": "Finite State Machines to the Rescue",
+        "zh": "有限状态机来救场"
+      },
       "points": [
         {
-          "title": { "en": "The gist of an FSM", "zh": "有限状态机的要点" },
+          "title": {
+            "en": "The gist of an FSM",
+            "zh": "有限状态机的要点"
+          },
           "body": {
             "en": "Drawing boxes for states and labeled arrows for button presses yields a finite state machine, the simplest member of the automata-theory family that includes the Turing machine. It has a fixed set of states, is in exactly one state at a time, receives a sequence of inputs or events, and each state has transitions mapping inputs to next states; unmatched inputs are ignored.",
             "zh": "为每个状态画一个方框，用标上按键的箭头连接状态，就得到了有限状态机。它出自自动机理论，是包括图灵机在内的这一族数据结构中最简单的成员。它有一组固定的状态，同一时刻只处于一个状态，接收一系列输入或事件，每个状态都有一组把输入映射到下一状态的转换；没有对应转换的输入会被忽略。"
           }
         },
         {
-          "title": { "en": "The text adventure analogy", "zh": "文字冒险游戏的类比" },
+          "title": {
+            "en": "The text adventure analogy",
+            "zh": "文字冒险游戏的类比"
+          },
           "body": {
             "en": "Old text adventures like Zork map directly onto an FSM: each room is a state, the room you're in is the current state, each room's exits are its transitions, and navigation commands like \"go north\" are the inputs.",
             "zh": "像 Zork 这样的老式文字冒险游戏可以直接对应到状态机：每个房间是一个状态，你所在的房间就是当前状态，房间的出口就是转换，“go north”之类的移动命令就是输入。"
@@ -69,10 +99,16 @@
     },
     {
       "num": "7.3",
-      "title": { "en": "Enums and Switches", "zh": "枚举与 switch" },
+      "title": {
+        "en": "Enums and Switches",
+        "zh": "枚举与 switch"
+      },
       "points": [
         {
-          "title": { "en": "Replace flags with an enum", "zh": "用枚举取代标志位" },
+          "title": {
+            "en": "Replace flags with an enum",
+            "zh": "用枚举取代标志位"
+          },
           "body": {
             "en": "When only one of several flags can be true at a time, you really want an enum. Heroine gets a single state_ field, and we switch on state first, then input, so all the code for one state is lumped together. Invalid combinations become impossible.",
             "zh": "当一组标志中同一时刻只能有一个为真时，你真正需要的是枚举。Heroine 只保留一个 state_ 字段，并且先按状态、再按输入进行分支，这样同一状态的代码就集中在一起。无效的组合也不可能再出现。"
@@ -80,7 +116,10 @@
           "code": "enum State {\n  STATE_STANDING,\n  STATE_JUMPING,\n  STATE_DUCKING,\n  STATE_DIVING\n};\n\nvoid Heroine::handleInput(Input input) {\n  switch (state_) {\n    case STATE_STANDING:\n      if (input == PRESS_B) {\n        state_ = STATE_JUMPING;\n        yVelocity_ = JUMP_VELOCITY;\n        setGraphics(IMAGE_JUMP);\n      }\n      // ...\n      break;\n    // Other states...\n  }\n}"
         },
         {
-          "title": { "en": "Where the enum approach falls short", "zh": "枚举方案的不足" },
+          "title": {
+            "en": "Where the enum approach falls short",
+            "zh": "枚举方案的不足"
+          },
           "body": {
             "en": "Adding a charge attack while ducking requires a chargeTime_ field on Heroine, updating it in update() and resetting it in handleInput(). Two methods change, and a field lives on Heroine though it only matters in the ducking state. We'd prefer that code and data wrapped up in one place.",
             "zh": "如果要加入下蹲蓄力攻击，就得在 Heroine 上添加 chargeTime_ 字段，在 update() 中累加，在 handleInput() 中重置。这样要改两个方法，还要在 Heroine 上放一个只在下蹲状态才有意义的字段。我们更希望把这些代码和数据集中放在一处。"
@@ -90,18 +129,30 @@
     },
     {
       "num": "7.4",
-      "title": { "en": "The State Pattern", "zh": "状态模式" },
+      "title": {
+        "en": "The State Pattern",
+        "zh": "状态模式"
+      },
       "points": [
         {
-          "title": { "en": "Don't turn every if into dynamic dispatch", "zh": "不必把每个 if 都变成动态分派" },
+          "title": {
+            "en": "Don't turn every if into dynamic dispatch",
+            "zh": "不必把每个 if 都变成动态分派"
+          },
           "body": {
             "en": "Hardcore OO thinkers see every conditional as a chance for dynamic dispatch (rooted in Smalltalk, where ifThen: is a method on true/false objects). Sometimes an if is all you need, but here we've reached a tipping point where an object-oriented approach fits better. The GoF definition: allow an object to alter its behavior when its internal state changes; the object will appear to change its class.",
             "zh": "深度面向对象的人会把每个条件分支都视为使用动态分派的机会（这源于 Smalltalk，在那里 ifThen: 是 true/false 对象上的方法）。有时一个 if 就够了，但在这个例子中我们已经到了临界点，面向对象的方案更合适。GoF 的定义是：允许对象在内部状态改变时改变其行为，对象看起来就像改变了它的类。"
           }
         },
         {
-          "subsection": { "en": "A state interface", "zh": "状态接口" },
-          "title": { "en": "A state interface and a class per state", "zh": "状态接口与每个状态一个类" },
+          "subsection": {
+            "en": "A state interface",
+            "zh": "状态接口"
+          },
+          "title": {
+            "en": "A state interface and a class per state",
+            "zh": "状态接口与每个状态一个类"
+          },
           "body": {
             "en": "Every state-dependent behavior (every former switch) becomes a virtual method in a HeroineState interface. Each state gets a class implementing it. DuckingState now owns chargeTime_, so the data only meaningful in that state lives there explicitly.",
             "zh": "所有依赖状态的行为（原先每一处 switch）都变成 HeroineState 接口中的虚方法，每个状态写一个实现该接口的类。DuckingState 现在拥有 chargeTime_，于是只在该状态下有意义的数据就明确地放在了这里。"
@@ -109,8 +160,14 @@
           "code": "class DuckingState : public HeroineState {\npublic:\n  DuckingState() : chargeTime_(0) {}\n\n  virtual void handleInput(Heroine& heroine, Input input) {\n    if (input == RELEASE_DOWN) {\n      // Change to standing state...\n      heroine.setGraphics(IMAGE_STAND);\n    }\n  }\n\n  virtual void update(Heroine& heroine) {\n    chargeTime_++;\n    if (chargeTime_ > MAX_CHARGE) heroine.superBomb();\n  }\n\nprivate:\n  int chargeTime_;\n};"
         },
         {
-          "subsection": { "en": "Delegate to the state", "zh": "委托给状态" },
-          "title": { "en": "Delegate to the current state", "zh": "委托给当前状态" },
+          "subsection": {
+            "en": "Delegate to the state",
+            "zh": "委托给状态"
+          },
+          "title": {
+            "en": "Delegate to the current state",
+            "zh": "委托给当前状态"
+          },
           "body": {
             "en": "Heroine holds a pointer to her current state and delegates handleInput() and update() to it. Changing state just means pointing state_ at a different HeroineState object; that's the entire pattern.",
             "zh": "Heroine 持有一个指向当前状态的指针，并把 handleInput() 和 update() 委托给它。“改变状态”只需让 state_ 指向另一个 HeroineState 对象——这就是状态模式的全部。"
@@ -118,8 +175,14 @@
           "code": "class Heroine {\npublic:\n  virtual void handleInput(Input input) {\n    state_->handleInput(*this, input);\n  }\n\n  virtual void update() { state_->update(*this); }\n\nprivate:\n  HeroineState* state_;\n};"
         },
         {
-          "subsection": { "en": "Delegate to the state", "zh": "委托给状态" },
-          "title": { "en": "State vs. Strategy vs. Type Object", "zh": "状态、策略与类型对象的区别" },
+          "subsection": {
+            "en": "Delegate to the state",
+            "zh": "委托给状态"
+          },
+          "title": {
+            "en": "State vs. Strategy vs. Type Object",
+            "zh": "状态、策略与类型对象的区别"
+          },
           "body": {
             "en": "All three delegate from a main object to a subordinate one; the difference is intent. Strategy decouples the main class from part of its behavior. Type Object makes many objects behave alike by sharing a type object. State lets the main object change its behavior by changing the object it delegates to.",
             "zh": "这三种模式都是主对象委托给一个从属对象，区别在于意图。策略模式是把主类与它的部分行为解耦；类型对象模式是让多个对象共享同一个类型对象从而行为相似；状态模式则是让主对象通过更换委托对象来改变自身行为。"
@@ -129,11 +192,20 @@
     },
     {
       "num": "7.5",
-      "title": { "en": "Where Are the State Objects?", "zh": "状态对象放在哪里？" },
+      "title": {
+        "en": "Where Are the State Objects?",
+        "zh": "状态对象放在哪里？"
+      },
       "points": [
         {
-          "subsection": { "en": "Static states", "zh": "静态状态" },
-          "title": { "en": "Static states (Flyweight)", "zh": "静态状态（享元）" },
+          "subsection": {
+            "en": "Static states",
+            "zh": "静态状态"
+          },
+          "title": {
+            "en": "Static states (Flyweight)",
+            "zh": "静态状态（享元）"
+          },
           "body": {
             "en": "If a state object has no fields, every instance is identical, so a single static instance can be shared by all FSMs in that state; this is the Flyweight pattern. You might store them as static members of HeroineState. If a state has no fields and only one virtual method, you can even replace it with a plain function and make state_ a function pointer.",
             "zh": "如果状态对象没有字段，所有实例都完全相同，因此处于该状态的所有状态机可以共享同一个静态实例——这就是享元模式。可以把它们作为 HeroineState 的静态成员。如果状态既没有字段又只有一个虚方法，甚至可以用普通函数代替状态类，让 state_ 变成函数指针。"
@@ -141,8 +213,14 @@
           "code": "class HeroineState {\npublic:\n  static StandingState standing;\n  static DuckingState ducking;\n  static JumpingState jumping;\n  static DivingState diving;\n  // Other code...\n};\n\n// In StandingState:\nif (input == PRESS_B) {\n  heroine.state_ = &HeroineState::jumping;\n  heroine.setGraphics(IMAGE_JUMP);\n}"
         },
         {
-          "subsection": { "en": "Instantiated states", "zh": "实例化的状态" },
-          "title": { "en": "Instantiated states", "zh": "实例化状态" },
+          "subsection": {
+            "en": "Instantiated states",
+            "zh": "实例化的状态"
+          },
+          "title": {
+            "en": "Instantiated states",
+            "zh": "实例化状态"
+          },
           "body": {
             "en": "DuckingState has chargeTime_, specific to the heroine ducking, so a static instance breaks with two heroines in co-op. Instead, create a new state on each transition. To avoid deleting this from inside the current state's method, handleInput() returns the new state (or NULL) and Heroine swaps it in. Prefer static states when possible since they don't allocate; dynamic allocation may need Object Pool to avoid fragmentation.",
             "zh": "DuckingState 带有 chargeTime_，它属于正在下蹲的那个女主角，所以在双人合作、屏幕上有两个女主角时静态实例就会出问题。这时应在每次转换时新建状态对象。为了避免在当前状态的方法内部删除自己（this），让 handleInput() 返回新状态（或 NULL），由 Heroine 负责替换。能用静态状态时优先用，因为它不需要分配内存；动态分配可能需要对象池来避免内存碎片。"
@@ -153,10 +231,16 @@
     },
     {
       "num": "7.6",
-      "title": { "en": "Enter and Exit Actions", "zh": "进入与退出动作" },
+      "title": {
+        "en": "Enter and Exit Actions",
+        "zh": "进入与退出动作"
+      },
       "points": [
         {
-          "title": { "en": "Entry actions let each state own its setup", "zh": "进入动作让每个状态负责自身的设置" },
+          "title": {
+            "en": "Entry actions let each state own its setup",
+            "zh": "进入动作让每个状态负责自身的设置"
+          },
           "body": {
             "en": "Previously the state being left set the sprite for the next one. Giving each state an enter() method, which Heroine calls after swapping in a new state, lets each state control its own graphics. Entry actions run regardless of which state you came from, consolidating code that would otherwise be duplicated across multiple transitions into the same state.",
             "zh": "以前是由即将离开的状态来设置下一个状态的图像。给每个状态添加 enter() 方法，并由 Heroine 在切换到新状态后调用，就能让每个状态控制自己的图像。无论从哪个状态进入，进入动作都会执行，从而把原本会在多条通往同一状态的转换中重复的代码集中起来。"
@@ -164,7 +248,10 @@
           "code": "class StandingState : public HeroineState {\npublic:\n  virtual void enter(Heroine& heroine) {\n    heroine.setGraphics(IMAGE_STAND);\n  }\n};\n\n// In Heroine::handleInput(), after swapping:\nstate_->enter(*this);"
         },
         {
-          "title": { "en": "Exit actions", "zh": "退出动作" },
+          "title": {
+            "en": "Exit actions",
+            "zh": "退出动作"
+          },
           "body": {
             "en": "The same idea extends to an exit action: a method called on the state being left, right before switching to the new state.",
             "zh": "同样的思路可以扩展出退出动作：在切换到新状态之前，对即将离开的状态调用的一个方法。"
@@ -174,10 +261,16 @@
     },
     {
       "num": "7.7",
-      "title": { "en": "What's the Catch?", "zh": "有什么问题？" },
+      "title": {
+        "en": "What's the Catch?",
+        "zh": "有什么问题？"
+      },
       "points": [
         {
-          "title": { "en": "The greatest virtue is the greatest flaw", "zh": "最大的优点也是最大的缺点" },
+          "title": {
+            "en": "The greatest virtue is the greatest flaw",
+            "zh": "最大的优点也是最大的缺点"
+          },
           "body": {
             "en": "FSMs untangle code by enforcing a very constrained structure: a fixed set of states, a single current state, and hardcoded transitions. An FSM isn't even Turing complete, so for something complex like game AI you'll hit its limits. Several extensions help dodge some of them.",
             "zh": "有限状态机通过强加非常受限的结构来理清混乱的代码：固定的状态集合、单一的当前状态和写死的转换。有限状态机甚至不是图灵完备的，所以用它实现游戏 AI 这类复杂系统时会碰到它的局限。有几种扩展可以帮助绕开其中一些限制。"
@@ -187,17 +280,26 @@
     },
     {
       "num": "7.8",
-      "title": { "en": "Concurrent State Machines", "zh": "并发状态机" },
+      "title": {
+        "en": "Concurrent State Machines",
+        "zh": "并发状态机"
+      },
       "points": [
         {
-          "title": { "en": "Combinatorial explosion of states", "zh": "状态的组合爆炸" },
+          "title": {
+            "en": "Combinatorial explosion of states",
+            "zh": "状态的组合爆炸"
+          },
           "body": {
             "en": "Letting the heroine carry a gun would, in one FSM, double every state (standing, standing with gun…), and more weapons make the count explode with lots of redundancy. The problem is jamming two pieces of state, what she's doing and what she's carrying, into one machine: n × m states instead of n + m with two machines.",
             "zh": "如果让女主角能持枪，在单个状态机中每个状态都要翻倍（站立、持枪站立……），武器再多一些，状态数量就会爆炸，而且冗余极多。问题在于把两类状态——她在做什么、她拿着什么——塞进了同一台状态机：需要 n × m 个状态，而用两台状态机只需 n + m 个。"
           }
         },
         {
-          "title": { "en": "Two independent machines", "zh": "两台独立的状态机" },
+          "title": {
+            "en": "Two independent machines",
+            "zh": "两台独立的状态机"
+          },
           "body": {
             "en": "Heroine keeps two state references, state_ and equipment_, and passes each input to both. Each machine changes state independently, which works well when the states are mostly unrelated. Where they do interact (e.g. can't fire while jumping), crude if checks on the other machine's state get the job done. A fuller system might let one machine consume an input.",
             "zh": "Heroine 持有两个状态引用 state_ 和 equipment_，并把每个输入同时交给两者。两台状态机各自独立地改变状态，当两组状态基本无关时效果很好。如果它们确实有交互（比如跳跃时不能开火），可以在一台状态机里用简单的 if 检查另一台的状态来解决。更完善的系统可以让某台状态机“消耗”掉输入。"
@@ -208,17 +310,26 @@
     },
     {
       "num": "7.9",
-      "title": { "en": "Hierarchical State Machines", "zh": "分层状态机" },
+      "title": {
+        "en": "Hierarchical State Machines",
+        "zh": "分层状态机"
+      },
       "points": [
         {
-          "title": { "en": "Superstates and substates", "zh": "父状态与子状态" },
+          "title": {
+            "en": "Superstates and substates",
+            "zh": "父状态与子状态"
+          },
           "body": {
             "en": "Standing, walking, running, and sliding all jump on B and duck on down. Rather than duplicating that, a state can have a superstate: if a substate doesn't handle an event, it rolls up the chain of superstates, just like overriding inherited methods. Inheritance is powerful but a strong coupling, so swing that hammer carefully.",
             "zh": "站立、行走、奔跑、滑行状态都是按 B 跳跃、按下键下蹲。与其重复这些代码，不如让状态拥有父状态：如果子状态没有处理某个事件，就沿着父状态链向上传递，就像重写继承来的方法一样。继承是强大的复用手段，但也是很强的耦合，这把大锤要小心挥。"
           }
         },
         {
-          "title": { "en": "Implement with inheritance or a stack", "zh": "用继承或栈来实现" },
+          "title": {
+            "en": "Implement with inheritance or a stack",
+            "zh": "用继承或栈来实现"
+          },
           "body": {
             "en": "With the State pattern, class inheritance implements the hierarchy: OnGroundState handles jumping and ducking, and DuckingState calls OnGroundState::handleInput() for inputs it doesn't handle. Without the GoF pattern, keep a stack of states: the current state on top, its superstates below, and walk down until one handles the input.",
             "zh": "使用状态模式时，可以用类继承来实现层级：OnGroundState 处理跳跃和下蹲，DuckingState 对于自己不处理的输入调用 OnGroundState::handleInput()。不使用 GoF 模式时，可以维护一个状态栈：当前状态在栈顶，其下是它的父状态，依次向下查找，直到有状态处理该输入。"
@@ -229,17 +340,26 @@
     },
     {
       "num": "7.10",
-      "title": { "en": "Pushdown Automata", "zh": "下推自动机" },
+      "title": {
+        "en": "Pushdown Automata",
+        "zh": "下推自动机"
+      },
       "points": [
         {
-          "title": { "en": "FSMs have no history", "zh": "有限状态机没有历史记录" },
+          "title": {
+            "en": "FSMs have no history",
+            "zh": "有限状态机没有历史记录"
+          },
           "body": {
             "en": "An FSM knows its current state but not which state it was in before. After a FiringState finishes, the heroine should return to whatever she was doing (standing, running, jumping, ducking). A vanilla FSM would need near-identical states like \"firing while standing\" just to hardcode each return transition.",
             "zh": "有限状态机知道当前状态，却不记得之前处于什么状态。开火状态（FiringState）结束后，女主角应该回到之前在做的事（站立、奔跑、跳跃、下蹲）。普通的有限状态机只能定义一堆几乎相同的状态，比如“站立时开火”，仅仅为了写死每一条返回的转换。"
           }
         },
         {
-          "title": { "en": "A stack of states: push and pop", "zh": "状态栈：压入与弹出" },
+          "title": {
+            "en": "A stack of states: push and pop",
+            "zh": "状态栈：压入与弹出"
+          },
           "body": {
             "en": "A pushdown automaton keeps a stack of states instead of a single pointer; the current state is the top. Besides normal replacement, you can push a new state (keeping the old one beneath it) and pop the top state (returning to the one below). Pressing fire pushes the firing state; when the animation ends, popping it returns to the previous state automatically.",
             "zh": "下推自动机保存的是一个状态栈，而不是单个状态指针，栈顶就是当前状态。除了普通的替换，它还支持压入（push）新状态（旧状态保留在其下方）和弹出（pop）栈顶状态（回到下面那个状态）。按下开火时压入开火状态，动画结束时弹出，状态机就自动回到之前的状态。"
@@ -249,17 +369,26 @@
     },
     {
       "num": "7.11",
-      "title": { "en": "So How Useful Are They?", "zh": "它们到底有多大用处？" },
+      "title": {
+        "en": "So How Useful Are They?",
+        "zh": "它们到底有多大用处？"
+      },
       "points": [
         {
-          "title": { "en": "When FSMs fit", "zh": "适合使用有限状态机的场合" },
+          "title": {
+            "en": "When FSMs fit",
+            "zh": "适合使用有限状态机的场合"
+          },
           "body": {
             "en": "Game AI is moving toward behavior trees and planning systems, but FSMs remain good modeling tools when an entity's behavior changes based on internal state, that state can be rigidly divided into a relatively small number of distinct options, and the entity responds to a series of inputs or events over time.",
             "zh": "游戏 AI 的潮流正转向行为树和规划系统，但在以下情况下有限状态机仍是很好的建模工具：实体的行为随内部状态变化；该状态可以严格划分为数量相对较少的几种明确选项；实体需要随时间响应一系列输入或事件。"
           }
         },
         {
-          "title": { "en": "Common uses beyond AI", "zh": "AI 之外的常见用途" },
+          "title": {
+            "en": "Common uses beyond AI",
+            "zh": "AI 之外的常见用途"
+          },
           "body": {
             "en": "Besides AI, state machines are common in user input handling, menu screen navigation, text parsing, network protocols, and other asynchronous behavior.",
             "zh": "除了 AI，状态机还常用于用户输入处理、菜单界面导航、文本解析、网络协议以及其他异步行为。"
@@ -269,24 +398,62 @@
     }
   ],
   "terms": [
-    { "en": "finite state machine (FSM)", "zh": "有限状态机" },
-    { "en": "state / transition / input", "zh": "状态 / 转换 / 输入" },
-    { "en": "automata theory", "zh": "自动机理论" },
-    { "en": "dynamic dispatch", "zh": "动态分派" },
-    { "en": "entry action / exit action", "zh": "进入动作 / 退出动作" },
-    { "en": "Turing complete", "zh": "图灵完备" },
-    { "en": "concurrent state machine", "zh": "并发状态机" },
-    { "en": "hierarchical state machine", "zh": "分层状态机" },
-    { "en": "superstate / substate", "zh": "父状态 / 子状态" },
-    { "en": "pushdown automaton", "zh": "下推自动机" },
-    { "en": "behavior tree", "zh": "行为树" }
+    {
+      "en": "finite state machine (FSM)",
+      "zh": "有限状态机"
+    },
+    {
+      "en": "state / transition / input",
+      "zh": "状态 / 转换 / 输入"
+    },
+    {
+      "en": "automata theory",
+      "zh": "自动机理论"
+    },
+    {
+      "en": "dynamic dispatch",
+      "zh": "动态分派"
+    },
+    {
+      "en": "entry action / exit action",
+      "zh": "进入动作 / 退出动作"
+    },
+    {
+      "en": "Turing complete",
+      "zh": "图灵完备"
+    },
+    {
+      "en": "concurrent state machine",
+      "zh": "并发状态机"
+    },
+    {
+      "en": "hierarchical state machine",
+      "zh": "分层状态机"
+    },
+    {
+      "en": "superstate / substate",
+      "zh": "父状态 / 子状态"
+    },
+    {
+      "en": "pushdown automaton",
+      "zh": "下推自动机"
+    },
+    {
+      "en": "behavior tree",
+      "zh": "行为树"
+    }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "7.1",
       "q": "作者指出示例代码同时具有哪两种 error-prone 特征？ Which two error-prone kinds of code?",
-      "options": ["Deep inheritance and templates", "Global variables and singletons", "Complex branching and mutable state（复杂分支与可变状态）", "Recursion and pointers"],
+      "options": [
+        "Deep inheritance and templates",
+        "Global variables and singletons",
+        "Complex branching and mutable state（复杂分支与可变状态）",
+        "Recursion and pointers"
+      ],
       "answer": 2,
       "explain": "大量 if 分支加上不断变化的布尔标志，每次改动都会引入新 bug。"
     },
@@ -301,14 +468,23 @@
       "type": "fill",
       "ref": "7.3",
       "q": "When you have a handful of flags where only one is true at a time, that's a hint you really want an ___（一组互斥标志提示你需要它）。",
-      "answer": ["enum", "enumeration", "枚举"],
+      "answer": [
+        "enum",
+        "enumeration",
+        "枚举"
+      ],
       "explain": "用单个 state_ 枚举字段代替多个布尔标志，无效组合就不可能出现。"
     },
     {
       "type": "choice",
       "ref": "7.4",
       "q": "State、Strategy、Type Object 都把行为委托给另一个对象。What is the intent of State?",
-      "options": ["Decouple the main class from part of its behavior", "Make many objects behave alike by sharing a type object", "Wrap a method call in an object", "Let the main object change its behavior by changing the object it delegates to"],
+      "options": [
+        "Decouple the main class from part of its behavior",
+        "Make many objects behave alike by sharing a type object",
+        "Wrap a method call in an object",
+        "Let the main object change its behavior by changing the object it delegates to"
+      ],
       "answer": 3,
       "explain": "区别在于意图（intent）。状态模式：更换委托对象 = 改变行为。"
     },
@@ -316,7 +492,12 @@
       "type": "choice",
       "ref": "7.5",
       "q": "Why can't DuckingState simply be a static (shared) state instance? 为什么不能用静态实例？",
-      "options": ["It has a chargeTime_ field specific to one heroine; two heroines would share it", "Static objects can't have virtual methods", "It is entered too often", "C++ forbids static members of derived types"],
+      "options": [
+        "It has a chargeTime_ field specific to one heroine; two heroines would share it",
+        "Static objects can't have virtual methods",
+        "It is entered too often",
+        "C++ forbids static members of derived types"
+      ],
       "answer": 0,
       "explain": "有状态的 state 需要每台状态机各自实例化；无字段的状态才能用享元共享。"
     },
@@ -338,14 +519,23 @@
       "type": "fill",
       "ref": "7.8",
       "q": "Cramming n \"doing\" states and m \"carrying\" states into one machine needs n × m states; with two concurrent machines it's just n ___ m.",
-      "answer": ["+", "plus", "加"],
+      "answer": [
+        "+",
+        "plus",
+        "加"
+      ],
       "explain": "两台独立的状态机避免了组合爆炸。"
     },
     {
       "type": "choice",
       "ref": "7.9",
       "q": "In a hierarchical state machine, 子状态不处理某个事件时会怎样？",
-      "options": ["The event is discarded immediately", "The event rolls up the chain of superstates（沿父状态链向上传递）", "The machine pops to the previous state", "Both machines receive it"],
+      "options": [
+        "The event is discarded immediately",
+        "The event rolls up the chain of superstates（沿父状态链向上传递）",
+        "The machine pops to the previous state",
+        "Both machines receive it"
+      ],
       "answer": 1,
       "explain": "就像子类没重写的方法会调用父类实现一样。"
     },
@@ -353,7 +543,12 @@
       "type": "choice",
       "ref": "7.10",
       "q": "下推自动机相比普通 FSM 额外提供了哪两个操作？",
-      "options": ["enter and exit", "clone and delegate", "swap and clear", "push and pop"],
+      "options": [
+        "enter and exit",
+        "clone and delegate",
+        "swap and clear",
+        "push and pop"
+      ],
       "answer": 3,
       "explain": "压入新状态时保留旧状态；弹出后自动回到之前的状态——非常适合开火后回到原来动作。"
     },
@@ -363,6 +558,86 @@
       "q": "When are finite state machines a good fit? 请列出作者给出的三个条件。",
       "answer": "EN: (1) An entity's behavior changes based on some internal state; (2) that state can be rigidly divided into a relatively small number of distinct options; (3) the entity responds to a series of inputs or events over time. 中：(1) 实体的行为随内部状态而变化；(2) 该状态可严格划分为数量相对较少的几种明确选项；(3) 实体随时间响应一系列输入或事件。",
       "explain": "常见用途：AI、输入处理、菜单导航、文本解析、网络协议等异步行为。"
+    },
+    {
+      "type": "scenario",
+      "ref": "7.4",
+      "title": "格斗角色的布尔地狱 · Fighting game flag hell",
+      "q": "一款 2D 格斗游戏的 Fighter 类里有 isJumping_、isCrouching_、isBlocking_、isAttacking_、isStunned_ 五个 bool，handleInput() 先 switch 输入再一层层 if 检查这些 flag。QA 不断报出“蹲防时还能跳”“被击晕时还能出招”之类的 bug。现在还要加“蹲下蓄力 1 秒放出 Hadoken”。请先说明问题根源，再分两步重构：先用 enum + switch，再判断何时升级到 State pattern，并给出 State 版本的类结构。",
+      "answer": "根源：复杂分支 + 多个可变 flag，而且 flag 的很多组合本身无效（isJumping_ && isCrouching_）。几个 flag 中同一时间只有一个为 true，正提示你需要 enum。第一步：enum FighterState { STANDING, JUMPING, CROUCHING, BLOCKING, ATTACKING, STUNNED }，只保留一个 state_，并反转分支顺序——先 switch 状态再看输入，同一状态的代码聚在一起，非法组合从根本上无法表示。第二步：蓄力需要 chargeTime_，它只在蹲下时有意义，但 enum 版本里要放在 Fighter 上，并在 handleInput 和 update 两处修改——这是升级到 State pattern 的临界点。定义 FighterState 接口（handleInput、update 虚函数），每个状态一个类；CrouchingState 自带 chargeTime_。Fighter 持有 FighterState* state_，只做委托；“换状态”就是让 state_ 指向别的对象。",
+      "code": "class FighterState {\npublic:\n  virtual ~FighterState() {}\n  virtual FighterState* handleInput(Fighter& f, Input in) { return nullptr; }\n  virtual void update(Fighter& f) {}\n};\n\nclass CrouchingState : public FighterState {\npublic:\n  virtual FighterState* handleInput(Fighter& f, Input in) {\n    if (in == RELEASE_DOWN) return new StandingState();\n    return nullptr;  // jump is simply not handled here\n  }\n  virtual void update(Fighter& f) {\n    if (++chargeTime_ == CHARGE_FRAMES) f.fireHadoken();\n  }\nprivate:\n  int chargeTime_ = 0;  // only meaningful while crouching\n};\n\nvoid Fighter::handleInput(Input in) {\n  FighterState* next = state_->handleInput(*this, in);\n  if (next) { delete state_; state_ = next; }\n}",
+      "checklist": [
+        "指出根源：复杂分支 + 可变 flag，且存在无效组合",
+        "用 enum 取代互斥 flag，先 switch 状态，非法状态不可表示",
+        "识别升级时机：出现只属于某一状态的数据（chargeTime_）",
+        "State pattern：状态接口 + 每状态一个类，Fighter 委托给 state_",
+        "状态相关数据移到对应的状态类中"
+      ],
+      "explain": "对应 §7.1–§7.4：从 flag 地狱（“Complex branching and mutable state”）到 enum（“a hint that what you really want is an enum”），再到 State pattern 把 chargeTime_ 移进 DuckingState。"
+    },
+    {
+      "type": "scenario",
+      "ref": "7.5",
+      "title": "双人合作的状态对象 · Co-op state objects",
+      "q": "上一题的平台跳跃游戏要加入本地双人合作，两个 Heroine 同屏。目前所有状态都是 HeroineState 里的 static 实例（HeroineState::ducking 等）。测试发现：P1 蹲下蓄力时，P2 也蹲下，结果 P1 的蓄力被重置/加速了。另外，每个状态切换时设置贴图的代码散落在各个“来源状态”里，Standing 的贴图在 4 个地方重复设置。请重新设计状态对象的存放方式和切换流程。",
+      "answer": "Static state 只有在状态对象没有机器相关字段时才成立（此时是 Flyweight：多台 FSM 可共享同一实例）。DuckingState 有 chargeTime_，这是“某个正在蹲下的 heroine”的数据，两个 heroine 共享一个实例就会互相干扰。方案：无字段的状态（Standing、Jumping、Diving）继续用 static 共享实例；有字段的状态（Ducking）改为 instantiated state——转换时 new DuckingState()。为避免在当前状态的方法里 delete this，让 handleInput() 返回新状态，由 Heroine 在方法返回后删除旧状态并切换（需要区分 static 与动态分配的状态，或统一动态分配/用 Object Pool 避免碎片）。贴图重复问题：给状态加 enter()（和可选 exit()）动作，切换后调用 state_->enter(*this)，StandingState::enter 负责 setGraphics(IMAGE_STAND)，不管从哪个状态进入都只写一次。",
+      "code": "void Heroine::handleInput(Input input) {\n  HeroineState* next = state_->handleInput(*this, input);\n  if (next != NULL) {\n    state_->exit(*this);\n    if (state_->isDynamic()) delete state_;  // static states are shared\n    state_ = next;\n    state_->enter(*this);\n  }\n}\n\nclass StandingState : public HeroineState {\npublic:\n  virtual void enter(Heroine& h) { h.setGraphics(IMAGE_STAND); }\n  virtual HeroineState* handleInput(Heroine& h, Input in) {\n    if (in == PRESS_DOWN) return new DuckingState(); // has chargeTime_\n    if (in == PRESS_B) return &HeroineState::jumping; // stateless, shared\n    return NULL;\n  }\n};",
+      "checklist": [
+        "解释 bug：带字段的 static 状态被多个 heroine 共享",
+        "无字段状态可共享（Flyweight），有字段状态需按实例创建",
+        "handleInput 返回新状态，避免在当前状态方法中 delete this",
+        "用 enter()/exit() 动作集中处理进入状态时的贴图",
+        "提到动态分配状态可能的碎片问题（Object Pool）"
+      ],
+      "explain": "对应 §7.5 Where Are the State Objects?（“if we try to add two-player co-op… we’ll have problems”）和 §7.6 Enter and Exit Actions：entry action “run when you enter the state regardless of which state you’re coming from”。isDynamic() 标记是为混用两种状态而做的工程补充。"
+    },
+    {
+      "type": "scenario",
+      "ref": "7.8",
+      "title": "持枪与动作的组合爆炸 · Weapons vs. movement explosion",
+      "q": "一款横版射击游戏（类 Metal Slug）的主角有 Standing、Running、Jumping、Crouching 4 个动作状态，现在要加 Unarmed、Pistol、Shotgun、Grenade 4 种持械状态。现有设计把它们塞进一个 FSM，已经出现 StandingWithShotgun、JumpingWithPistol 这样的类，并且还在增加。另外，Running、Standing、Crouching 里都复制了“按 B 跳、按下蹲”的代码。请重新设计，并说明两个 FSM 之间需要交互（比如跳跃中不能扔手雷）时怎么办。",
+      "answer": "把两种正交的状态（在做什么 / 拿着什么）塞进一个机器，需要 n × m = 16 个状态且大量重复；拆成 concurrent state machines 只需 n + m = 8 个。Player 持有 MovementState* movement_ 和 EquipmentState* equipment_，输入同时分发给两者，各自独立转换。更完整的系统可以让一个机器“consume”输入，避免两个机器同时响应同一输入。交互规则：书中建议的务实方式是在一个状态的代码里对另一台机器做简单 if 检查，例如 GrenadeState 处理开火时 if (player.isAirborne()) return; ——不优雅但有效。重复的跳/蹲代码：用 hierarchical state machine，定义超状态 OnGroundState 处理 PRESS_B 和 PRESS_DOWN，Standing/Running/Crouching 继承它，自己不处理的输入交给父类，就像覆盖继承方法。",
+      "code": "class Player {\npublic:\n  void handleInput(Input in) {\n    movement_->handleInput(*this, in);\n    equipment_->handleInput(*this, in);\n  }\n  bool isAirborne() const { return movement_->isAirborne(); }\nprivate:\n  MovementState* movement_;   // standing, running, jumping...\n  EquipmentState* equipment_; // unarmed, pistol, shotgun...\n};\n\nclass OnGroundState : public MovementState {  // superstate\npublic:\n  virtual void handleInput(Player& p, Input in) {\n    if (in == PRESS_B) { /* jump */ }\n    else if (in == PRESS_DOWN) { /* crouch */ }\n  }\n};\n\nclass RunningState : public OnGroundState {\npublic:\n  virtual void handleInput(Player& p, Input in) {\n    if (in == RELEASE_RIGHT) { /* stand */ }\n    else OnGroundState::handleInput(p, in);  // walk up hierarchy\n  }\n};",
+      "checklist": [
+        "指出单一 FSM 需要 n×m 状态，拆成两台并发状态机只需 n+m",
+        "Player 持有两个状态引用，输入分发给两台机器",
+        "提到可让一台机器消费输入，避免重复响应",
+        "机器之间的交互用简单的跨机器 if 检查处理",
+        "用分层状态机（超状态 OnGroundState）消除跳/蹲重复代码"
+      ],
+      "explain": "对应 §7.8 Concurrent State Machines（“With two machines, it’s just n + m”，交互时 “do some crude if tests on the other machine’s state”）和 §7.9 Hierarchical State Machines（未处理的事件 “rolls up the chain of superstates”）。"
+    },
+    {
+      "type": "scenario",
+      "ref": "7.10",
+      "title": "菜单栈与暂停 · Menu stack and pause",
+      "q": "一款手机 RPG 的界面流程：MainMenu → WorldMap → Battle；在 WorldMap 或 Battle 中都可以打开 Inventory，Inventory 里又能打开 ItemDetail，关闭后要回到“之前所在的界面”；任何时候来电都要弹出 Pause，恢复后回到原界面。目前用普通 FSM 实现，出现了 InventoryFromMap、InventoryFromBattle 这类重复状态。请设计一个能“记住历史”的状态机结构，并说明哪些转换用 push、哪些用 pop、哪些用普通替换。",
+      "answer": "普通 FSM 只知道当前状态，没有历史，所以要“回到之前的界面”只能复制出 InventoryFromMap 等一堆几乎相同的状态。改用 pushdown automaton：ScreenStack 持有 std::vector<Screen*>，栈顶为当前状态。push：打开 Inventory、ItemDetail、Pause 这类“临时叠加、结束后回来”的界面——新界面成为当前状态，旧界面保留在下面；pop：关闭它们，自动回到下面那个界面。普通替换（replace = pop + push）：MainMenu → WorldMap、WorldMap → Battle 这类不需要返回的流程转换。配合 enter/exit（或 pause/resume 钩子，书外扩展），被压在下面的 Battle 可以暂停计时，回到栈顶时恢复。只需一个 InventoryScreen 类，无论从哪里打开都正确返回。",
+      "code": "class ScreenStack {\npublic:\n  void push(Screen* s) {\n    if (!stack_.empty()) stack_.back()->pause();\n    stack_.push_back(s);\n    s->enter();\n  }\n  void pop() {\n    stack_.back()->exit();\n    delete stack_.back();\n    stack_.pop_back();\n    if (!stack_.empty()) stack_.back()->resume();\n  }\n  void replace(Screen* s) { pop(); push(s); }\n  void handleInput(Input in) { stack_.back()->handleInput(*this, in); }\nprivate:\n  std::vector<Screen*> stack_;  // top = current state\n};\n\n// WorldMapScreen: if (in == OPEN_BAG) stack.push(new InventoryScreen());\n// InventoryScreen: if (in == BACK)     stack.pop();",
+      "checklist": [
+        "指出普通 FSM 没有历史，导致 InventoryFromX 类重复",
+        "使用 pushdown automaton：状态栈，栈顶为当前状态",
+        "临时界面（Inventory、ItemDetail、Pause）用 push/pop",
+        "不需要返回的流程转换用普通替换",
+        "注意 pop 时在方法返回后再删除，不要在状态方法里删除自己"
+      ],
+      "explain": "对应 §7.10 Pushdown Automata：“finite state machines have no concept of history”，push 时 “leaves the previous state directly under it”，pop 后 “the state under it becomes the new current state”。§7.11 也提到 FSM 常用于 navigating menu screens；pause/resume 钩子是书外补充。"
+    },
+    {
+      "type": "scenario",
+      "ref": "7.11",
+      "title": "Boss AI 该用 FSM 吗？ · Is an FSM right for boss AI?",
+      "q": "一款 Souls-like 动作游戏的 Boss AI 用一个大 FSM 写成，已经有 60 多个状态：根据距离、血量阶段、玩家是否在治疗、上一招是什么、场上召唤物数量来选招，转换箭头密密麻麻，策划想加“二阶段新增三连击”时没人敢动。而同一个 Boss 的动画层（Idle/Walk/Attack/Stagger/Death）也用 FSM，却运转良好。请分析为什么同样是 FSM，一个好用一个失控，并给出 Boss AI 的改进方向。",
+      "answer": "FSM 的最大优点也是最大缺点：它强制一个非常受限的结构——固定的状态集合、单一当前状态、硬编码的转换。它甚至不是 Turing complete。动画层符合书中适用条件：行为随内部状态变化、状态能被严格划分为少量互斥选项、按时间响应一系列输入/事件，所以好用。Boss 选招则依赖多维连续条件（距离、血量、历史、召唤物数），要么状态组合爆炸，要么转换条件无限膨胀，正好撞上 FSM 的限制。改进：(1) 先用书中的扩展缓解——把正交的维度拆成 concurrent state machines（如阶段机 Phase1/Phase2 + 战术机），用 hierarchical state 共享同阶段的通用转换，用 pushdown 处理“受击硬直后回到之前的行为”。(2) 对于真正复杂的决策，按书中所说转向更现代的 AI 技术：behavior trees 或 planning systems（如 utility AI / GOAP），由它们决定“做什么”，再交给动画 FSM 执行“怎么播”。",
+      "code": "// Decision layer: behavior tree picks WHAT to do\nSelector root {\n  Sequence { IsPhase2(), PlayerInRange(3.0), Cooldown(\"triple\"), Do(TripleCombo) },\n  Sequence { PlayerIsHealing(), Do(GapCloser) },\n  Sequence { SummonCount() < 2, Do(Summon) },\n  Do(Strafe)\n}\n\n// Execution layer: a small FSM handles HOW it animates\n// Idle -> Walk -> Attack -> (Stagger) -> Idle / Death",
+      "checklist": [
+        "说明 FSM 的受限结构（固定状态、单一当前状态、硬编码转换）既是优点也是缺点",
+        "对照书中三条适用条件，解释动画层为何适合 FSM",
+        "指出 Boss 选招涉及多维条件，导致状态/转换爆炸",
+        "先考虑并发、分层、下推等扩展",
+        "复杂 AI 决策转向 behavior tree / planning，FSM 保留给执行层"
+      ],
+      "explain": "对应 §7.7 What’s the Catch?（“their greatest virtue is also their greatest flaw”）与 §7.11 So How Useful Are They?：“The trend these days in game AI is more toward exciting things like behavior trees and planning systems.” 决策层/执行层分离和行为树伪代码是书外的工程延伸。"
     }
   ]
 }

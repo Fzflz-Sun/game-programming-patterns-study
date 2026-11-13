@@ -1,6 +1,9 @@
 {
   "id": "spatial-partition",
-  "title": { "en": "Spatial Partition", "zh": "空间分区模式" },
+  "title": {
+    "en": "Spatial Partition",
+    "zh": "空间分区模式"
+  },
   "summary": {
     "en": "Games constantly ask \"what objects are near this location?\". A spatial partition stores objects in a data structure organized by position, such as a grid, quadtree or BSP, so that such queries no longer require scanning every object, turning O(n²) pairwise checks into something manageable.",
     "zh": "游戏经常要回答“这个位置附近有哪些对象？”。空间分区把对象存放在按位置组织的数据结构中（如网格、四叉树、BSP），使这类查询不再需要扫描所有对象，从而把 O(n²) 的两两检测降低到可控的程度。"
@@ -8,10 +11,16 @@
   "sections": [
     {
       "num": "20.1",
-      "title": { "en": "Intent", "zh": "意图" },
+      "title": {
+        "en": "Intent",
+        "zh": "意图"
+      },
       "points": [
         {
-          "title": { "en": "Locate objects by position efficiently", "zh": "按位置高效查找对象" },
+          "title": {
+            "en": "Locate objects by position efficiently",
+            "zh": "按位置高效查找对象"
+          },
           "body": {
             "en": "The intent of the pattern is to efficiently locate objects by storing them in a data structure organized by their positions.",
             "zh": "该模式的意图是：将对象存储在按其位置组织的数据结构中，以便高效地查找对象。"
@@ -21,18 +30,30 @@
     },
     {
       "num": "20.2",
-      "title": { "en": "Motivation", "zh": "动机" },
+      "title": {
+        "en": "Motivation",
+        "zh": "动机"
+      },
       "points": [
         {
-          "title": { "en": "\"What objects are near this location?\"", "zh": "“这个位置附近有哪些对象？”" },
+          "title": {
+            "en": "\"What objects are near this location?\"",
+            "zh": "“这个位置附近有哪些对象？”"
+          },
           "body": {
             "en": "Game worlds have a sense of space, which shows up in physics (moving, colliding objects), in audio (distant sounds are quieter), and even in online chat restricted to nearby players. So the engine often needs to answer \"what objects are near this location?\", and if it does so enough times per frame, it becomes a bottleneck.",
             "zh": "游戏世界具有空间感，这体现在物理（物体移动、碰撞）、音频（远处的声音更小）甚至仅限附近玩家的在线聊天中。因此引擎经常需要回答“这个位置附近有哪些对象？”，如果每帧要回答很多次，它就会成为性能瓶颈。"
           }
         },
         {
-          "title": { "en": "Naive pairwise checks are O(n²)", "zh": "朴素的两两检测是 O(n²)" },
-          "subsection": { "en": "Units on the field of battle", "zh": "战场上的单位" },
+          "title": {
+            "en": "Naive pairwise checks are O(n²)",
+            "zh": "朴素的两两检测是 O(n²)"
+          },
+          "subsection": {
+            "en": "Units on the field of battle",
+            "zh": "战场上的单位"
+          },
           "body": {
             "en": "In a real-time strategy game, the naive approach compares every pair of units to see if they're at the same position. Even though the inner loop starts after the outer one to avoid checking each pair twice, it's still O(n²): each added unit must be compared to all previous ones, which spirals out of control with many units.",
             "zh": "在即时战略游戏中，朴素做法是比较每一对单位，看它们是否处在同一位置。尽管内层循环从外层当前单位之后开始，避免了同一对被检查两次，但复杂度仍是 O(n²)：每新增一个单位都要与之前所有单位比较，单位一多就会失控。"
@@ -40,8 +61,14 @@
           "code": "void handleMelee(Unit* units[], int numUnits) {\n  for (int a = 0; a < numUnits - 1; a++) {\n    for (int b = a + 1; b < numUnits; b++) {\n      if (units[a]->position() == units[b]->position()) {\n        handleAttack(units[a], units[b]);\n      }\n    }\n  }\n}"
         },
         {
-          "title": { "en": "The 1D insight: sort by position", "zh": "一维的启发：按位置排序" },
-          "subsection": { "en": "Drawing battle lines", "zh": "划定战线" },
+          "title": {
+            "en": "The 1D insight: sort by position",
+            "zh": "一维的启发：按位置排序"
+          },
+          "subsection": {
+            "en": "Drawing battle lines",
+            "zh": "划定战线"
+          },
           "body": {
             "en": "The problem is that the unit array has no order. On a 1D battleline, sorting units by position lets a binary search (O(log n)) find neighbors, bringing the whole job from O(n²) to O(n log n), or O(n) with something like a pigeonhole sort. The lesson: storing objects in a structure organized by location makes them faster to find; this pattern extends that to more dimensions.",
             "zh": "问题在于单位数组没有任何顺序。如果战场是一维的战线，按位置对单位排序后就能用二分查找（O(log n)）找到邻近单位，把整体从 O(n²) 降到 O(n log n)，用鸽巢排序之类的方法甚至能降到 O(n)。教训是：把对象存放在按位置组织的结构中就能更快地找到它们；本模式把这一思想推广到多维空间。"
@@ -51,10 +78,16 @@
     },
     {
       "num": "20.3",
-      "title": { "en": "The Pattern", "zh": "模式" },
+      "title": {
+        "en": "The Pattern",
+        "zh": "模式"
+      },
       "points": [
         {
-          "title": { "en": "A spatial data structure", "zh": "空间数据结构" },
+          "title": {
+            "en": "A spatial data structure",
+            "zh": "空间数据结构"
+          },
           "body": {
             "en": "For a set of objects that each have a position in space, store them in a spatial data structure that organizes them by position, letting you efficiently query for objects at or near a location. When an object's position changes, update the structure so it can still find the object.",
             "zh": "对于一组在空间中各有位置的对象，把它们存放在按位置组织的空间数据结构中，从而能高效地查询某位置上或附近的对象。当对象的位置改变时，更新该数据结构，使其仍然能找到这个对象。"
@@ -64,10 +97,16 @@
     },
     {
       "num": "20.4",
-      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "title": {
+        "en": "When to Use It",
+        "zh": "何时使用"
+      },
       "points": [
         {
-          "title": { "en": "Many objects, many location queries", "zh": "对象多，位置查询也多" },
+          "title": {
+            "en": "Many objects, many location queries",
+            "zh": "对象多，位置查询也多"
+          },
           "body": {
             "en": "Spatial partitions are common for both live, moving game objects and the static art and geometry of the world; sophisticated games often have several for different kinds of content. Use one when you have a set of objects with positions and are doing enough queries by location that performance suffers.",
             "zh": "空间分区既常用于存储活动的、移动的游戏对象，也常用于存储世界中的静态美术资源和几何体；复杂的游戏往往针对不同内容使用多个空间分区。当你有一组带位置的对象，并且按位置查找对象的次数多到影响性能时，就可以使用它。"
@@ -77,17 +116,26 @@
     },
     {
       "num": "20.5",
-      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "title": {
+        "en": "Keep in Mind",
+        "zh": "注意事项"
+      },
       "points": [
         {
-          "title": { "en": "Worth it only for large n", "zh": "只有 n 足够大才值得" },
+          "title": {
+            "en": "Worth it only for large n",
+            "zh": "只有 n 足够大才值得"
+          },
           "body": {
             "en": "Spatial partitions exist to knock O(n) or O(n²) operations down to something manageable, so they matter more the more objects you have; if n is small, they may not be worth the bother.",
             "zh": "空间分区的目的是把 O(n) 或 O(n²) 的操作降低到可控的程度，因此对象越多，它的价值越大；如果 n 很小，可能就不值得费这个事。"
           }
         },
         {
-          "title": { "en": "Moving objects and memory cost", "zh": "移动的对象与内存开销" },
+          "title": {
+            "en": "Moving objects and memory cost",
+            "zh": "移动的对象与内存开销"
+          },
           "body": {
             "en": "Objects that change position are harder to handle: the structure must be reorganized, adding code complexity and CPU cost (imagine a hash table whose keys change spontaneously). A partition also uses extra memory for bookkeeping, trading memory for speed, which may be a losing deal if memory is scarcer than cycles.",
             "zh": "会改变位置的对象更难处理：必须重新组织数据结构，增加了代码复杂度和 CPU 开销（想象一个键会自发改变的哈希表）。空间分区还需要额外内存来存放簿记数据，以内存换速度；如果内存比时钟周期更紧缺，这可能得不偿失。"
@@ -97,19 +145,34 @@
     },
     {
       "num": "20.6",
-      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "title": {
+        "en": "Sample Code",
+        "zh": "示例代码"
+      },
       "points": [
         {
-          "title": { "en": "A fixed grid like graph paper", "zh": "像方格纸一样的固定网格" },
-          "subsection": { "en": "A sheet of graph paper", "zh": "一张方格纸" },
+          "title": {
+            "en": "A fixed grid like graph paper",
+            "zh": "像方格纸一样的固定网格"
+          },
+          "subsection": {
+            "en": "A sheet of graph paper",
+            "zh": "一张方格纸"
+          },
           "body": {
             "en": "The sample uses the simplest spatial partition: a fixed grid. Superimpose fixed-size squares on the battlefield and store in each cell the units whose positions fall inside it. Combat then only compares units in the same cell, splitting one big battlefield into many smaller mini-battlefields.",
             "zh": "示例使用最简单的空间分区：固定网格。在战场上叠加一张由固定大小方格组成的网格，每个格子存放位置落在其中的单位。处理战斗时只比较同一格子里的单位，于是一个大战场被划分成许多更小的“迷你战场”。"
           }
         },
         {
-          "title": { "en": "Cells point to doubly linked lists of units", "zh": "格子指向单位的双向链表" },
-          "subsection": { "en": "A grid of linked units", "zh": "由链表单位组成的网格" },
+          "title": {
+            "en": "Cells point to doubly linked lists of units",
+            "zh": "格子指向单位的双向链表"
+          },
+          "subsection": {
+            "en": "A grid of linked units",
+            "zh": "由链表单位组成的网格"
+          },
           "body": {
             "en": "Each Unit has a 2D position, a pointer to its Grid (a friend class), and prev_/next_ pointers. Each grid cell is just a pointer to the first unit in that cell's doubly linked list. The author hand-rolls the list for clarity, but advises using built-in collections in real code.",
             "zh": "每个 Unit 有一个二维位置、一个指向所属 Grid 的指针（Grid 是其友元类），以及 prev_/next_ 指针。网格中的每个格子只是一个指针，指向该格子双向链表中的第一个单位。作者为了讲解清楚而手写链表，但建议在实际代码中使用语言内置的集合。"
@@ -117,8 +180,14 @@
           "code": "class Grid {\npublic:\n  static const int NUM_CELLS = 10;\n  static const int CELL_SIZE = 20;\nprivate:\n  Unit* cells_[NUM_CELLS][NUM_CELLS];\n};\n\nclass Unit {\n  // Previous code...\nprivate:\n  Unit* prev_;\n  Unit* next_;\n};"
         },
         {
-          "title": { "en": "Adding a unit to its cell", "zh": "把单位加入所在的格子" },
-          "subsection": { "en": "Entering the field of battle", "zh": "进入战场" },
+          "title": {
+            "en": "Adding a unit to its cell",
+            "zh": "把单位加入所在的格子"
+          },
+          "subsection": {
+            "en": "Entering the field of battle",
+            "zh": "进入战场"
+          },
           "body": {
             "en": "Unit's constructor calls grid_->add(this). add() converts world coordinates to cell space by dividing by CELL_SIZE and truncating to int, then pushes the unit onto the front of that cell's list.",
             "zh": "Unit 的构造函数调用 grid_->add(this)。add() 通过除以 CELL_SIZE 并截断为 int，把世界坐标转换为格子坐标，然后把单位插入该格子链表的头部。"
@@ -126,8 +195,14 @@
           "code": "void Grid::add(Unit* unit) {\n  int cellX = (int)(unit->x_ / Grid::CELL_SIZE);\n  int cellY = (int)(unit->y_ / Grid::CELL_SIZE);\n\n  unit->prev_ = NULL;\n  unit->next_ = cells_[cellX][cellY];\n  cells_[cellX][cellY] = unit;\n\n  if (unit->next_ != NULL) {\n    unit->next_->prev_ = unit;\n  }\n}"
         },
         {
-          "title": { "en": "Combat cell by cell", "zh": "逐格处理战斗" },
-          "subsection": { "en": "A clash of swords", "zh": "刀剑相交" },
+          "title": {
+            "en": "Combat cell by cell",
+            "zh": "逐格处理战斗"
+          },
+          "subsection": {
+            "en": "A clash of swords",
+            "zh": "刀剑相交"
+          },
           "body": {
             "en": "handleMelee() walks every cell and calls handleCell(), which does the same pairwise comparison as the naive version but only among units in that cell. Though it looks like a triply nested loop, the inner loops cover far fewer units, which outweighs the cost of the outer loop over cells, as long as cells aren't too small.",
             "zh": "handleMelee() 遍历每个格子并调用 handleCell()，后者做的两两比较与朴素版本相同，但只在该格子内的单位之间进行。虽然看起来变成了三重循环，但内层循环涉及的单位少得多，足以抵消外层遍历格子的开销，前提是格子不能太小。"
@@ -135,8 +210,14 @@
           "code": "void Grid::handleCell(Unit* unit) {\n  while (unit != NULL) {\n    Unit* other = unit->next_;\n    while (other != NULL) {\n      if (unit->x_ == other->x_ &&\n          unit->y_ == other->y_) {\n        handleAttack(unit, other);\n      }\n      other = other->next_;\n    }\n    unit = unit->next_;\n  }\n}"
         },
         {
-          "title": { "en": "Moving between cells", "zh": "在格子之间移动" },
-          "subsection": { "en": "Charging forward", "zh": "向前冲锋" },
+          "title": {
+            "en": "Moving between cells",
+            "zh": "在格子之间移动"
+          },
+          "subsection": {
+            "en": "Charging forward",
+            "zh": "向前冲锋"
+          },
           "body": {
             "en": "Units would otherwise be stuck in their cells. Unit::move() delegates to Grid::move(), which updates the position and, only if the unit crossed a cell boundary, unlinks it from the old cell's list (fixing the head if needed) and calls add() for the new cell. A doubly linked list makes this removal and insertion just a few pointer assignments.",
             "zh": "否则单位就会被困在自己的格子里。Unit::move() 把工作交给 Grid::move()，后者更新位置；只有当单位跨越了格子边界时，才把它从旧格子的链表中摘除（必要时更新表头），再调用 add() 加入新格子。双向链表让这种删除和插入只需几次指针赋值。"
@@ -144,8 +225,14 @@
           "code": "void Grid::move(Unit* unit, double x, double y) {\n  int oldCellX = (int)(unit->x_ / Grid::CELL_SIZE);\n  int oldCellY = (int)(unit->y_ / Grid::CELL_SIZE);\n  int cellX = (int)(x / Grid::CELL_SIZE);\n  int cellY = (int)(y / Grid::CELL_SIZE);\n\n  unit->x_ = x;\n  unit->y_ = y;\n\n  if (oldCellX == cellX && oldCellY == cellY) return;\n\n  if (unit->prev_ != NULL) unit->prev_->next_ = unit->next_;\n  if (unit->next_ != NULL) unit->next_->prev_ = unit->prev_;\n  if (cells_[oldCellX][oldCellY] == unit) {\n    cells_[oldCellX][oldCellY] = unit->next_;\n  }\n\n  add(unit);\n}"
         },
         {
-          "title": { "en": "Attack range and neighboring cells", "zh": "攻击距离与相邻格子" },
-          "subsection": { "en": "At arm's length", "zh": "一臂之遥" },
+          "title": {
+            "en": "Attack range and neighboring cells",
+            "zh": "攻击距离与相邻格子"
+          },
+          "subsection": {
+            "en": "At arm's length",
+            "zh": "一臂之遥"
+          },
           "body": {
             "en": "With an attack distance, units in different cells may still be in range, so each unit is also checked against neighboring cells. Only four of the eight neighbors are checked, for the same reason the inner loop starts after the current unit: checking all eight would register each A-B attack twice. Which half doesn't matter. If attack distance exceeds a cell, more rows of neighbors must be scanned.",
             "zh": "引入攻击距离后，处于不同格子的单位也可能在攻击范围内，因此每个单位还要与相邻格子里的单位比较。只检查八个相邻格子中的四个，原因与内层循环从当前单位之后开始一样：若检查全部八个，A 与 B 之间的攻击会被记录两次。检查哪一半无关紧要。如果攻击距离大于一个格子，就需要扫描更多行的相邻格子。"
@@ -156,43 +243,76 @@
     },
     {
       "num": "20.7",
-      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "title": {
+        "en": "Design Decisions",
+        "zh": "设计决策"
+      },
       "points": [
         {
-          "title": { "en": "Flat partitions", "zh": "扁平分区" },
-          "subsection": { "en": "Is the partition hierarchical or flat?", "zh": "分区是层级式的还是扁平的？" },
+          "title": {
+            "en": "Flat partitions",
+            "zh": "扁平分区"
+          },
+          "subsection": {
+            "en": "Is the partition hierarchical or flat?",
+            "zh": "分区是层级式的还是扁平的？"
+          },
           "body": {
             "en": "A hierarchical partition divides space into a few regions (usually two, four or eight) and recursively subdivides crowded ones. A flat partition like the grid is simpler to reason about and implement, has constant memory usage, and can be faster to update when objects move, since a hierarchy may need adjusting at several levels.",
             "zh": "层级式分区把空间分成少数几个区域（通常是二、四或八个），并递归细分对象过多的区域。像网格这样的扁平分区更容易理解和实现，内存占用固定，而且对象移动时更新更快，因为层级结构可能需要调整多个层次。"
           }
         },
         {
-          "title": { "en": "Hierarchical partitions", "zh": "层级式分区" },
-          "subsection": { "en": "Is the partition hierarchical or flat?", "zh": "分区是层级式的还是扁平的？" },
+          "title": {
+            "en": "Hierarchical partitions",
+            "zh": "层级式分区"
+          },
+          "subsection": {
+            "en": "Is the partition hierarchical or flat?",
+            "zh": "分区是层级式的还是扁平的？"
+          },
           "body": {
             "en": "Hierarchical partitions handle empty space efficiently, since sparse regions stay one big partition instead of many empty cells to allocate and walk. They also handle densely populated areas better, adaptively subdividing a clump so only a few objects are considered at a time.",
             "zh": "层级式分区能高效处理空旷区域，因为稀疏区域保持为一个大分区，而不是许多需要分配内存并逐个遍历的空格子。它们也能更好地处理密集区域，对聚集的对象自适应地细分，使每次只需考虑少量对象。"
           }
         },
         {
-          "title": { "en": "Object-independent vs. adaptive partitioning", "zh": "与对象无关的分区与自适应分区" },
-          "subsection": { "en": "Does the partitioning depend on the set of objects?", "zh": "分区是否依赖于对象集合？" },
+          "title": {
+            "en": "Object-independent vs. adaptive partitioning",
+            "zh": "与对象无关的分区与自适应分区"
+          },
+          "subsection": {
+            "en": "Does the partitioning depend on the set of objects?",
+            "zh": "分区是否依赖于对象集合？"
+          },
           "body": {
             "en": "Fixed boundaries let objects be added incrementally and moved quickly, but partitions can become imbalanced: if all units cluster in one cell, you regress to O(n²). Adaptive schemes like BSPs, k-d trees and bounding volume hierarchies choose boundaries so each region holds about the same number of objects, giving consistent performance, but are best built from the whole set at once, so they're used mostly for static geometry.",
             "zh": "固定的边界使对象可以逐个加入并快速移动，但分区可能失衡：如果所有单位都聚在一个格子里，就会退化回 O(n²)。BSP、k-d 树和包围体层次结构等自适应方案会根据对象来选择边界，使每个区域的对象数量大致相同，从而获得稳定的性能；但它们最好一次性对整个对象集合进行划分，因此主要用于静态几何体。"
           }
         },
         {
-          "title": { "en": "Quadtrees: the best of both", "zh": "四叉树：兼得两者之长" },
-          "subsection": { "en": "Does the partitioning depend on the set of objects?", "zh": "分区是否依赖于对象集合？" },
+          "title": {
+            "en": "Quadtrees: the best of both",
+            "zh": "四叉树：兼得两者之长"
+          },
+          "subsection": {
+            "en": "Does the partitioning depend on the set of objects?",
+            "zh": "分区是否依赖于对象集合？"
+          },
           "body": {
             "en": "A quadtree (octree in 3D) starts as one square and, when a square exceeds an object threshold, splits it into four fixed halves, recursively. The partitioning is object-independent but the hierarchy adapts to the objects. Adding or removing an object costs a bounded amount of work (at most one subdivision or collapse), moving is just remove plus add, and partitions stay balanced.",
             "zh": "四叉树（三维中为八叉树）开始时整个空间是一个正方形，当某个正方形中的对象数超过阈值时，就把它固定地对半切成四个小正方形，并递归进行。分区边界与对象无关，但层级结构会随对象自适应。增删对象的工作量有上限（最多触发一次细分或合并），移动只是一次删除加一次添加，而且各分区保持平衡。"
           }
         },
         {
-          "title": { "en": "Is the partition the only storage?", "zh": "分区是否是唯一的存储？" },
-          "subsection": { "en": "Are objects only stored in the partition?", "zh": "对象是否只存储在分区中？" },
+          "title": {
+            "en": "Is the partition the only storage?",
+            "zh": "分区是否是唯一的存储？"
+          },
+          "subsection": {
+            "en": "Are objects only stored in the partition?",
+            "zh": "对象是否只存储在分区中？"
+          },
           "body": {
             "en": "Storing objects only in the partition avoids the memory and complexity of two collections that must be kept in sync. Keeping a second collection makes traversing all objects faster, since walking a mostly empty grid to find objects wastes time; you get two structures, each optimized for its use case.",
             "zh": "只把对象存放在分区中，可以避免维护两个集合带来的内存开销和复杂度，也不必保持二者同步。另外维护一个集合则能更快地遍历所有对象，因为为了找到对象而遍历一个大多为空的网格很浪费时间；这样就有两个数据结构，各自针对不同用途优化。"
@@ -202,10 +322,16 @@
     },
     {
       "num": "20.8",
-      "title": { "en": "See Also", "zh": "参见" },
+      "title": {
+        "en": "See Also",
+        "zh": "参见"
+      },
       "points": [
         {
-          "title": { "en": "Common structures and their 1D cousins", "zh": "常见结构及其一维“近亲”" },
+          "title": {
+            "en": "Common structures and their 1D cousins",
+            "zh": "常见结构及其一维“近亲”"
+          },
           "body": {
             "en": "The next step is learning common structures: grid, quadtree, BSP, k-d tree and bounding volume hierarchy. Each extends a familiar 1D data structure: a grid is a persistent bucket sort; BSPs, k-d trees and bounding volume hierarchies are binary search trees; quadtrees and octrees are tries.",
             "zh": "下一步应该学习几种常见结构：网格、四叉树、BSP、k-d 树和包围体层次结构。它们都是把熟悉的一维数据结构扩展到多维：网格是持久化的桶排序；BSP、k-d 树和包围体层次结构是二叉搜索树；四叉树和八叉树是字典树（trie）。"
@@ -215,24 +341,62 @@
     }
   ],
   "terms": [
-    { "en": "spatial partition", "zh": "空间分区" },
-    { "en": "fixed grid", "zh": "固定网格" },
-    { "en": "cell", "zh": "格子 / 单元格" },
-    { "en": "doubly linked list", "zh": "双向链表" },
-    { "en": "quadtree / octree", "zh": "四叉树 / 八叉树" },
-    { "en": "binary space partition (BSP)", "zh": "二叉空间分割（BSP）" },
-    { "en": "k-d tree", "zh": "k-d 树" },
-    { "en": "bounding volume hierarchy", "zh": "包围体层次结构" },
-    { "en": "hierarchical vs. flat partition", "zh": "层级式分区与扁平分区" },
-    { "en": "bucket sort", "zh": "桶排序" },
-    { "en": "trie", "zh": "字典树（前缀树）" }
+    {
+      "en": "spatial partition",
+      "zh": "空间分区"
+    },
+    {
+      "en": "fixed grid",
+      "zh": "固定网格"
+    },
+    {
+      "en": "cell",
+      "zh": "格子 / 单元格"
+    },
+    {
+      "en": "doubly linked list",
+      "zh": "双向链表"
+    },
+    {
+      "en": "quadtree / octree",
+      "zh": "四叉树 / 八叉树"
+    },
+    {
+      "en": "binary space partition (BSP)",
+      "zh": "二叉空间分割（BSP）"
+    },
+    {
+      "en": "k-d tree",
+      "zh": "k-d 树"
+    },
+    {
+      "en": "bounding volume hierarchy",
+      "zh": "包围体层次结构"
+    },
+    {
+      "en": "hierarchical vs. flat partition",
+      "zh": "层级式分区与扁平分区"
+    },
+    {
+      "en": "bucket sort",
+      "zh": "桶排序"
+    },
+    {
+      "en": "trie",
+      "zh": "字典树（前缀树）"
+    }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "20.2",
       "q": "朴素的 handleMelee() 两两比较所有单位，其复杂度是？ / What is the complexity of the naive pairwise check?",
-      "options": ["O(n)", "O(n log n)", "O(log n)", "O(n²)"],
+      "options": [
+        "O(n)",
+        "O(n log n)",
+        "O(log n)",
+        "O(n²)"
+      ],
       "answer": 3,
       "explain": "Even skipping duplicate pairs, it's still O(n²). 内层循环从 a+1 开始只省了一半，量级不变。"
     },
@@ -240,7 +404,11 @@
       "type": "fill",
       "ref": "20.2",
       "q": "On a 1D battleline, sorting units by position lets us use a ___ search to find nearby units in O(log n).",
-      "answer": ["binary", "二分", "二分查找"],
+      "answer": [
+        "binary",
+        "二分",
+        "二分查找"
+      ],
       "explain": "排序后用二分查找（binary search），整体从 O(n²) 降为 O(n log n)。"
     },
     {
@@ -254,7 +422,12 @@
       "type": "choice",
       "ref": "20.6",
       "q": "In Grid::add(), how is a world coordinate converted to a cell index? 世界坐标如何转换为格子下标？",
-      "options": ["Divide by CELL_SIZE and truncate to int（除以 CELL_SIZE 并截断取整）", "Multiply by NUM_CELLS", "Take modulo NUM_CELLS", "Hash the (x, y) pair"],
+      "options": [
+        "Divide by CELL_SIZE and truncate to int（除以 CELL_SIZE 并截断取整）",
+        "Multiply by NUM_CELLS",
+        "Take modulo NUM_CELLS",
+        "Hash the (x, y) pair"
+      ],
       "answer": 0,
       "explain": "(int)(unit->x_ / Grid::CELL_SIZE): dividing converts to cell space, casting truncates the fraction."
     },
@@ -276,7 +449,12 @@
       "type": "choice",
       "ref": "20.6",
       "q": "考虑攻击距离时，为什么 handleCell() 只检查 8 个相邻格子中的 4 个？",
-      "options": ["因为另外 4 个格子总是空的", "为了避免同一对单位被比较两次（重复记录攻击）", "因为攻击只能朝一个方向", "因为网格边界外没有格子"],
+      "options": [
+        "因为另外 4 个格子总是空的",
+        "为了避免同一对单位被比较两次（重复记录攻击）",
+        "因为攻击只能朝一个方向",
+        "因为网格边界外没有格子"
+      ],
       "answer": 1,
       "explain": "Checking all eight would find A→B and later B→A. Which half you check doesn't matter. 原因与内层循环从当前单位之后开始相同。"
     },
@@ -284,14 +462,23 @@
       "type": "fill",
       "ref": "20.7",
       "q": "A ___ partitions 2D space by recursively splitting crowded squares into four fixed halves; its 3D analogue is the octree.",
-      "answer": ["quadtree", "四叉树", "quad tree"],
+      "answer": [
+        "quadtree",
+        "四叉树",
+        "quad tree"
+      ],
       "explain": "四叉树：边界固定（与对象无关），但层级随对象自适应。"
     },
     {
       "type": "choice",
       "ref": "20.7",
       "q": "If all units cluster in one corner of a fixed grid, what happens? 所有单位挤在一个角落会怎样？",
-      "options": ["Grid automatically subdivides that cell", "Performance improves since other cells are skipped", "Memory usage drops", "It regresses to the original O(n²) problem（退化回 O(n²)）"],
+      "options": [
+        "Grid automatically subdivides that cell",
+        "Performance improves since other cells are skipped",
+        "Memory usage drops",
+        "It regresses to the original O(n²) problem（退化回 O(n²)）"
+      ],
       "answer": 3,
       "explain": "Object-independent partitions can be imbalanced. 固定分区无法适应聚集的对象。"
     },
@@ -306,9 +493,88 @@
       "type": "choice",
       "ref": "20.8",
       "q": "According to the author, a grid is essentially a persistent ___? 网格本质上是哪种一维结构的推广？",
-      "options": ["binary search tree（二叉搜索树）", "bucket sort（桶排序）", "trie（字典树）", "hash set（哈希集合）"],
+      "options": [
+        "binary search tree（二叉搜索树）",
+        "bucket sort（桶排序）",
+        "trie（字典树）",
+        "hash set（哈希集合）"
+      ],
       "answer": 1,
       "explain": "Grid = persistent bucket sort; BSP/k-d tree/BVH = binary search trees; quadtrees/octrees = tries."
+    },
+    {
+      "type": "scenario",
+      "ref": "20.2",
+      "title": "MMO 附近聊天 · Proximity chat in an MMO",
+      "q": "一款 MMO 的主城同时在线 3,000 名玩家，“附近聊天”只发给 30 米内的玩家；此外服务器每 tick 要为每个玩家计算 AOI（area of interest），决定同步哪些玩家的位置。当前实现对每个玩家遍历所有其他玩家计算距离，服务器 CPU 爆满。请分析复杂度问题，并用 Spatial Partition 设计改造：用什么结构、cell 多大、查询如何进行。",
+      "answer": "分析：每个玩家都对所有玩家做距离检查，是 O(n²)，3,000 人每 tick 约 450 万次比较（即使只比一半也一样是 n² 量级）。根本问题是玩家列表没有按位置组织，找“附近的人”只能扫全表。设计：把主城覆盖一张 fixed grid，cell 边长设为查询半径（30 米）左右。每个 cell 保存其中玩家的列表；玩家移动时若跨越 cell 边界，就从旧 cell 移除并加入新 cell。查询某玩家附近的人：只检查他所在 cell 及周围 8 个 cell 中的玩家，再做精确距离判断。因为查询半径 ≤ cell 尺寸，3×3 邻域一定覆盖整个圆。比较次数降为与每个 cell 内人数相关，而不是总人数。cell 太小会让遍历 cell 的开销和跨格移动频率上升；太大又会让每个 cell 人数过多。若主城人群高度聚集（拍卖行门口），可考虑 hierarchical 结构。",
+      "code": "std::vector<Player*> Grid::nearby(const Player& p, float radius) {\n  std::vector<Player*> result;\n  int cx = (int)(p.x / CELL_SIZE), cy = (int)(p.y / CELL_SIZE);\n  for (int dx = -1; dx <= 1; dx++)\n    for (int dy = -1; dy <= 1; dy++) {\n      int x = cx + dx, y = cy + dy;\n      if (x < 0 || y < 0 || x >= NUM_CELLS || y >= NUM_CELLS) continue;\n      for (Player* o : cells_[x][y])\n        if (o != &p && distance(p, *o) < radius) result.push_back(o);\n    }\n  return result;\n}",
+      "checklist": [
+        "指出全对比较是 O(n²)，根源是对象没有按位置组织",
+        "使用按位置组织的数据结构（如 fixed grid），每个 cell 存对象列表",
+        "查询时只检查附近 cell，并说明 cell 尺寸与查询半径的关系",
+        "对象移动跨越 cell 时需要更新结构"
+      ],
+      "explain": "§20.2 Motivation：引擎经常要回答“What objects are near this location?”，书中也提到“Online chat may be restricted to nearby players”。AOI 同步是书外的服务器端工程应用。"
+    },
+    {
+      "type": "scenario",
+      "ref": "20.5",
+      "title": "小游戏不必分区 · When partitioning isn't worth it",
+      "q": "一款手机休闲游戏，屏幕上最多 12 个敌人和 1 个玩家，每帧做一次碰撞检测。新人程序员看完本章后，准备引入 quadtree，并给所有对象加上移动时更新树的逻辑。同一项目另一款 RTS 原型每帧有 2,000 个单位持续移动、互相寻找攻击目标，但目标手机内存非常紧张。请分别评估这两个项目是否应该使用 Spatial Partition，并说明需要权衡哪些代价。",
+      "answer": "休闲游戏：不应使用。Spatial partition 用于把 O(n) 或 O(n²) 的操作降下来，n 越大越值得；n = 13 时两两比较只有 78 次，远低于维护 quadtree 的成本。引入它会带来额外代码复杂度、每次移动的更新开销和 bookkeeping 内存，得不偿失。RTS 原型：值得使用，2,000 个单位两两比较约 200 万次/帧。但要权衡：(1) 单位持续移动，结构必须不断更新——这像一个 key 会自发变化的 hash table，选择移动更新便宜的结构（fixed grid 移动时只需从一个 cell 的双向链表摘下、挂到另一个，O(1)）；(2) 空间分区用内存换速度，内存紧张时应选择内存固定且小的方案，例如 grid 的 cell 只存头指针，链表指针直接嵌在 Unit 内（intrusive list），不额外分配节点。最终应 profile 确认收益。",
+      "checklist": [
+        "n 很小时 spatial partition 不值得",
+        "对象频繁移动会增加重组数据结构的复杂度和 CPU 开销",
+        "空间分区以额外内存换取速度，内存紧张时需慎重",
+        "为大量移动单位选择更新代价低、内存固定的结构（如 fixed grid + intrusive list）"
+      ],
+      "explain": "对应 §20.5 Keep in Mind 的三点：n 太小不值得、“objects that change position are harder to deal with”（“Imagine a hash table where the keys … can change spontaneously”）、以及“it trades memory for speed”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "20.6",
+      "title": "跨格的攻击范围 · Attack range across cell borders",
+      "q": "你按书中实现了 RTS 的 fixed grid：CELL_SIZE = 20，handleCell() 只比较同一 cell 中的单位。现在加入了带攻击距离的单位：近战 ATTACK_DISTANCE = 5，弓箭手射程 45。测试发现：(1) 站在 cell 边界两侧、距离只有 2 的两个剑士互相不攻击；(2) 修了之后又出现同一对单位一帧被结算两次伤害。(3) 弓箭手依然打不到远处的敌人。请逐一分析原因并给出修正。",
+      "answer": "(1) 原因：只比较同一 cell，位于不同 cell 但距离很近的单位被漏掉。修正：除本 cell 外，还要检查相邻 cell 的单位。(2) 原因：若每个单位都检查全部 8 个邻居，A 查右边会找到 B，B 查左边又会找到 A，同一对结算两次。修正：只检查一半的邻居（比如左、上、左上、左下这 4 个），与内层循环从 unit->next_ 开始同理，保证每对只比较一次；选哪一半无所谓。(3) 原因：上述方法假设最大攻击距离小于 cell 尺寸。射程 45 > 20，需要扫描向外 ceil(45/20) = 3 圈的 cell。修正：对远程单位按射程计算扫描半径；或者让近战碰撞与远程索敌使用不同 cell 尺寸的 grid。注意 cell 太小时外层遍历 cell 的开销会变得显著。",
+      "code": "void Grid::handleCell(int x, int y) {\n  Unit* unit = cells_[x][y];\n  while (unit != NULL) {\n    // Pairs in this cell (each pair once).\n    handleUnit(unit, unit->next_);\n    // Half of the neighbors to avoid double hits.\n    if (x > 0 && y > 0) handleUnit(unit, cells_[x - 1][y - 1]);\n    if (x > 0) handleUnit(unit, cells_[x - 1][y]);\n    if (y > 0) handleUnit(unit, cells_[x][y - 1]);\n    if (x > 0 && y < NUM_CELLS - 1)\n      handleUnit(unit, cells_[x - 1][y + 1]);\n    unit = unit->next_;\n  }\n}",
+      "checklist": [
+        "有攻击距离时，不同 cell 的单位也可能交互，需检查相邻 cell",
+        "只检查一半的邻居，避免同一对单位被处理两次",
+        "指出相邻检查依赖“攻击距离 < cell 尺寸”的假设",
+        "大射程需要扫描多圈 cell（或使用不同尺寸的 grid）"
+      ],
+      "explain": "对应 §20.6 Sample Code 的 At arm’s length：“units in different cells may still be close enough to interact”，“We only look at half of the neighbors … to avoid comparing each pair of units twice”，以及“If we have small cells and large attack distances, we may need to scan a bunch of neighboring cells several rows out.”"
+    },
+    {
+      "type": "scenario",
+      "ref": "20.7",
+      "title": "开放世界的分区选择 · Choosing a partition for an open world",
+      "q": "一款开放世界生存游戏：地图 8km × 8km，大部分是空旷的荒野，但城镇里建筑、NPC、掉落物极度密集；静态物体（树、岩石、建筑）约 20 万个，加载后不再移动；动态物体（玩家、动物、车辆、投射物）约 2,000 个，持续移动。请为静态物体和动态物体分别选择 spatial partition（flat vs hierarchical，object-independent vs object-dependent），并说明理由。",
+      "answer": "静态物体：选 object-dependent 的结构，如 BVH 或 k-d tree。它们根据物体实际分布选择分割边界，使每个分区物体数大致相同，从而查询性能稳定一致；这类结构最适合一次性对全部物体建树——而静态物体加载后不变，恰好满足，建树可以离线或在加载时完成。动态物体：需要频繁移动、增删，应选择 partition 边界固定的结构。flat fixed grid 简单、内存固定、移动便宜，但这里地图大部分空旷（大量空 cell 浪费内存且需遍历），城镇又极度密集（一个 cell 里堆满对象，退化回 O(n²)）。因此推荐 quadtree：边界固定（总是从中间切），只细分人多的区域，能增量添加、移除，单次添加最多触发一次细分，移动只是一次 remove + add，同时对空旷区域和密集区域都高效。如果需要每帧遍历所有动态物体（AI update），再额外维护一个普通列表，与分区并存，代价是两份集合需要同步。",
+      "checklist": [
+        "静态物体用对象相关的平衡划分（BVH / k-d tree / BSP），一次性建树，查询稳定",
+        "动态物体需要边界固定、可增量更新的结构",
+        "指出 flat grid 在空旷区域浪费内存、在密集区域退化",
+        "选择 quadtree 并说明其“边界固定但层级随对象自适应”的特点",
+        "考虑是否额外维护一个对象集合用于全量遍历"
+      ],
+      "explain": "对应 §20.7 Design Decisions 的 “Is the partition hierarchical or flat?” 与 “Does the partitioning depend on the set of objects?”：自适应划分“more frequently used for art and static geometry”，而 quadtree 兼具“the best characteristics of both fixed partitions and adaptable ones”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "20.7",
+      "title": "稀疏网格的全量遍历 · Walking a sparse grid",
+      "q": "一款太空 RTS 的星图被划成 500 × 500 的 fixed grid，单位以链表形式只存放在 grid 的 cell 中（grid 是唯一存储单位的地方）。战斗查询很快，但每帧的 AI update 和渲染都要遍历所有单位：游戏只有约 800 艘飞船，却要扫描 25 万个 cell，大多为空。请分析问题，并重新设计对象的存储方式，说明引入的新代价以及如何控制它。",
+      "answer": "分析：当 spatial partition 是唯一的存储位置时，“遍历所有对象”只能走完整个分区结构，包括所有空 cell；星图越稀疏，浪费越大。重设计：除了 grid，再维护一个专门存放所有单位的集合（例如连续数组 std::vector<Ship>，或者 Ship* 列表）。AI update 和渲染直接遍历这个集合；邻近查询和战斗使用 grid。这样有两个数据结构，各自针对一种用途优化。新代价：额外内存，以及两个集合必须保持同步——每次创建或销毁飞船都要同时加入/移除两个集合，漏一处就会出现“幽灵飞船”或悬空指针。控制方法：把创建/销毁封装在 World::spawnShip()/destroyShip() 这一个入口里，在这里同时更新两者；也可以考虑减小网格分辨率或改用 quadtree 来降低空 cell 数量。",
+      "code": "class World {\npublic:\n  Ship* spawnShip(double x, double y) {\n    ships_.push_back(new Ship(x, y));\n    grid_.add(ships_.back());       // keep both in sync\n    return ships_.back();\n  }\n  void destroyShip(Ship* s) {\n    grid_.remove(s);\n    ships_.erase(std::find(ships_.begin(), ships_.end(), s));\n    delete s;\n  }\n  void update() {\n    for (Ship* s : ships_) s->update();  // no empty cells walked\n    grid_.handleCombat();\n  }\nprivate:\n  std::vector<Ship*> ships_;\n  Grid grid_;\n};",
+      "checklist": [
+        "指出分区是唯一存储时，全量遍历要扫描大量空 cell",
+        "引入第二个集合直接存放所有对象，各自优化一种用途",
+        "说明额外代价：内存与两个集合的同步",
+        "通过单一的创建/销毁入口保证同步"
+      ],
+      "explain": "对应 §20.7 “Are objects only stored in the partition?”：“Having to walk the full grid of cells to find the non-empty ones can be a waste of time… You have two data structures, one optimized for each use case.”"
     }
   ]
 }

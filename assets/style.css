@@ -271,6 +271,32 @@ pre .kw { color: #a3427c; } pre .cm { color: var(--text-3); font-style: italic; 
   .pager a { max-width: none; }
   .tabs button { padding: 10px 10px; font-size: 14px; }
 }
+/* Scenario design exercises */
+.ex-filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 4px; }
+.ex-filter button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px;
+  font-size: 13.5px; cursor: pointer; color: var(--text-2); min-height: 36px;
+}
+.ex-filter button span { margin-left: 6px; color: var(--text-3); font-size: 12px; }
+.ex-filter button.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.ex-filter button.on span { color: inherit; }
+.ex-scn { border-left: 3px solid var(--accent); }
+.ex-scn .ex-meta .type { background: var(--accent); color: #fff; }
+:root[data-theme="dark"] .ex-scn .ex-meta .type { color: #10161d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ex-scn .ex-meta .type { color: #10161d; } }
+.scn-title { margin: 2px 0 8px; font-size: 18px; font-family: var(--sans); font-weight: 650; }
+.scn-q { line-height: 1.8; }
+.scn-area { min-height: 140px; }
+.scn-fb { background: var(--surface-2); }
+.scn-ans { white-space: pre-wrap; line-height: 1.8; }
+.scn-fb pre { background: var(--code-bg); margin: 10px 0 4px; }
+.scn-check { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.scn-check label { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; cursor: pointer; line-height: 1.6; }
+.scn-check input { margin-top: 5px; width: 17px; height: 17px; accent-color: var(--accent); flex: none; }
+.scn-check input:checked + span { color: var(--ok); }
+.scn-score { margin-top: 6px; font-size: 13px; color: var(--text-3); }
+.scn-explain { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--text-2); font-size: 14.5px; }
+
 /* Stars */
 .point { position: relative; }
 .pt-tools { position: absolute; top: 12px; right: 12px; }

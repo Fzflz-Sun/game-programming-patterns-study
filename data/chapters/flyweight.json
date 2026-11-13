@@ -1,6 +1,9 @@
 {
   "id": "flyweight",
-  "title": { "en": "Flyweight", "zh": "享元模式" },
+  "title": {
+    "en": "Flyweight",
+    "zh": "享元模式"
+  },
   "summary": {
     "en": "Flyweight makes objects lightweight when you have too many of them by splitting their data into intrinsic (shared, context-free) state and extrinsic (instance-specific) state. One copy of the intrinsic state is shared everywhere the object appears — from tree models sent once to the GPU via instanced rendering, to terrain objects referenced by pointer from every tile.",
     "zh": "当对象数量过多时，享元模式通过把对象的数据拆分为内在状态（可共享、与上下文无关）和外在状态（每个实例独有），让对象变得“轻量”。内在状态只保留一份，在对象出现的每个地方共享——从借助实例化渲染只向 GPU 发送一次的树木模型，到每个地块通过指针引用的地形对象，都是这样。"
@@ -8,10 +11,16 @@
   "sections": [
     {
       "num": "3.0",
-      "title": { "en": "Flyweight (Introduction)", "zh": "享元模式（引言）" },
+      "title": {
+        "en": "Flyweight (Introduction)",
+        "zh": "享元模式（引言）"
+      },
       "points": [
         {
-          "title": { "en": "A modest name for majestic scenes", "zh": "名字朴素，却成就壮丽场景" },
+          "title": {
+            "en": "A modest name for majestic scenes",
+            "zh": "名字朴素，却成就壮丽场景"
+          },
           "body": {
             "en": "A vast old-growth forest of countless trees is the kind of otherworldly setting game developers dream of. Scenes like this are often made possible by a pattern with a very modest name: the humble Flyweight.",
             "zh": "由无数古树组成的辽阔原始森林，正是游戏开发者梦寐以求的奇幻场景。而这类场景往往是靠一个名字极其朴素的模式实现的：不起眼的享元模式。"
@@ -21,10 +30,16 @@
     },
     {
       "num": "3.1",
-      "title": { "en": "Forest for the Trees", "zh": "只见树木，也见森林" },
+      "title": {
+        "en": "Forest for the Trees",
+        "zh": "只见树木，也见森林"
+      },
       "points": [
         {
-          "title": { "en": "Too much data for the GPU", "zh": "要送往 GPU 的数据太多" },
+          "title": {
+            "en": "Too much data for the GPU",
+            "zh": "要送往 GPU 的数据太多"
+          },
           "body": {
             "en": "A forest means thousands of trees, each with thousands of polygons. Even if memory suffices, the data must travel over the bus from CPU to GPU every frame. Each tree has a mesh, bark and leaf textures, a position and orientation, and tuning parameters like size and tint — the mesh and textures being especially large.",
             "zh": "一片森林意味着成千上万棵树，每棵树又有成千上万个多边形。即使内存足够，这些数据每帧都得经由总线从 CPU 传到 GPU。每棵树都有网格、树皮与树叶纹理、位置和朝向，以及大小、色调等调节参数——其中网格和纹理尤其庞大。"
@@ -32,7 +47,10 @@
           "code": "class Tree\n{\nprivate:\n  Mesh mesh_;\n  Texture bark_;\n  Texture leaves_;\n  Vector position_;\n  double height_;\n  double thickness_;\n  Color barkTint_;\n  Color leafTint_;\n};"
         },
         {
-          "title": { "en": "Most trees look alike", "zh": "大多数树长得差不多" },
+          "title": {
+            "en": "Most trees look alike",
+            "zh": "大多数树长得差不多"
+          },
           "body": {
             "en": "The key observation: although there are thousands of trees, they mostly look similar and likely use the same mesh and textures. So most fields are identical across instances. We split the object in two, moving the shared data into a TreeModel of which the game needs only one.",
             "zh": "关键的观察是：虽然森林里有成千上万棵树，但它们大多长得很像，很可能使用相同的网格和纹理。因此大部分字段在所有实例中都相同。于是我们把对象一分为二，把共享数据移到 TreeModel 中，整个游戏只需要一个 TreeModel。"
@@ -40,7 +58,10 @@
           "code": "class TreeModel\n{\nprivate:\n  Mesh mesh_;\n  Texture bark_;\n  Texture leaves_;\n};\n\nclass Tree\n{\nprivate:\n  TreeModel* model_;\n\n  Vector position_;\n  double height_;\n  double thickness_;\n  Color barkTint_;\n  Color leafTint_;\n};"
         },
         {
-          "title": { "en": "Flyweight vs. Type Object", "zh": "享元模式与类型对象模式" },
+          "title": {
+            "en": "Flyweight vs. Type Object",
+            "zh": "享元模式与类型对象模式"
+          },
           "body": {
             "en": "This resembles the Type Object pattern: both delegate part of an object's state to another object shared by many instances. But their intents differ: Type Object aims to minimize the number of classes by lifting \"types\" into your own object model, with memory sharing as a bonus; Flyweight is purely about efficiency.",
             "zh": "这看起来很像类型对象（Type Object）模式：两者都把对象的一部分状态委托给由多个实例共享的另一个对象。但它们的意图不同：类型对象旨在把“类型”提升到自己的对象模型中，以减少需要定义的类，内存共享只是附带好处；而享元模式纯粹是为了效率。"
@@ -50,17 +71,26 @@
     },
     {
       "num": "3.2",
-      "title": { "en": "A Thousand Instances", "zh": "一千个实例" },
+      "title": {
+        "en": "A Thousand Instances",
+        "zh": "一千个实例"
+      },
       "points": [
         {
-          "title": { "en": "Instanced rendering", "zh": "实例化渲染" },
+          "title": {
+            "en": "Instanced rendering",
+            "zh": "实例化渲染"
+          },
           "body": {
             "en": "Sharing in main memory doesn't help rendering; the GPU must understand the sharing too. Direct3D and OpenGL support instanced rendering: you supply two streams — the common data (mesh and textures) rendered many times, and a list of instances with their parameters (position, color, scale). With a single draw call, an entire forest grows.",
             "zh": "在主存中共享并不能帮助渲染，GPU 也必须理解这种共享。Direct3D 和 OpenGL 都支持实例化渲染：你提供两路数据流——一路是要被多次渲染的公共数据（网格和纹理），另一路是实例列表及其参数（位置、颜色、缩放）。只需一次绘制调用，整片森林便拔地而起。"
           }
         },
         {
-          "title": { "en": "Hardware support for a GoF pattern", "zh": "有硬件支持的 GoF 模式" },
+          "title": {
+            "en": "Hardware support for a GoF pattern",
+            "zh": "有硬件支持的 GoF 模式"
+          },
           "body": {
             "en": "Because instanced rendering is implemented directly by the graphics card, Flyweight may be the only Gang of Four design pattern with actual hardware support.",
             "zh": "由于实例化渲染直接由显卡实现，享元模式可能是唯一一个拥有真正硬件支持的四人帮设计模式。"
@@ -70,17 +100,26 @@
     },
     {
       "num": "3.3",
-      "title": { "en": "The Flyweight Pattern", "zh": "享元模式" },
+      "title": {
+        "en": "The Flyweight Pattern",
+        "zh": "享元模式"
+      },
       "points": [
         {
-          "title": { "en": "Intrinsic vs. extrinsic state", "zh": "内在状态与外在状态" },
+          "title": {
+            "en": "Intrinsic vs. extrinsic state",
+            "zh": "内在状态与外在状态"
+          },
           "body": {
             "en": "Flyweight applies when objects need to be more lightweight, usually because there are too many of them. It splits an object's data in two: intrinsic state, which is not instance-specific and can be shared (the author calls it \"context-free\"; here the geometry and textures), and extrinsic state, unique to each instance (position, scale, color).",
             "zh": "当对象需要更轻量——通常是因为数量太多——时，就可以使用享元模式。它把对象的数据分为两类：内在状态（intrinsic state），不属于某个具体实例、可以共享（作者称之为“与上下文无关”的部分，这里是几何和纹理）；外在状态（extrinsic state），每个实例独有（位置、缩放、颜色）。"
           }
         },
         {
-          "title": { "en": "Cleverest without a clear identity", "zh": "共享对象没有明确身份时最巧妙" },
+          "title": {
+            "en": "Cleverest without a clear identity",
+            "zh": "共享对象没有明确身份时最巧妙"
+          },
           "body": {
             "en": "The pattern saves memory by sharing one copy of intrinsic state everywhere an object appears. With TreeModel it looks like basic resource sharing because the shared state has a clear identity. It is less obvious and more clever when the shared object has no well-defined identity — it feels like one object is magically in multiple places at once.",
             "zh": "该模式通过在对象出现的每个地方共享同一份内在状态来节省内存。在 TreeModel 的例子里，共享状态有清晰的独立身份，所以看起来只是普通的资源共享。而当共享对象没有明确的身份时，这个模式就不那么显而易见、也更巧妙——感觉就像同一个对象神奇地同时出现在多个地方。"
@@ -90,10 +129,16 @@
     },
     {
       "num": "3.4",
-      "title": { "en": "A Place To Put Down Roots", "zh": "扎根之地" },
+      "title": {
+        "en": "A Place To Put Down Roots",
+        "zh": "扎根之地"
+      },
       "points": [
         {
-          "title": { "en": "Terrain as an enum", "zh": "用枚举表示地形" },
+          "title": {
+            "en": "Terrain as an enum",
+            "zh": "用枚举表示地形"
+          },
           "body": {
             "en": "The ground is a grid of tiles, each covered by one terrain type with properties: movement cost, whether it's water, and a texture. To avoid storing all that per tile, a common approach is an enum per tile, with switch statements in World methods to look up each property.",
             "zh": "地面是由地块组成的网格，每个地块覆盖一种地形，而地形有若干属性：移动消耗、是否为水域、渲染用的纹理。为了避免在每个地块中存储这些数据，常见做法是每个地块存一个枚举值，再在 World 的方法里用 switch 语句查询各个属性。"
@@ -101,14 +146,20 @@
           "code": "int World::getMovementCost(int x, int y)\n{\n  switch (tiles_[x][y])\n  {\n    case TERRAIN_GRASS: return 1;\n    case TERRAIN_HILL:  return 3;\n    case TERRAIN_RIVER: return 2;\n    // Other terrains...\n  }\n}"
         },
         {
-          "title": { "en": "Data smeared across methods", "zh": "数据散落在各个方法中" },
+          "title": {
+            "en": "Data smeared across methods",
+            "zh": "数据散落在各个方法中"
+          },
           "body": {
             "en": "This works but is ugly: movement cost and wetness are data about a terrain, yet they're embedded in code, and a single terrain's data is smeared across many methods. It would be better to encapsulate it together in a Terrain class — that's what objects are for.",
             "zh": "这样可行，但很丑陋：移动消耗和是否为水域本是地形的数据，却被写死在代码里，而且同一种地形的数据分散在一堆方法中。更好的做法是把它们封装到一个 Terrain 类里——这本来就是对象的用途。"
           }
         },
         {
-          "title": { "en": "Flyweights are almost always immutable", "zh": "享元对象几乎总是不可变的" },
+          "title": {
+            "en": "Flyweights are almost always immutable",
+            "zh": "享元对象几乎总是不可变的"
+          },
           "body": {
             "en": "All of Terrain's methods are const, and that's no coincidence. Since the same object is used in multiple contexts, modifying it would change it in many places at once. Sharing to save memory should be an optimization that doesn't affect visible behavior, so flyweight objects are almost always immutable.",
             "zh": "Terrain 的所有方法都是 const 的，这并非巧合。同一个对象被用于多个上下文，修改它就会同时改变多个地方。为节省内存而共享对象应当是一种不影响可见行为的优化，因此享元对象几乎总是不可变的。"
@@ -116,7 +167,10 @@
           "code": "class Terrain\n{\npublic:\n  Terrain(int movementCost, bool isWater, Texture texture)\n  : movementCost_(movementCost),\n    isWater_(isWater),\n    texture_(texture)\n  {}\n\n  int getMovementCost() const { return movementCost_; }\n  bool isWater() const { return isWater_; }\n  const Texture& getTexture() const { return texture_; }\n\nprivate:\n  int movementCost_;\n  bool isWater_;\n  Texture texture_;\n};"
         },
         {
-          "title": { "en": "A grid of pointers to shared terrains", "zh": "指向共享地形的指针网格" },
+          "title": {
+            "en": "A grid of pointers to shared terrains",
+            "zh": "指向共享地形的指针网格"
+          },
           "body": {
             "en": "Nothing in Terrain depends on a tile's location — all its state is intrinsic — so one instance per terrain type suffices. The world becomes a grid of Terrain pointers; tiles of the same terrain point to the same instance. The instances are stored directly in World to avoid complex lifetime management of dynamic allocation.",
             "zh": "Terrain 中没有任何与地块位置相关的数据——它的所有状态都是内在的——所以每种地形只需一个实例。世界于是变成一个 Terrain 指针的网格，相同地形的地块指向同一个实例。这些实例直接存放在 World 中，以免动态分配带来复杂的生命周期管理。"
@@ -124,7 +178,10 @@
           "code": "class World\n{\npublic:\n  World()\n  : grassTerrain_(1, false, GRASS_TEXTURE),\n    hillTerrain_(3, false, HILL_TEXTURE),\n    riverTerrain_(2, true, RIVER_TEXTURE)\n  {}\n\nprivate:\n  Terrain grassTerrain_;\n  Terrain hillTerrain_;\n  Terrain riverTerrain_;\n\n  Terrain* tiles_[WIDTH][HEIGHT];\n  // Other stuff...\n};"
         },
         {
-          "title": { "en": "Objects with almost no overhead", "zh": "几乎零开销的对象接口" },
+          "title": {
+            "en": "Objects with almost no overhead",
+            "zh": "几乎零开销的对象接口"
+          },
           "body": {
             "en": "World can now expose the Terrain object directly via getTile(), so World is no longer coupled to terrain details. We're back to the pleasant API of real objects with almost no overhead, since a pointer is often no larger than an enum.",
             "zh": "现在 World 可以通过 getTile() 直接暴露 Terrain 对象，World 不再与地形的各种细节耦合。我们重新获得了使用真正对象的舒适接口，而且几乎没有额外开销，因为指针通常并不比枚举大。"
@@ -135,17 +192,26 @@
     },
     {
       "num": "3.5",
-      "title": { "en": "What About Performance?", "zh": "性能如何？" },
+      "title": {
+        "en": "What About Performance?",
+        "zh": "性能如何？"
+      },
       "points": [
         {
-          "title": { "en": "Pointer chasing may cause cache misses", "zh": "指针追踪可能导致缓存未命中" },
+          "title": {
+            "en": "Pointer chasing may cause cache misses",
+            "zh": "指针追踪可能导致缓存未命中"
+          },
           "body": {
             "en": "Referencing terrain by pointer means an indirect lookup: follow the pointer to the Terrain object, then read the movement cost. Chasing a pointer can cause a cache miss and slow things down (see the Data Locality chapter).",
             "zh": "通过指针引用地形意味着间接查找：先沿指针找到 Terrain 对象，再读取移动消耗。这种指针追踪可能导致缓存未命中，从而拖慢速度（详见“数据局部性”一章）。"
           }
         },
         {
-          "title": { "en": "Profile first", "zh": "先做性能分析" },
+          "title": {
+            "en": "Profile first",
+            "zh": "先做性能分析"
+          },
           "body": {
             "en": "The golden rule of optimization is profile first; modern hardware is too complex to reason about performance purely. In the author's tests, flyweights had no penalty over enums and were even noticeably faster, though that depends on memory layout. If you're creating an enum and switching on it a lot, consider Flyweight instead.",
             "zh": "优化的黄金法则是先做性能分析；现代硬件过于复杂，性能已无法单凭推理判断。在作者的测试中，享元相比枚举没有任何性能损失，甚至明显更快，不过这完全取决于其他数据在内存中的布局。如果你发现自己创建了一个枚举并对它大量使用 switch，不妨考虑享元模式。"
@@ -155,17 +221,26 @@
     },
     {
       "num": "3.6",
-      "title": { "en": "See Also", "zh": "参考" },
+      "title": {
+        "en": "See Also",
+        "zh": "参考"
+      },
       "points": [
         {
-          "title": { "en": "Factory Method and Object Pool", "zh": "工厂方法与对象池" },
+          "title": {
+            "en": "Factory Method and Object Pool",
+            "zh": "工厂方法与对象池"
+          },
           "body": {
             "en": "If you can't predict which flyweights you'll need, create them on demand: when one is requested, check whether an identical one already exists and return it. This means hiding construction behind an interface — an example of the Factory Method pattern — and keeping track of created flyweights, for which an Object Pool is a natural home.",
             "zh": "如果无法预知需要哪些享元，就按需创建：请求某个享元时，先检查是否已经创建过相同的实例，有就直接返回。这意味着要把构造过程隐藏在某个接口之后——这是工厂方法（Factory Method）模式的一个例子——并记录已经创建的享元，对象池（Object Pool）正适合用来存放它们。"
           }
         },
         {
-          "title": { "en": "Sharing State objects", "zh": "共享状态对象" },
+          "title": {
+            "en": "Sharing State objects",
+            "zh": "共享状态对象"
+          },
           "body": {
             "en": "In the State pattern, state objects often have no fields specific to the machine using them; their identity and methods suffice. Such states can be flyweights, reused across many state machines at the same time without problems.",
             "zh": "在状态（State）模式中，状态对象通常没有任何与所在状态机相关的字段，仅凭它的身份和方法就足够了。这样的状态可以作为享元，同时在多个状态机中复用而不会出问题。"
@@ -175,30 +250,71 @@
     }
   ],
   "terms": [
-    { "en": "flyweight", "zh": "享元" },
-    { "en": "intrinsic state", "zh": "内在状态（内部状态）" },
-    { "en": "extrinsic state", "zh": "外在状态（外部状态）" },
-    { "en": "context-free", "zh": "与上下文无关的" },
-    { "en": "instanced rendering", "zh": "实例化渲染" },
-    { "en": "draw call", "zh": "绘制调用" },
-    { "en": "immutable", "zh": "不可变的" },
-    { "en": "cache miss", "zh": "缓存未命中" },
-    { "en": "profile", "zh": "性能分析" },
-    { "en": "Type Object", "zh": "类型对象模式" }
+    {
+      "en": "flyweight",
+      "zh": "享元"
+    },
+    {
+      "en": "intrinsic state",
+      "zh": "内在状态（内部状态）"
+    },
+    {
+      "en": "extrinsic state",
+      "zh": "外在状态（外部状态）"
+    },
+    {
+      "en": "context-free",
+      "zh": "与上下文无关的"
+    },
+    {
+      "en": "instanced rendering",
+      "zh": "实例化渲染"
+    },
+    {
+      "en": "draw call",
+      "zh": "绘制调用"
+    },
+    {
+      "en": "immutable",
+      "zh": "不可变的"
+    },
+    {
+      "en": "cache miss",
+      "zh": "缓存未命中"
+    },
+    {
+      "en": "profile",
+      "zh": "性能分析"
+    },
+    {
+      "en": "Type Object",
+      "zh": "类型对象模式"
+    }
   ],
   "exercises": [
     {
       "type": "fill",
       "ref": "3.3",
       "q": "The shared, context-free data in a flyweight is called ___ state; 每个实例独有的数据称为 extrinsic state。",
-      "answer": ["intrinsic", "内在", "内部", "内在状态", "内部状态"],
+      "answer": [
+        "intrinsic",
+        "内在",
+        "内部",
+        "内在状态",
+        "内部状态"
+      ],
       "explain": "Intrinsic state（内在状态）可共享，如树的网格与纹理；extrinsic state（外在状态）如位置、缩放、颜色。"
     },
     {
       "type": "choice",
       "ref": "3.1",
       "q": "In the forest example, which data moves into the shared TreeModel? 哪些数据放进 TreeModel？",
-      "options": ["Position and height", "Bark tint and leaf tint", "Mesh, bark texture and leaf texture（网格与纹理）", "Thickness and orientation"],
+      "options": [
+        "Position and height",
+        "Bark tint and leaf tint",
+        "Mesh, bark texture and leaf texture（网格与纹理）",
+        "Thickness and orientation"
+      ],
       "answer": 2,
       "explain": "网格和纹理在所有树之间相同且体积大，只需一份；位置、高度、色调等是每棵树独有的。"
     },
@@ -206,7 +322,12 @@
       "type": "choice",
       "ref": "3.1",
       "q": "享元模式和 Type Object 模式的主要区别是什么？ What differs between them?",
-      "options": ["Flyweight shares state; Type Object never does", "Their intent: Type Object 旨在减少类的数量，Flyweight 纯粹为了效率", "Type Object requires hardware support", "Flyweight only works for rendering"],
+      "options": [
+        "Flyweight shares state; Type Object never does",
+        "Their intent: Type Object 旨在减少类的数量，Flyweight 纯粹为了效率",
+        "Type Object requires hardware support",
+        "Flyweight only works for rendering"
+      ],
       "answer": 1,
       "explain": "Both delegate state to a shared object, but Type Object lifts types into your object model; memory sharing is only a bonus there."
     },
@@ -221,7 +342,12 @@
       "type": "choice",
       "ref": "3.4",
       "q": "Why are flyweight objects almost always immutable? 为什么享元对象几乎总是不可变的？",
-      "options": ["Because const methods run faster", "Because C++ requires shared pointers to be const", "Because textures cannot be modified", "因为同一对象在多处共享，修改它会同时影响所有使用它的地方"],
+      "options": [
+        "Because const methods run faster",
+        "Because C++ requires shared pointers to be const",
+        "Because textures cannot be modified",
+        "因为同一对象在多处共享，修改它会同时影响所有使用它的地方"
+      ],
       "answer": 3,
       "explain": "Sharing to save memory should be an optimization that doesn't change visible behavior. 共享不应改变程序的可见行为。"
     },
@@ -236,7 +362,11 @@
       "type": "fill",
       "ref": "3.4",
       "q": "With flyweights, World stores a grid of ___ to Terrain objects instead of enums. 世界变成指向 Terrain 对象的___网格。",
-      "answer": ["pointers", "pointer", "指针"],
+      "answer": [
+        "pointers",
+        "pointer",
+        "指针"
+      ],
       "explain": "相同地形的地块指向同一个 Terrain 实例；指针通常不比枚举大。"
     },
     {
@@ -250,7 +380,12 @@
       "type": "choice",
       "ref": "3.5",
       "q": "What is the golden rule of optimization stated in this chapter? 本章提到的优化黄金法则是？",
-      "options": ["Always use enums", "Profile first（先做性能分析）", "Avoid pointers", "Optimize before writing tests"],
+      "options": [
+        "Always use enums",
+        "Profile first（先做性能分析）",
+        "Avoid pointers",
+        "Optimize before writing tests"
+      ],
       "answer": 1,
       "explain": "现代硬件太复杂，不能靠纯推理判断性能。"
     },
@@ -258,9 +393,91 @@
       "type": "choice",
       "ref": "3.6",
       "q": "按需创建享元并在已存在时返回旧实例，这种隐藏构造函数的做法是哪个模式的例子？",
-      "options": ["Observer", "Singleton", "Factory Method（工厂方法）", "Command"],
+      "options": [
+        "Observer",
+        "Singleton",
+        "Factory Method（工厂方法）",
+        "Command"
+      ],
       "answer": 2,
       "explain": "Hiding construction behind an interface that first looks for an existing object is Factory Method; an Object Pool can store the created flyweights."
+    },
+    {
+      "type": "scenario",
+      "ref": "3.1",
+      "title": "万人同屏的 RTS 军团 · Thousands of RTS soldiers",
+      "q": "你在做一款中世纪 RTS，一场大战里会有 5000 个 Swordsman 同屏。现在每个 Unit 对象里都直接存着 Mesh、Skeleton、AnimationSet、Texture，以及 position、hp、facing、teamColor、currentAnimFrame。内存 profiler 显示 Unit 占了 2GB。请用 Flyweight pattern 重新划分数据：哪些字段是 intrinsic（可共享）的，哪些是 extrinsic（每个实例独有）的？给出两个类的结构，并说明 5000 个士兵在内存里大概是什么样子。",
+      "answer": "把对象“劈成两半”。共享部分抽成 UnitModel { Mesh mesh; Skeleton skeleton; AnimationSet anims; Texture texture; }——这些对所有 Swordsman 都相同，是 intrinsic / context-free state，整个游戏每种兵种只需一个实例。Unit 只保留实例相关的 extrinsic state：UnitModel* model; Vector position; float facing; int hp; Color teamColor; int animFrame;。于是内存里是 1 个 swordsmanModel + 5000 个只有几十字节的 Unit，每个都指向同一个 model。注意 teamColor 和 animFrame 虽然取值有限，但它们随实例变化，所以属于 extrinsic，不能放进共享对象。UnitModel 应当只读（const 接口），否则改一个士兵的贴图会让全军一起变。",
+      "code": "class UnitModel {\npublic:\n  const Mesh& mesh() const { return mesh_; }\n  const AnimationSet& anims() const { return anims_; }\nprivate:\n  Mesh mesh_;\n  Skeleton skeleton_;\n  AnimationSet anims_;\n  Texture texture_;\n};\n\nclass Unit {\nprivate:\n  const UnitModel* model_;  // shared by every swordsman\n  Vector position_;\n  float facing_;\n  int hp_;\n  Color teamColor_;\n  int animFrame_;\n};",
+      "checklist": [
+        "正确区分 intrinsic（mesh/texture/animation 数据）与 extrinsic（position/hp/teamColor/animFrame）",
+        "共享数据抽成单独的类，每个兵种只有一个实例，Unit 持有指针",
+        "能估算出内存从“5000 份大数据”变成“1 份大数据 + 5000 个小对象”",
+        "指出共享对象应不可变（const），避免一处修改影响全部"
+      ],
+      "explain": "对应 §3.1 Forest for the Trees：把 Tree 拆成 TreeModel 和 Tree，“there’s no reason to have the same meshes and textures in memory a thousand times”。士兵只是把树换成了兵。"
+    },
+    {
+      "type": "scenario",
+      "ref": "3.2",
+      "title": "开放世界的草海 · A sea of grass on the GPU",
+      "q": "一款开放世界 RPG 的草原上有 20 万簇草，美术只做了 3 种草的 mesh。你已经在 CPU 端用 Flyweight 共享了 GrassModel，内存没问题了，但每帧对每簇草调用一次 drawMesh() 导致 draw call 爆炸，帧率只有 20 FPS。请设计渲染端的方案：要往 GPU 发送哪几份数据？每份包含什么？一帧需要多少个 draw call？",
+      "answer": "CPU 端的共享只解决了 main memory，不解决把数据推过 bus 到 GPU 的成本。要让 GPU 也“理解”这种共享，用 instanced rendering（Direct3D / OpenGL 都支持）：对每种 GrassModel 提交两路数据流。第一路是共享的 intrinsic 数据（mesh + texture），只上传一次、常驻显存；第二路是 instance buffer，每簇草一条记录：position、rotation、scale、tint（以及可选的 wind phase）。然后一个 instanced draw call 告诉 GPU：“用这一个 model 画出这 N 个 instance”。3 种草就是 3 个 draw call，而不是 20 万个。每帧只需更新可见草簇的 instance buffer（配合视锥剔除），共享 mesh 不再重复传输。",
+      "code": "struct GrassInstance {   // extrinsic, one per clump\n  Vector3 position;\n  float rotation;\n  float scale;\n  Color tint;\n};\n\nfor (GrassModel& model : grassModels) {          // 3 models\n  std::vector<GrassInstance>& list = visible[model.id];\n  gpu.uploadInstances(list.data(), list.size());\n  // one call renders every clump of this model\n  gpu.drawInstanced(model.mesh, model.texture, list.size());\n}",
+      "checklist": [
+        "指出 CPU 端共享不能减少向 GPU 传输/draw call 的开销",
+        "使用 instanced rendering：共享数据流 + 每实例参数流",
+        "共享 mesh/texture 只发送一次，instance 数据包含位置/旋转/缩放/颜色",
+        "draw call 数量降为“每种 model 一次”"
+      ],
+      "explain": "对应 §3.2 A Thousand Instances：“you provide two streams of data… With a single draw call, an entire forest grows.” 作者称 Flyweight 可能是唯一有硬件支持的 GoF pattern。视锥剔除是书外的工程补充。"
+    },
+    {
+      "type": "scenario",
+      "ref": "3.4",
+      "title": "战棋地形重构 · Tactics terrain refactor",
+      "q": "你接手一款回合制战棋（tactics RPG）的代码。地图是 128×128 的 tile grid，存成 enum Terrain tiles[W][H]。getMoveCost()、isWater()、getDefenseBonus()、getTexture()、canBuild() 每个函数里都有一个 switch(tiles[x][y])。策划要加 “Swamp” 和 “Lava” 两种地形，你发现要改 5 个 switch，并且漏改一个导致 bug。请用 Flyweight 重构：World 里存什么？Terrain 实例放在哪里、如何管理生命周期？调用方的 API 变成什么样？",
+      "answer": "把“关于地形的数据”从代码搬回对象：定义 class Terrain { int moveCost_; bool isWater_; int defenseBonus_; bool canBuild_; Texture texture_; }，只提供 const getter。Terrain 的所有状态都与 tile 位置无关，全部是 intrinsic，所以每种地形只需要一个实例。World 持有 grassTerrain_、hillTerrain_、swampTerrain_、lavaTerrain_ 等成员对象（直接嵌入 World，避免动态分配带来的生命周期问题），grid 改为 Terrain* tiles_[W][H]，所有同类 tile 指向同一个实例。World 暴露 const Terrain& getTile(x, y)，调用方写 world.getTile(x, y).getMoveCost()，World 不再耦合每种地形属性。新增地形 = 新增一个 Terrain 实例（甚至可从数据文件读取），不用再追 switch。指针通常不比 enum 大多少，开销几乎为零。",
+      "code": "class World {\npublic:\n  World()\n  : grass_(1, false, 0, GRASS_TEX),\n    swamp_(3, false, -1, SWAMP_TEX),\n    lava_(99, false, 0, LAVA_TEX) {}\n\n  const Terrain& getTile(int x, int y) const {\n    return *tiles_[x][y];\n  }\nprivate:\n  Terrain grass_, swamp_, lava_;   // one instance per type\n  Terrain* tiles_[WIDTH][HEIGHT];  // many tiles -> same object\n};\n\nint cost = world.getTile(2, 3).getMoveCost();",
+      "checklist": [
+        "指出 enum + switch 把同一地形的数据“smeared across a bunch of methods”",
+        "Terrain 类封装全部地形属性，且全部是 intrinsic / const",
+        "grid 存 Terrain* 指针，同类 tile 共享同一实例",
+        "Terrain 实例由 World 直接持有，避免复杂的生命周期管理",
+        "调用方通过 getTile() 拿到对象再查询属性，World 与地形细节解耦"
+      ],
+      "explain": "完全对应 §3.4 A Place To Put Down Roots：把 enum 换成指向共享 Terrain 对象的指针，“We’re back to the pleasant API of working with real objects… with almost no overhead”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "3.3",
+      "title": "冰冻魔法的陷阱 · The freeze-spell pitfall",
+      "q": "沿用上一题的 Flyweight 地形（所有 river tile 都指向同一个 Terrain riverTerrain_）。现在策划加了一个冰系法术：对 3×3 区域施放后，这些河流格子在 10 回合内变成可行走的冰面，且显示冰面贴图。一位新同事的实现是：tile.terrain->isWater_ = false; tile.terrain->texture_ = ICE_TEX;。测试时整条河、甚至整张地图上所有河流都结冰了。请解释原因，并给出正确的设计，区分哪些数据该进共享对象、哪些该留在 tile 上。",
+      "answer": "原因：Flyweight 对象被许多 tile 同时共享，修改它就会在所有引用处同时生效。书中强调 sharing objects to save memory 应是不影响可见行为的优化，所以 flyweight 几乎总是 immutable（Terrain 只应有 const 方法）。正确做法有两种：(1) 新增一个共享的 iceTerrain_（也是不可变 flyweight），施法时把这 9 个 tile 的指针改指向 iceTerrain_；同时在 tile 上记录 extrinsic 数据，比如 Terrain* original; int thawTurn;，到期后把指针改回 original。(2) 若效果多种多样（燃烧、冰冻、毒雾叠加），把临时状态存成 per-tile 的 extrinsic overlay（如 TileEffect 列表），查询时由 tile 组合 base terrain + effect。核心原则：改变“某个位置”的状态 = 改变 extrinsic 数据或改换指向的 flyweight，绝不修改共享的 intrinsic 对象。",
+      "code": "struct Tile {\n  const Terrain* terrain;   // shared, immutable flyweight\n  const Terrain* original;  // extrinsic: what to restore\n  int thawTurn;             // extrinsic: per-tile timer\n};\n\nvoid castFreeze(World& w, int cx, int cy, int turn) {\n  for (int x = cx - 1; x <= cx + 1; x++)\n    for (int y = cy - 1; y <= cy + 1; y++) {\n      Tile& t = w.tile(x, y);\n      if (!t.terrain->isWater()) continue;\n      t.original = t.terrain;\n      t.terrain  = &w.iceTerrain();  // swap pointer, don't mutate\n      t.thawTurn = turn + 10;\n    }\n}",
+      "checklist": [
+        "解释 bug：共享 flyweight 被修改后所有引用它的地方同时改变",
+        "指出 flyweight 应 immutable（const 接口），从类型上禁止修改",
+        "正确方案：换指针到另一个共享实例（iceTerrain）而不是改字段",
+        "持续时间、原地形等 per-tile 数据作为 extrinsic state 存在 tile 上"
+      ],
+      "explain": "§3.4 原文：“if you were to modify it, the changes would appear in multiple places simultaneously… Flyweight objects are almost always immutable.” 用 intrinsic / extrinsic 的划分（§3.3）决定临时效果放在哪里。overlay 列表是书外的工程延伸。"
+    },
+    {
+      "type": "scenario",
+      "ref": "3.5",
+      "title": "指针还是枚举？ · Pointer vs. enum debate",
+      "q": "手游项目里，寻路（A*）每帧要查询上万次 tile 的 moveCost。你提议把地形从 enum + switch 改为 Flyweight 指针，但 tech lead 反对：“指针间接访问会 cache miss，enum 一定更快，手机 CPU 又弱。”请给出你的论证和决策流程：你会如何验证？如果 profile 后真的更慢，有什么折中方案能同时保留面向对象的 API 和紧凑的数据？",
+      "answer": "先承认风险：Terrain* 意味着一次 indirect lookup，追指针可能导致 cache miss。但书中的态度是 “profile first”——现代硬件复杂到无法靠推理判断性能，作者自己的测试里 flyweight 反而更快，结果取决于内存布局。决策流程：(1) 在目标手机上做 A/B benchmark，用真实地图和真实寻路负载测量，而不是 micro-benchmark；(2) 如果差异可忽略，选可维护的 Flyweight 版本。(3) 若真的慢，折中方案（书外工程实践）：grid 存 uint8_t terrainId，World 内有 Terrain terrains_[N] 连续数组，getTile() 返回 terrains_[tiles_[x][y]]——grid 更紧凑（1 字节 vs 8 字节指针），少量 Terrain 对象紧挨着常驻 cache，调用方 API 不变，仍然是 flyweight 思想。也可为 A* 额外缓存一张 moveCost 平铺数组，作为热点专用数据。",
+      "code": "class World {\npublic:\n  const Terrain& getTile(int x, int y) const {\n    return terrains_[tiles_[x][y]];  // same OO API\n  }\nprivate:\n  Terrain terrains_[TERRAIN_COUNT];      // few, contiguous, cache-hot\n  uint8_t tiles_[WIDTH][HEIGHT];         // compact grid\n};",
+      "checklist": [
+        "承认指针间接访问可能导致 cache miss",
+        "坚持 profile first：在目标平台用真实负载测量再决定",
+        "引用书中结论：作者测试中 flyweight 并不慢，结果依赖内存布局",
+        "不为未证实的性能担忧牺牲可维护性",
+        "给出保留 OO API 的折中（小整数索引 + 连续 Terrain 数组等）"
+      ],
+      "explain": "对应 §3.5 What About Performance?：“the golden rule of optimization is profile first… at least profile first before changing your code to a less maintainable style.” uint8 索引方案是书外补充，可参考 Data Locality 一章。"
     }
   ]
 }

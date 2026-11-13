@@ -1,6 +1,9 @@
 {
   "id": "type-object",
-  "title": { "en": "Type Object", "zh": "类型对象" },
+  "title": {
+    "en": "Type Object",
+    "zh": "类型对象"
+  },
   "summary": {
     "en": "Type Object lets you create new \"classes\" flexibly by defining a single class whose instances each represent a different type. Shared data and behavior move out of a hard-coded class hierarchy into data objects that can be defined at runtime, even by designers without recompiling.",
     "zh": "类型对象模式通过定义一个类、让它的每个实例代表一种不同的类型，来灵活地创建新的“类”。共享的数据和行为从写死的类层级中移出，变成可以在运行时定义的数据对象，甚至设计师无需重新编译就能自己创建。"
@@ -8,10 +11,16 @@
   "sections": [
     {
       "num": "13.1",
-      "title": { "en": "Intent", "zh": "意图" },
+      "title": {
+        "en": "Intent",
+        "zh": "意图"
+      },
       "points": [
         {
-          "title": { "en": "One class, many types", "zh": "一个类，多种类型" },
+          "title": {
+            "en": "One class, many types",
+            "zh": "一个类，多种类型"
+          },
           "body": {
             "en": "The intent of Type Object is to allow the flexible creation of new \"classes\" by creating a single class, each instance of which represents a different type of object.",
             "zh": "类型对象模式的意图是：只创建一个类，让它的每个实例代表一种不同的对象类型，从而能够灵活地创建新的“类”。"
@@ -21,18 +30,30 @@
     },
     {
       "num": "13.2",
-      "title": { "en": "Motivation", "zh": "动机" },
+      "title": {
+        "en": "Motivation",
+        "zh": "动机"
+      },
       "points": [
         {
-          "title": { "en": "Monsters and breeds", "zh": "怪物与种族" },
+          "title": {
+            "en": "Monsters and breeds",
+            "zh": "怪物与种族"
+          },
           "body": {
             "en": "In a fantasy RPG, each monster has its own current health and an attack string. Designers say monsters come in breeds like \"dragon\" or \"troll\"; the breed determines a monster's starting health and its attack string, and many monsters of the same breed can exist at once.",
             "zh": "在一款奇幻 RPG 中，每个怪物都有自己的当前生命值和一条攻击描述文字。设计师说怪物分为“龙”“巨魔”等种族（breed）：种族决定了怪物的初始生命值和攻击文字，并且同一种族的多个怪物可以同时存在。"
           }
         },
         {
-          "title": { "en": "The typical OOP answer: a subclass per breed", "zh": "典型的面向对象做法：每个种族一个子类" },
-          "subsection": { "en": "The typical OOP answer", "zh": "典型的面向对象做法" },
+          "title": {
+            "en": "The typical OOP answer: a subclass per breed",
+            "zh": "典型的面向对象做法：每个种族一个子类"
+          },
+          "subsection": {
+            "en": "The typical OOP answer",
+            "zh": "典型的面向对象做法"
+          },
           "body": {
             "en": "Since a dragon \"is-a\" monster, conventional OOP makes Dragon a subclass of an abstract Monster. Each breed subclass passes its starting health to the protected base constructor and overrides getAttack() to return its own string.",
             "zh": "由于龙“是一种（is-a）”怪物，传统的面向对象思路会让 Dragon 成为抽象类 Monster 的子类。每个种族子类把自己的初始生命值传给受保护的基类构造函数，并重写 getAttack() 返回自己的攻击文字。"
@@ -40,24 +61,42 @@
           "code": "class Dragon : public Monster {\npublic:\n  Dragon() : Monster(230) {}\n\n  virtual const char* getAttack() {\n    return \"The dragon breathes fire!\";\n  }\n};"
         },
         {
-          "title": { "en": "Programmers become data monkeys", "zh": "程序员沦为“数据搬运工”" },
-          "subsection": { "en": "The typical OOP answer", "zh": "典型的面向对象做法" },
+          "title": {
+            "en": "Programmers become data monkeys",
+            "zh": "程序员沦为“数据搬运工”"
+          },
+          "subsection": {
+            "en": "The typical OOP answer",
+            "zh": "典型的面向对象做法"
+          },
           "body": {
             "en": "With hundreds of breeds, programmers spend all day writing tiny subclasses and recompiling. Every tuning request (\"change troll health from 48 to 52\") means editing a header, recompiling, and checking in. What we want is to change breed stats without recompiling, and ideally let designers create breeds with no programmer involvement.",
             "zh": "当种族多达数百个时，程序员整天都在写小小的子类并重新编译。每一次数值调整请求（“把巨魔的生命值从 48 改成 52”）都意味着修改头文件、重新编译、提交代码。我们想要的是不重新编译就能修改种族属性，最好能让设计师在没有程序员参与的情况下自己创建种族。"
           }
         },
         {
-          "title": { "en": "A monster has a breed", "zh": "怪物“拥有”一个种族" },
-          "subsection": { "en": "A class for a class", "zh": "描述类的类" },
+          "title": {
+            "en": "A monster has a breed",
+            "zh": "怪物“拥有”一个种族"
+          },
+          "subsection": {
+            "en": "A class for a class",
+            "zh": "描述类的类"
+          },
           "body": {
             "en": "Instead of subclassing, use just two classes, Monster and Breed, with no inheritance. Each monster holds a reference to a Breed object that contains the shared data (starting health, attack string). Each Breed instance represents a different conceptual type, hence the name Type Object.",
             "zh": "不使用子类，而是只用两个类：Monster 和 Breed，两者之间没有继承关系。每个怪物持有一个指向 Breed 对象的引用，Breed 中存放共享的数据（初始生命值、攻击文字）。每个 Breed 实例代表一种不同的概念类型，因此这个模式叫“类型对象”。"
           }
         },
         {
-          "title": { "en": "Lifting the type system into data", "zh": "把类型系统提升为数据" },
-          "subsection": { "en": "A class for a class", "zh": "描述类的类" },
+          "title": {
+            "en": "Lifting the type system into data",
+            "zh": "把类型系统提升为数据"
+          },
+          "subsection": {
+            "en": "A class for a class",
+            "zh": "描述类的类"
+          },
           "body": {
             "en": "This lifts part of the type system out of the hard-coded class hierarchy into data defined at runtime. New breeds are just new Breed instances with different values; if they are loaded from a configuration file, new monster types can be defined entirely in data — so easy a designer could do it.",
             "zh": "这样就把类型系统的一部分从写死的类层级中提取出来，变成在运行时定义的数据。新种族只是数值不同的新 Breed 实例；如果从配置文件读取，新的怪物类型就可以完全用数据来定义——简单到设计师都能做。"
@@ -67,17 +106,26 @@
     },
     {
       "num": "13.3",
-      "title": { "en": "The Pattern", "zh": "模式" },
+      "title": {
+        "en": "The Pattern",
+        "zh": "模式"
+      },
       "points": [
         {
-          "title": { "en": "Type object and typed object", "zh": "类型对象与有类型的对象" },
+          "title": {
+            "en": "Type object and typed object",
+            "zh": "类型对象与有类型的对象"
+          },
           "body": {
             "en": "Define a type object class and a typed object class. Each type object instance represents a different logical type, and each typed object stores a reference to the type object that describes its type.",
             "zh": "定义一个类型对象类和一个有类型的对象（typed object）类。每个类型对象实例代表一种不同的逻辑类型，每个有类型的对象都保存一个引用，指向描述其类型的类型对象。"
           }
         },
         {
-          "title": { "en": "Where data lives", "zh": "数据放在哪里" },
+          "title": {
+            "en": "Where data lives",
+            "zh": "数据放在哪里"
+          },
           "body": {
             "en": "Instance-specific data lives in the typed object; data or behavior shared by all instances of a conceptual type lives in the type object. Objects referencing the same type object behave as if they were the same type, giving the sharing of subclassing without a fixed set of hard-coded subclasses.",
             "zh": "每个实例独有的数据放在有类型的对象中；同一概念类型的所有实例共享的数据或行为放在类型对象中。引用同一个类型对象的对象表现得就像同一类型一样，这既获得了类似子类的共享能力，又不需要一组固定的、写死的子类。"
@@ -87,10 +135,16 @@
     },
     {
       "num": "13.4",
-      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "title": {
+        "en": "When to Use It",
+        "zh": "何时使用"
+      },
       "points": [
         {
-          "title": { "en": "When the language's type system is too rigid", "zh": "当语言的类型系统过于僵硬时" },
+          "title": {
+            "en": "When the language's type system is too rigid",
+            "zh": "当语言的类型系统过于僵硬时"
+          },
           "body": {
             "en": "Use it whenever you need many different \"kinds\" of things but baking them into the language's type system is too rigid — especially when you don't know up front what types you'll need (e.g. downloadable content with new breeds), or when you want to modify or add types without recompiling or changing code.",
             "zh": "当你需要定义多种不同“种类”的东西，而把它们固化进语言的类型系统又太僵硬时，就可以使用它——尤其是当你无法预先知道需要哪些类型（例如可下载内容中包含新的怪物种族），或者希望不重新编译、不改代码就能修改或新增类型时。"
@@ -100,42 +154,72 @@
     },
     {
       "num": "13.5",
-      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "title": {
+        "en": "Keep in Mind",
+        "zh": "注意事项"
+      },
       "points": [
         {
-          "title": { "en": "Trading code for data", "zh": "用数据换取代码" },
+          "title": {
+            "en": "Trading code for data",
+            "zh": "用数据换取代码"
+          },
           "body": {
             "en": "The pattern moves the definition of a type from the imperative but rigid language of code into the more flexible but less behavioral world of objects in memory. That flexibility is good, but you lose some things by hoisting types into data.",
             "zh": "这个模式把“类型”的定义从命令式但僵硬的代码世界，转移到更灵活但表达行为能力较弱的内存对象世界。灵活性是好事，但把类型提升为数据也会失去一些东西。"
           }
         },
         {
-          "title": { "en": "You must track type objects yourself", "zh": "必须手动管理类型对象" },
-          "subsection": { "en": "The type objects have to be tracked manually", "zh": "类型对象需要手动管理" },
+          "title": {
+            "en": "You must track type objects yourself",
+            "zh": "必须手动管理类型对象"
+          },
+          "subsection": {
+            "en": "The type objects have to be tracked manually",
+            "zh": "类型对象需要手动管理"
+          },
           "body": {
             "en": "The compiler does all the bookkeeping for C++ classes automatically. With Type Object, we must ensure every breed is instantiated and kept alive as long as monsters need it, and that each new monster gets a valid breed. We re-implement some of what the compiler used to do for us.",
             "zh": "对于 C++ 的类，编译器会自动完成所有的簿记工作。而使用类型对象时，我们必须确保每个种族对象都被创建出来，并且在怪物需要它期间一直存在于内存中，还要保证每个新怪物都正确地关联到一个有效的种族。我们不得不重新实现一部分原本由编译器替我们做的事。"
           }
         },
         {
-          "title": { "en": "C++ classes are Type Object applied to C", "zh": "C++ 的类就是应用在 C 上的类型对象模式" },
-          "subsection": { "en": "The type objects have to be tracked manually", "zh": "类型对象需要手动管理" },
+          "title": {
+            "en": "C++ classes are Type Object applied to C",
+            "zh": "C++ 的类就是应用在 C 上的类型对象模式"
+          },
+          "subsection": {
+            "en": "The type objects have to be tracked manually",
+            "zh": "类型对象需要手动管理"
+          },
           "body": {
             "en": "Virtual methods are implemented with a vtable: one struct of function pointers per class, with each instance holding a pointer to its class's vtable. The vtable is our breed object and the vtable pointer is the monster's reference to its breed — C++ classes are the Type Object pattern handled automatically by the compiler.",
             "zh": "虚函数是通过虚函数表（vtable）实现的：每个类在内存中有一张由函数指针组成的表，每个实例都持有一个指向其类 vtable 的指针。vtable 就相当于我们的种族对象，vtable 指针就相当于怪物对种族的引用——C++ 的类就是由编译器自动处理的类型对象模式。"
           }
         },
         {
-          "title": { "en": "Type-specific behavior is harder", "zh": "难以为每种类型定义行为" },
-          "subsection": { "en": "It’s harder to define behavior for each type", "zh": "为每种类型定义行为更困难" },
+          "title": {
+            "en": "Type-specific behavior is harder",
+            "zh": "难以为每种类型定义行为"
+          },
+          "subsection": {
+            "en": "It’s harder to define behavior for each type",
+            "zh": "为每种类型定义行为更困难"
+          },
           "body": {
             "en": "Type Object replaces an overridden method with a member variable, which makes type-specific data easy but type-specific behavior (e.g. different AI per breed) hard. One fix is a fixed set of predefined behaviors, with the type object storing a pointer to the chosen function — which is basically re-implementing vtables.",
             "zh": "类型对象用成员变量取代了被重写的方法，因此定义类型特有的数据很容易，而定义类型特有的行为（例如每个种族使用不同的 AI）就很难。一种解决办法是预先定义一组固定的行为，让类型对象保存指向所选函数的指针——这基本上就是在重新实现虚函数表。"
           }
         },
         {
-          "title": { "en": "Defining behavior in data", "zh": "用数据定义行为" },
-          "subsection": { "en": "It’s harder to define behavior for each type", "zh": "为每种类型定义行为更困难" },
+          "title": {
+            "en": "Defining behavior in data",
+            "zh": "用数据定义行为"
+          },
+          "subsection": {
+            "en": "It’s harder to define behavior for each type",
+            "zh": "为每种类型定义行为更困难"
+          },
           "body": {
             "en": "A more powerful solution is to define behavior entirely in data using the Interpreter or Bytecode patterns. Games are becoming more data-driven because we're limited more by how much content we can author than by hardware, so trading runtime performance for productivity through scripting makes more and more sense.",
             "zh": "更强大的办法是借助解释器（Interpreter）或字节码（Bytecode）模式，完全用数据来定义行为。游戏正变得越来越数据驱动，因为如今限制我们的更多是能制作多少内容，而不是硬件性能，所以通过脚本语言以牺牲运行效率换取开发效率越来越划算。"
@@ -145,10 +229,16 @@
     },
     {
       "num": "13.6",
-      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "title": {
+        "en": "Sample Code",
+        "zh": "示例代码"
+      },
       "points": [
         {
-          "title": { "en": "The core: Breed and Monster", "zh": "核心：Breed 与 Monster" },
+          "title": {
+            "en": "The core: Breed and Monster",
+            "zh": "核心：Breed 与 Monster"
+          },
           "body": {
             "en": "Breed is just a container for starting health and the attack string. A Monster is constructed with a reference to a breed, uses it to set its starting health, and forwards getAttack() to it. This small chunk of code is the core of the pattern; everything else is bonus.",
             "zh": "Breed 只是一个装着初始生命值和攻击文字的容器。Monster 在构造时接收一个种族引用，用它来设定初始生命值，并把 getAttack() 转发给它。这一小段代码就是该模式的核心，其余的都是锦上添花。"
@@ -156,8 +246,14 @@
           "code": "class Monster {\npublic:\n  Monster(Breed& breed)\n  : health_(breed.getHealth()),\n    breed_(breed)\n  {}\n\n  const char* getAttack() {\n    return breed_.getAttack();\n  }\n\nprivate:\n  int    health_; // Current health.\n  Breed& breed_;\n};"
         },
         {
-          "title": { "en": "A \"constructor\" on the type object", "zh": "类型对象上的“构造函数”" },
-          "subsection": { "en": "Making type objects more like types: constructors", "zh": "让类型对象更像类型：构造函数" },
+          "title": {
+            "en": "A \"constructor\" on the type object",
+            "zh": "类型对象上的“构造函数”"
+          },
+          "subsection": {
+            "en": "Making type objects more like types: constructors",
+            "zh": "让类型对象更像类型：构造函数"
+          },
           "body": {
             "en": "Normally we ask a class for a new instance rather than allocating memory and assigning it a class. So Breed gets a newMonster() factory method (the Factory Method pattern), and Monster's constructor is made private with Breed as a friend, so newMonster() is the only way to create monsters.",
             "zh": "通常我们是向类请求一个新实例，而不是先分配内存再给它指定类。因此给 Breed 添加一个 newMonster() 工厂方法（即工厂方法模式），并把 Monster 的构造函数设为私有、将 Breed 声明为友元，这样 newMonster() 就成了创建怪物的唯一途径。"
@@ -165,24 +261,42 @@
           "code": "class Breed {\npublic:\n  Monster* newMonster() { return new Monster(*this); }\n  // Previous Breed code...\n};\n\n// Before: Monster* monster = new Monster(someBreed);\nMonster* monster = someBreed.newMonster();"
         },
         {
-          "title": { "en": "Why: controlling allocation", "zh": "原因：控制内存分配" },
-          "subsection": { "en": "Making type objects more like types: constructors", "zh": "让类型对象更像类型：构造函数" },
+          "title": {
+            "en": "Why: controlling allocation",
+            "zh": "原因：控制内存分配"
+          },
+          "subsection": {
+            "en": "Making type objects more like types: constructors",
+            "zh": "让类型对象更像类型：构造函数"
+          },
           "body": {
             "en": "Creating an object has two steps: allocation and initialization. The constructor handles initialization, but games often want to control allocation too, via custom allocators or Object Pool. Putting that logic in newMonster(), the only function able to create monsters, guarantees every monster goes through our memory scheme.",
             "zh": "创建对象分为两步：分配内存和初始化。构造函数负责初始化，但游戏往往还想控制内存分配，比如使用自定义分配器或对象池（Object Pool）模式。把这部分逻辑放进 newMonster()——唯一能创建怪物的函数——就能保证所有怪物都经过我们想要的内存管理方案。"
           }
         },
         {
-          "title": { "en": "Breeds with parent breeds", "zh": "带父种族的种族" },
-          "subsection": { "en": "Sharing data through inheritance", "zh": "通过继承共享数据" },
+          "title": {
+            "en": "Breeds with parent breeds",
+            "zh": "带父种族的种族"
+          },
+          "subsection": {
+            "en": "Sharing data through inheritance",
+            "zh": "通过继承共享数据"
+          },
           "body": {
             "en": "To share attributes across breeds (e.g. tuning thirty kinds of troll at once), we implement our own single inheritance in the type objects: a breed can have a parent breed (NULL for a root). A breed overrides health with a non-zero value and the attack with a non-NULL string; otherwise it inherits from its parent.",
             "zh": "为了在多个种族之间共享属性（例如一次性调整三十种巨魔），我们在类型对象内部自己实现单继承：一个种族可以有一个父种族（根种族传 NULL）。种族的生命值非零即表示重写，攻击文字非 NULL 即表示重写；否则就从父种族继承。"
           }
         },
         {
-          "title": { "en": "Dynamic delegation vs. copy-down", "zh": "动态委托与向下复制" },
-          "subsection": { "en": "Sharing data through inheritance", "zh": "通过继承共享数据" },
+          "title": {
+            "en": "Dynamic delegation vs. copy-down",
+            "zh": "动态委托与向下复制"
+          },
+          "subsection": {
+            "en": "Sharing data through inheritance",
+            "zh": "通过继承共享数据"
+          },
           "body": {
             "en": "Dynamic delegation walks up to the parent on every lookup; it stays correct if breeds change at runtime but costs memory (a parent pointer) and speed. If attributes don't change, \"copy-down\" delegation copies inherited values into the child at construction, so the parent pointer is no longer needed and getters just return fields.",
             "zh": "动态委托在每次查询属性时都沿父链向上查找；即使种族在运行时被修改也能保持正确，但会多占内存（需要保存父指针）而且更慢。如果属性不会改变，可以使用“向下复制（copy-down）”委托：在构造时把继承的值复制到子种族中，之后就不再需要父指针，取值函数直接返回字段即可。"
@@ -190,8 +304,14 @@
           "code": "Breed(Breed* parent, int health, const char* attack)\n: health_(health),\n  attack_(attack)\n{\n  // Inherit non-overridden attributes.\n  if (parent != NULL) {\n    if (health == 0) health_ = parent->getHealth();\n    if (attack == NULL) attack_ = parent->getAttack();\n  }\n}"
         },
         {
-          "title": { "en": "Breeds defined in JSON", "zh": "用 JSON 定义种族" },
-          "subsection": { "en": "Sharing data through inheritance", "zh": "通过继承共享数据" },
+          "title": {
+            "en": "Breeds defined in JSON",
+            "zh": "用 JSON 定义种族"
+          },
+          "subsection": {
+            "en": "Sharing data through inheritance",
+            "zh": "通过继承共享数据"
+          },
           "body": {
             "en": "Breeds can be loaded from a JSON file where \"Troll Archer\" and \"Troll Wizard\" name \"Troll\" as their parent and use zero health to inherit it. Tuning the health in Troll then updates all three breeds — an open-ended system that puts control in designers' hands.",
             "zh": "种族可以从 JSON 文件加载，其中“Troll Archer”和“Troll Wizard”把“Troll”指定为父种族，并用 0 生命值表示继承。这样只要调整 Troll 的生命值，三个种族就都会更新——这是一个开放的系统，把控制权交到了设计师手中。"
@@ -202,18 +322,30 @@
     },
     {
       "num": "13.7",
-      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "title": {
+        "en": "Design Decisions",
+        "zh": "设计决策"
+      },
       "points": [
         {
-          "title": { "en": "Keep it simple for non-programmers", "zh": "为非程序员保持简单" },
+          "title": {
+            "en": "Keep it simple for non-programmers",
+            "zh": "为非程序员保持简单"
+          },
           "body": {
             "en": "Type Object lets you design a type system as if designing your own language, but time, maintainability, and above all the need for (often non-programmer) users to understand it push toward simple, well-trodden designs.",
             "zh": "类型对象让我们可以像设计自己的编程语言一样设计类型系统，但时间、可维护性，尤其是用户（往往不是程序员）必须能轻松理解它这一点，都促使我们选择简单、成熟的设计。"
           }
         },
         {
-          "title": { "en": "Encapsulated or exposed type object?", "zh": "封装类型对象，还是公开它？" },
-          "subsection": { "en": "Is the type object encapsulated or exposed?", "zh": "类型对象是封装的还是公开的？" },
+          "title": {
+            "en": "Encapsulated or exposed type object?",
+            "zh": "封装类型对象，还是公开它？"
+          },
+          "subsection": {
+            "en": "Is the type object encapsulated or exposed?",
+            "zh": "类型对象是封装的还是公开的？"
+          },
           "body": {
             "en": "If encapsulated, the pattern's complexity is hidden and the typed object can selectively override behavior (e.g. a weak attack string near death), but you must write forwarding methods for everything. If exposed, outside code can use type objects without a typed instance (needed for breed.newMonster()), but the object's public API becomes wider.",
             "zh": "如果封装起来，模式的复杂性对外隐藏，有类型的对象还能有选择地改写行为（例如濒死时显示虚弱的攻击文字），但必须为所有需要公开的方法编写转发函数。如果公开出去，外部代码无需持有有类型的实例就能使用类型对象（breed.newMonster() 就需要这一点），但对象的公共 API 会变得更宽。"
@@ -221,24 +353,42 @@
           "code": "const char* Monster::getAttack() {\n  if (health_ < LOW_HEALTH) {\n    return \"The monster flails weakly.\";\n  }\n  return breed_.getAttack();\n}"
         },
         {
-          "title": { "en": "How are typed objects created?", "zh": "有类型的对象如何创建？" },
-          "subsection": { "en": "How are typed objects created?", "zh": "有类型的对象如何创建？" },
+          "title": {
+            "en": "How are typed objects created?",
+            "zh": "有类型的对象如何创建？"
+          },
+          "subsection": {
+            "en": "How are typed objects created?",
+            "zh": "有类型的对象如何创建？"
+          },
           "body": {
             "en": "Constructing the object and passing in its type object lets outside code control allocation (different allocators, the stack, etc.). Calling a \"constructor\" function on the type object lets the type object control allocation, e.g. to guarantee all objects come from an object pool.",
             "zh": "由外部构造对象并传入类型对象，可以让外部代码控制内存分配（使用不同的分配器、放在栈上等）。通过类型对象上的“构造函数”来创建，则由类型对象控制内存分配，例如确保所有对象都来自某个对象池。"
           }
         },
         {
-          "title": { "en": "Can the type change?", "zh": "类型可以改变吗？" },
-          "subsection": { "en": "Can the type change?", "zh": "类型可以改变吗？" },
+          "title": {
+            "en": "Can the type change?",
+            "zh": "类型可以改变吗？"
+          },
+          "subsection": {
+            "en": "Can the type change?",
+            "zh": "类型可以改变吗？"
+          },
           "body": {
             "en": "A fixed type is simpler to code, understand, and debug, since the breed you see is the one the monster always had. A changeable type (e.g. a corpse turning into a zombie) avoids creating and copying a new object — just an assignment — but you must validate that the object meets the new type's assumptions, like health not exceeding the starting health.",
             "zh": "类型固定不变时，编码、理解和调试都更简单，因为你现在看到的种族就是怪物一直以来的种族。允许类型改变（例如尸体变成僵尸）可以省去创建新对象并复制属性的开销，只需一次赋值，但必须验证对象满足新类型的前提假设，例如当前生命值不超过初始生命值。"
           }
         },
         {
-          "title": { "en": "What kind of inheritance?", "zh": "支持哪种继承？" },
-          "subsection": { "en": "What kind of inheritance is supported?", "zh": "支持哪种继承？" },
+          "title": {
+            "en": "What kind of inheritance?",
+            "zh": "支持哪种继承？"
+          },
+          "subsection": {
+            "en": "What kind of inheritance is supported?",
+            "zh": "支持哪种继承？"
+          },
           "body": {
             "en": "No inheritance is simplest but leads to duplicated effort (tuning fifty kinds of elves in fifty places). Single inheritance is easy to implement and understand — a sweet spot — though lookups may walk the chain. Multiple inheritance avoids nearly all duplication but is hard to reason about; simpler is better.",
             "zh": "不支持继承最简单，但会导致重复劳动（要在五十个地方调整五十种精灵的数值）。单继承易于实现和理解，是功能与简洁之间的最佳平衡点，只是查询属性时可能要沿继承链向上查找。多继承几乎能消除所有重复，但难以理解和推理；还是越简单越好。"
@@ -248,17 +398,26 @@
     },
     {
       "num": "13.8",
-      "title": { "en": "See Also", "zh": "参考" },
+      "title": {
+        "en": "See Also",
+        "zh": "参考"
+      },
       "points": [
         {
-          "title": { "en": "Prototype and Flyweight", "zh": "原型模式与享元模式" },
+          "title": {
+            "en": "Prototype and Flyweight",
+            "zh": "原型模式与享元模式"
+          },
           "body": {
             "en": "Prototype solves the same high-level problem — sharing data and behavior between objects — in a different way. Type Object is a close cousin of Flyweight: both share data across instances, but Flyweight aims to save memory and the shared data may not represent a conceptual type, while Type Object focuses on organization and flexibility.",
             "zh": "原型（Prototype）模式以另一种方式解决同样的高层问题——在多个对象之间共享数据和行为。类型对象与享元（Flyweight）模式是近亲：两者都在实例间共享数据，但享元的目的是节省内存，共享的数据未必代表某种概念上的类型；而类型对象关注的是组织性和灵活性。"
           }
         },
         {
-          "title": { "en": "State pattern", "zh": "状态模式" },
+          "title": {
+            "en": "State pattern",
+            "zh": "状态模式"
+          },
           "body": {
             "en": "Like State, Type Object lets an object delegate part of its definition to another object. A type object usually describes what the object is (invariant data); State describes what it is right now (temporal data). Letting an object change its type makes the type object double as a State.",
             "zh": "与状态（State）模式一样，类型对象也让一个对象把定义自身的一部分委托给另一个对象。类型对象通常描述对象“是什么”（不变的数据）；状态模式描述对象“此刻是什么”（随时间变化的数据）。允许对象改变类型时，类型对象也就同时扮演了状态的角色。"
@@ -268,23 +427,58 @@
     }
   ],
   "terms": [
-    { "en": "type object", "zh": "类型对象" },
-    { "en": "typed object", "zh": "有类型的对象" },
-    { "en": "breed", "zh": "种族（品种）" },
-    { "en": "is-a relationship", "zh": "“是一种”关系" },
-    { "en": "vtable (virtual function table)", "zh": "虚函数表" },
-    { "en": "data-driven", "zh": "数据驱动" },
-    { "en": "Factory Method", "zh": "工厂方法" },
-    { "en": "copy-down delegation", "zh": "向下复制委托" },
-    { "en": "single / multiple inheritance", "zh": "单继承 / 多继承" },
-    { "en": "forwarding method", "zh": "转发方法" }
+    {
+      "en": "type object",
+      "zh": "类型对象"
+    },
+    {
+      "en": "typed object",
+      "zh": "有类型的对象"
+    },
+    {
+      "en": "breed",
+      "zh": "种族（品种）"
+    },
+    {
+      "en": "is-a relationship",
+      "zh": "“是一种”关系"
+    },
+    {
+      "en": "vtable (virtual function table)",
+      "zh": "虚函数表"
+    },
+    {
+      "en": "data-driven",
+      "zh": "数据驱动"
+    },
+    {
+      "en": "Factory Method",
+      "zh": "工厂方法"
+    },
+    {
+      "en": "copy-down delegation",
+      "zh": "向下复制委托"
+    },
+    {
+      "en": "single / multiple inheritance",
+      "zh": "单继承 / 多继承"
+    },
+    {
+      "en": "forwarding method",
+      "zh": "转发方法"
+    }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "13.2",
       "q": "用 subclass-per-breed 的 OOP 方案时，最主要的问题是什么？ What was the main pain point?",
-      "options": ["虚函数调用太慢，影响帧率", "每增加或调整一个种族都要改代码并重新编译", "子类无法访问基类的 health_", "C++ 不允许超过一百个子类"],
+      "options": [
+        "虚函数调用太慢，影响帧率",
+        "每增加或调整一个种族都要改代码并重新编译",
+        "子类无法访问基类的 health_",
+        "C++ 不允许超过一百个子类"
+      ],
       "answer": 1,
       "explain": "Adding or tuning a breed means new code and a recompile, turning programmers into data monkeys. 我们希望不重新编译就能改数值，甚至让设计师自己定义种族。"
     },
@@ -292,7 +486,10 @@
       "type": "fill",
       "ref": "13.2",
       "q": "In the Type Object design, there are just two classes, Monster and ___, and no inheritance between them.",
-      "answer": ["Breed", "种族"],
+      "answer": [
+        "Breed",
+        "种族"
+      ],
       "explain": "每个 Monster 持有一个 Breed 引用，Breed 存放同种怪物共享的数据。"
     },
     {
@@ -306,7 +503,12 @@
       "type": "choice",
       "ref": "13.5",
       "q": "Which is the most powerful way the book suggests to define type-specific behavior completely in data? 哪种方式能完全用数据定义行为？",
-      "options": ["给每个种族写一个子类", "用 Singleton 保存所有行为", "使用 Interpreter 或 Bytecode 模式", "把行为写进 vtable"],
+      "options": [
+        "给每个种族写一个子类",
+        "用 Singleton 保存所有行为",
+        "使用 Interpreter 或 Bytecode 模式",
+        "把行为写进 vtable"
+      ],
       "answer": 2,
       "explain": "Interpreter and Bytecode let us build objects that represent behavior, moving its definition out of code and into content. 预定义行为加函数指针只是较简单的折中方案。"
     },
@@ -314,7 +516,12 @@
       "type": "choice",
       "ref": "13.6",
       "q": "为什么要给 Breed 加一个 newMonster() 并把 Monster 的构造函数设为 private？ Main reason?",
-      "options": ["To make getAttack() faster", "To let Breed control allocation, e.g. pulling memory from an object pool", "To allow multiple inheritance between breeds", "To make Monster serializable"],
+      "options": [
+        "To make getAttack() faster",
+        "To let Breed control allocation, e.g. pulling memory from an object pool",
+        "To allow multiple inheritance between breeds",
+        "To make Monster serializable"
+      ],
       "answer": 1,
       "explain": "构造函数只负责初始化，分配发生在它之前。newMonster() 是唯一的创建入口，可以保证所有怪物都走我们的内存管理方案（自定义堆、对象池）。"
     },
@@ -322,7 +529,11 @@
       "type": "fill",
       "ref": "13.6",
       "q": "Copying inherited attributes into the child breed when it is constructed is called \"___\" delegation（向下复制委托）。",
-      "answer": ["copy-down", "copy down", "向下复制"],
+      "answer": [
+        "copy-down",
+        "copy down",
+        "向下复制"
+      ],
       "explain": "Copy-down 在构造时完成继承，之后不再需要父指针，取值更快，但前提是属性在运行时不会改变。"
     },
     {
@@ -343,7 +554,12 @@
       "type": "choice",
       "ref": "13.7",
       "q": "According to the author, which inheritance scheme for type objects is the sweet spot between power and simplicity? 哪种继承最平衡？",
-      "options": ["No inheritance（不继承）", "Multiple inheritance（多继承）", "Mixins only（仅混入）", "Single inheritance（单继承）"],
+      "options": [
+        "No inheritance（不继承）",
+        "Multiple inheritance（多继承）",
+        "Mixins only（仅混入）",
+        "Single inheritance（单继承）"
+      ],
       "answer": 3,
       "explain": "单继承易于实现也易于理解，适合非技术用户；多继承复杂且收益偏理论化。"
     },
@@ -358,9 +574,90 @@
       "type": "choice",
       "ref": "13.8",
       "q": "Type Object 与 Flyweight 的主要区别是什么？",
-      "options": ["Flyweight focuses on saving memory; Type Object focuses on organization and flexibility", "Flyweight cannot share data across instances", "Type Object is only for rendering", "They are exactly the same pattern"],
+      "options": [
+        "Flyweight focuses on saving memory; Type Object focuses on organization and flexibility",
+        "Flyweight cannot share data across instances",
+        "Type Object is only for rendering",
+        "They are exactly the same pattern"
+      ],
       "answer": 0,
       "explain": "两者都共享数据，但享元为了省内存，共享的数据未必代表概念类型；类型对象重在组织与灵活性。"
+    },
+    {
+      "type": "scenario",
+      "ref": "13.2",
+      "title": "塔防敌人热更新 · Hot-updatable tower-defense enemies",
+      "q": "你在做一款手机塔防游戏，已有 40 种敌人，每种一个子类：class Goblin : public Enemy、class ArmoredOrc : public Enemy……策划每周都要调 maxHp / speed / bounty，运营还希望在节日活动时通过 hot update 下发全新敌人（例如“圣诞雪人”），不能走 App Store 审核重新发包。请用 Type Object pattern 重新设计：需要哪几个类？哪些数据放在 type 里、哪些放在 instance 里？类型数据从哪里来？",
+      "answer": "只保留两个类：EnemyType（type object）和 Enemy（typed object）。EnemyType 存所有同种敌人共享、不随时间变化的数据：name、maxHp、speed、bounty、spriteId、armor。Enemy 只存 instance-specific 状态：当前 hp_、在路径上的进度 pathT_、身上的 slow/burn debuff，以及一个指向 EnemyType 的引用 type_。所有 EnemyType 在启动或热更新时从 enemies.json（可由服务器下发）读入，存进一个 EnemyTypeRegistry（map<string, EnemyType>），波次配置只写类型名，生成时查表。新增“圣诞雪人”= JSON 里多一条记录，不用写 C++、不用重新编译。代价：类型对象由我们自己管理——registry 必须在所有 Enemy 销毁前一直存活，热更新时不能直接 delete 正被场上敌人引用的旧 EnemyType（可以只在波次之间替换，或用 shared_ptr 持有）。",
+      "code": "class EnemyType {\npublic:\n  EnemyType(int maxHp, float speed, int bounty)\n    : maxHp_(maxHp), speed_(speed), bounty_(bounty) {}\n  int maxHp() const { return maxHp_; }\n  float speed() const { return speed_; }\n  int bounty() const { return bounty_; }\nprivate:\n  int maxHp_;\n  float speed_;\n  int bounty_;\n};\n\nclass Enemy {\npublic:\n  Enemy(const EnemyType& type) : type_(type), hp_(type.maxHp()) {}\n  void update(float dt) { pathT_ += type_.speed() * dt; }\nprivate:\n  const EnemyType& type_;\n  int hp_;          // instance state\n  float pathT_ = 0; // instance state\n};\n\n// Loaded from enemies.json (may come from a hot update)\nstd::map<std::string, EnemyType> registry;",
+      "checklist": [
+        "只有 EnemyType 和 Enemy 两个类，没有每种敌人一个子类 (no subclass per kind)",
+        "正确区分 shared type data（maxHp、speed）与 instance data（当前 hp、位置）",
+        "类型从数据文件加载，新增敌人无需重新编译",
+        "意识到要手动管理 type object 的生命周期（registry、热更新时不能悬空引用）"
+      ],
+      "explain": "对应 §13.2 Motivation：把类型从“hard-coded class hierarchy”提升为运行时数据，“So easy, a designer could do it!” 热更新时的生命周期处理是书中 Keep in Mind “type objects have to be tracked manually” 在实践中的延伸。"
+    },
+    {
+      "type": "scenario",
+      "ref": "13.4",
+      "title": "格斗游戏角色要不要数据化 · Should fighters be type objects?",
+      "q": "一款 2D 格斗游戏只有 8 名精心设计的角色，每人都有独特机制：一个能操纵时间、一个有两条独立血条的宠物、一个会改变场地重力。同事提议：“全部改成 Type Object，class FighterType 读 JSON，就不用写子类了。”请判断这个提议是否合适，说明理由，并给出你推荐的结构——哪些部分适合数据化，哪些应该留在代码里？",
+      "answer": "不太合适。Type Object 适用于：类型数量多、事先不知道会有哪些类型、或希望不改代码就能增改类型；而且它擅长的是 type-specific data，不擅长 type-specific behavior。这里角色少（8 个）、在开发期就已确定、每个人的差异主要是独特“行为”而非数值，把这些机制塞进 FighterType 只会让我们在 JSON 里重新发明一门编程语言。推荐混合方案：每个角色的独特机制仍写成代码（Fighter 子类，或给 Fighter 挂不同的 mechanic component）；而大量需要频繁调参的“数值”——每个招式的 startup/active/recovery frames、damage、hitbox——放进数据表，由一个 MoveData type object 描述，招式实例引用它。这样策划能免编译调 frame data，程序员保留对复杂行为的完整表达力。",
+      "checklist": [
+        "能对照 When to Use：类型少且已知、行为差异为主 → 不是 Type Object 的强项",
+        "指出 Type Object 难以表达 type-specific behavior",
+        "提出混合方案：独特行为留在代码，可调数值（frame data）数据化",
+        "提到避免在数据里重新发明脚本语言的复杂度"
+      ],
+      "explain": "§13.4 说该模式适合“You don’t know what types you will need up front”或想“modify or add new types without having to recompile”；§13.5 又指出“hard to define type-specific behavior”。两者都不成立时，子类反而更简单。"
+    },
+    {
+      "type": "scenario",
+      "ref": "13.5",
+      "title": "品种各自的 AI · Per-breed AI behavior",
+      "q": "你的 roguelike 已经用 Breed（type object）+ Monster 实现了 300 种怪物，全部定义在 breeds.json 里。现在策划要求不同品种有不同 AI：史莱姆原地不动、狼会追击玩家、哥布林血少时逃跑、弓箭手保持距离放风筝。他们还希望以后能自己“配”出新 AI，而不用找程序员。请在不回到“每个品种一个子类”的前提下设计方案，并分析两种思路的取舍。",
+      "answer": "思路一（简单、首选）：预先写好一组固定行为函数 aiStandStill / aiChase / aiFlee / aiKite，用一张 map<string, AiFn> 把名字映射到函数指针。breeds.json 里写 \"ai\": \"chase\"，加载时把 Breed::ai_ 设成对应函数指针；Monster::update() 调 breed_.ai()(*this, world)。这其实就是在 type object 里手工实现 vtable。还可以加参数字段（fleeHpRatio、kiteDistance）让同一种行为有不同手感。缺点：新“种类”的行为仍要程序员写函数。思路二（强大但昂贵）：用 Bytecode 或 Interpreter pattern，让行为本身成为数据（例如一个小型行为脚本或 behavior tree 资源），策划可以完全在内容里定义新 AI。代价是要写解释器/编辑器、运行更慢、调试更难。建议先用思路一，等行为组合需求真的爆炸再考虑思路二。加载时要校验 \"ai\" 名字存在，否则报错而不是留下空指针。",
+      "code": "using AiFn = void (*)(Monster&, World&);\n\nvoid aiStandStill(Monster&, World&) {}\nvoid aiChase(Monster& m, World& w) { m.moveToward(w.hero().pos()); }\nvoid aiFlee(Monster& m, World& w) { m.moveAwayFrom(w.hero().pos()); }\n\nstd::map<std::string, AiFn> aiTable = {\n  {\"stand\", aiStandStill}, {\"chase\", aiChase}, {\"flee\", aiFlee}\n};\n\nclass Breed {\npublic:\n  AiFn ai() const { return ai_; }  // like a vtable slot\nprivate:\n  AiFn ai_;\n  int health_;\n};\n\nvoid Monster::update(World& world) { breed_.ai()(*this, world); }",
+      "checklist": [
+        "从固定行为集合中用数据选择一个（函数指针 / 名字 → 函数表）",
+        "意识到这等于在 type object 里自己实现 vtable",
+        "提到更强大的方案：Bytecode / Interpreter 让行为完全数据化，及其成本",
+        "加载时校验数据，避免无效引用"
+      ],
+      "explain": "对应 §13.5 “It’s harder to define behavior for each type”：书中给出的正是这两条路——用数据选择预定义行为（“we’re back to really implementing vtables”），或借助 Interpreter/Bytecode 把行为“completely out of code and into content”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "13.6",
+      "title": "五十种精灵的继承 · Inheritance for fifty elves",
+      "q": "一款 MMORPG 有 50 种精灵怪：Wood Elf、Wood Elf Archer、Dark Elf Mage……每种有 30 个属性。策划抱怨：想统一加强所有精灵的 armor，就得改 50 处。请为 type object 增加“继承”：数据格式怎样写？用 dynamic delegation 还是 copy-down delegation？注意：线上服务器追求性能且类型不会在运行时变，而内部的 level editor 需要策划改完父类型后立刻看到子类型变化。",
+      "answer": "数据格式：每个 MonsterType 可选一个 \"parent\" 字段，只写自己覆盖的属性；未写（或用哨兵值如 0/null 表示）的属性从父类型继承。只支持单继承——易实现、策划也易理解；多继承会带来“Zombie Dragon 的属性到底来自谁”的困惑。实现：(1) 服务器用 copy-down：构造子类型时把未覆盖的属性从父类型复制下来，之后不再需要 parent_ 指针，读取属性就是直接返回字段，最快。前提是加载顺序正确——先构造父类型（按依赖拓扑排序，并检测循环继承）。(2) Level editor 用 dynamic delegation：保留 parent_，getArmor() 中若自己未覆盖就 return parent_->getArmor()，因此运行时改父类型会立刻反映到子类型；代价是多一个指针、每次查询要沿继承链向上走。也可以在编辑器里仍用 copy-down，但每次保存时重新构建整棵类型树。注意哨兵值的歧义：如果 0 是合法的 armor，就要用 optional/“是否覆盖”标志，而不是 0。",
+      "code": "// Copy-down delegation: resolve inheritance once, at load time\nMonsterType::MonsterType(const MonsterType* parent, int armor, const char* name)\n  : armor_(armor), name_(name) {\n  if (parent != nullptr) {\n    if (armor == 0) armor_ = parent->armor();\n  }\n}\nint MonsterType::armor() const { return armor_; }\n\n// Dynamic delegation (editor build): walk the chain on every lookup\nint EditorMonsterType::armor() const {\n  if (armor_ != 0 || parent_ == nullptr) return armor_;\n  return parent_->armor();\n}",
+      "checklist": [
+        "数据里用 parent 字段 + 只写覆盖的属性",
+        "正确比较 copy-down（快、不能反映运行时修改）与 dynamic delegation（灵活、慢、多一个指针）",
+        "根据场景选择：服务器 copy-down，编辑器 dynamic（或保存时重建）",
+        "选择单继承并说明多继承的复杂度",
+        "注意加载顺序（父先于子）或哨兵值歧义等实现细节"
+      ],
+      "explain": "对应 §13.6 Sharing data through inheritance 与 §13.7 “What kind of inheritance is supported?”：书中指出 dynamic delegation “does the right thing if a breed is modified at runtime”，copy-down 则“Nice and fast!”。加载顺序和哨兵值歧义是书外的工程细节。"
+    },
+    {
+      "type": "scenario",
+      "ref": "13.7",
+      "title": "亡者复苏与进化 · Reanimation and evolution",
+      "q": "在一款暗黑风 RPG 中，策划提出两个需求：(1) 被死灵法师复活的怪物尸体要变成同一位置上的“Zombie”版本；(2) 宠物达到 20 级会“进化”成新形态（新的外观、技能、成长曲线），但要保留名字、等级、装备。目前 Monster 的 Breed 在构造后不可变。你会允许 type 在运行时改变吗？请给出设计、需要的保护措施以及代价。",
+      "answer": "两种做法：A. 类型不可变——死亡时 spawn 一个 zombie breed 的新 Monster，把需要保留的属性拷过去，再删除旧对象；B. 允许改变类型——提供 Monster::setBreed(newBreed)。对这两个需求，B 更合适：宠物要保留名字、等级、装备，换类型只是一次赋值，省去创建+拷贝+销毁，而且其他系统持有的指针（队伍列表、UI）不会失效。保护措施：object 与 type 之间存在隐含假设，例如“当前 hp 不超过 breed 的 maxHealth”，因此 setBreed() 里必须执行 validation：把 hp clamp 到新上限、移除新形态不支持的技能、重置依赖旧类型的 AI 状态。代价：不再能假设“当前 breed 就是它一直以来的 breed”，调试更难——建议在 setBreed 中记录日志（旧类型→新类型、原因）。如果类型变化非常频繁、像是“当前状态”，那么它实际上兼任了 State pattern 的角色，应考虑是否该用 State 来建模。",
+      "code": "void Monster::setBreed(Breed& newBreed) {\n  log(\"breed change: %s -> %s\", breed_->name(), newBreed.name());\n  breed_ = &newBreed;\n  // Re-establish the invariants the new type relies on\n  if (health_ > newBreed.getHealth()) health_ = newBreed.getHealth();\n  skills_.removeIf([&](const Skill& s) { return !newBreed.allows(s); });\n  ai_.reset();\n}",
+      "checklist": [
+        "比较“新建对象并拷贝”与“直接改 type 引用”的成本",
+        "说明保留身份（名字、等级、外部引用）是允许改类型的好理由",
+        "改类型后要做 validation，满足新类型的假设（如 hp ≤ 新 maxHp）",
+        "指出代价：更难调试，可加日志",
+        "提到与 State pattern 的关系"
+      ],
+      "explain": "对应 §13.7 “Can the type change?”：书中正是以“corpse to become a reanimated zombie”为例，提醒“we need to make sure that the new type’s requirements are met by the existing object”。See Also 里也说此时 Type Object “serve double duty as a State”。"
     }
   ]
 }

@@ -1,6 +1,9 @@
 {
   "id": "game-loop",
-  "title": { "en": "Game Loop", "zh": "游戏循环" },
+  "title": {
+    "en": "Game Loop",
+    "zh": "游戏循环"
+  },
   "summary": {
     "en": "A game loop runs continuously during gameplay: each turn it processes input without blocking, updates the game state, and renders. By tracking the passage of time, it decouples the progression of game time from user input and processor speed.",
     "zh": "游戏循环在游戏运行期间持续运转：每一轮都以非阻塞方式处理输入、更新游戏状态并进行渲染。它通过追踪时间的流逝，把游戏时间的推进与用户输入和处理器速度解耦。"
@@ -8,10 +11,16 @@
   "sections": [
     {
       "num": "9.1",
-      "title": { "en": "Intent", "zh": "意图" },
+      "title": {
+        "en": "Intent",
+        "zh": "意图"
+      },
       "points": [
         {
-          "title": { "en": "Decouple game time from input and CPU speed", "zh": "让游戏时间与输入和 CPU 速度解耦" },
+          "title": {
+            "en": "Decouple game time from input and CPU speed",
+            "zh": "让游戏时间与输入和 CPU 速度解耦"
+          },
           "body": {
             "en": "The intent of the Game Loop pattern is to decouple the progression of game time from user input and processor speed. The game should keep advancing without waiting for the player, and it should advance at the same pace no matter how fast the hardware is.",
             "zh": "游戏循环模式的意图是：把游戏时间的推进与用户输入和处理器速度解耦。游戏应当在不等待玩家的情况下持续推进，并且无论硬件快慢，都以相同的节奏推进。"
@@ -21,18 +30,30 @@
     },
     {
       "num": "9.2",
-      "title": { "en": "Motivation", "zh": "动机" },
+      "title": {
+        "en": "Motivation",
+        "zh": "动机"
+      },
       "points": [
         {
-          "title": { "en": "Batch mode programs", "zh": "批处理程序" },
+          "title": {
+            "en": "Batch mode programs",
+            "zh": "批处理程序"
+          },
           "body": {
             "en": "Early programs worked like a dishwasher: you dumped code in, pushed a button, waited, and got results out. These batch mode programs stop once the work is done. Shell scripts and command-line tools are still batch programs today.",
             "zh": "早期的程序就像洗碗机：把代码放进去，按下按钮，等待，然后取出结果。这类批处理程序在工作完成后就结束了。如今的 shell 脚本和命令行工具仍然是批处理程序。"
           }
         },
         {
-          "title": { "en": "Interactive programs wait for input", "zh": "交互式程序会等待输入" },
-          "subsection": { "en": "Interview with a CPU", "zh": "与 CPU 的对话" },
+          "title": {
+            "en": "Interactive programs wait for input",
+            "zh": "交互式程序会等待输入"
+          },
+          "subsection": {
+            "en": "Interview with a CPU",
+            "zh": "与 CPU 的对话"
+          },
           "body": {
             "en": "Programmers wanted immediate feedback, so interactive programs were born, and some of the first were games like Colossal Cave Adventure. The program waits for your command, responds, and then waits again; while it is your turn, it sits there doing nothing.",
             "zh": "程序员希望获得即时反馈，于是诞生了交互式程序，其中最早的一批就是像《巨洞冒险》（Colossal Cave Adventure）这样的游戏。程序等待你的指令，作出回应，然后再次等待；轮到你操作时，它什么也不做。"
@@ -40,8 +61,14 @@
           "code": "while (true) {\n  char* command = readCommand();\n  handleCommand(command);\n}"
         },
         {
-          "title": { "en": "Event loops block, but games must keep moving", "zh": "事件循环会阻塞，但游戏必须持续运动" },
-          "subsection": { "en": "Event loops", "zh": "事件循环" },
+          "title": {
+            "en": "Event loops block, but games must keep moving",
+            "zh": "事件循环会阻塞，但游戏必须持续运动"
+          },
+          "subsection": {
+            "en": "Event loops",
+            "zh": "事件循环"
+          },
           "body": {
             "en": "GUI applications run an event loop that waits for input events such as clicks and key presses and then dispatches them. Unlike most software, games keep moving even when the user provides no input: animations play and monsters keep attacking. \"Idle\" events are too rudimentary for games, so the first key part of a game loop is that it processes input but doesn't wait for it.",
             "zh": "图形界面程序运行一个事件循环：等待点击、按键等输入事件，然后分发它们。与大多数软件不同，即使用户没有任何输入，游戏也要继续运行：动画在播放，怪物在继续攻击。“空闲”（idle）事件对游戏来说过于简陋，所以游戏循环的第一个关键点是：它处理输入，但不等待输入。"
@@ -49,16 +76,28 @@
           "code": "while (true) {\n  processInput();\n  update();\n  render();\n}"
         },
         {
-          "title": { "en": "Ticks, frames, and FPS", "zh": "tick、帧与 FPS" },
-          "subsection": { "en": "A world out of time", "zh": "时间之外的世界" },
+          "title": {
+            "en": "Ticks, frames, and FPS",
+            "zh": "tick、帧与 FPS"
+          },
+          "subsection": {
+            "en": "A world out of time",
+            "zh": "时间之外的世界"
+          },
           "body": {
             "en": "One crank of the game loop is called a \"tick\" or \"frame\", and measuring how fast the loop cycles in real time gives frames per second (FPS). With a loop that spins as fast as it can, the frame rate depends on two factors: how much work each frame does, and the speed of the underlying platform.",
             "zh": "游戏循环转动一次称为一个“tick”或“帧”（frame）；用真实时间衡量循环的转速，就得到每秒帧数（FPS）。如果循环尽可能快地运转，帧率取决于两个因素：每帧要做多少工作，以及底层平台的速度。"
           }
         },
         {
-          "title": { "en": "Running at a consistent speed on any hardware", "zh": "在任何硬件上以一致的速度运行" },
-          "subsection": { "en": "Seconds per second", "zh": "每秒的秒数" },
+          "title": {
+            "en": "Running at a consistent speed on any hardware",
+            "zh": "在任何硬件上以一致的速度运行"
+          },
+          "subsection": {
+            "en": "Seconds per second",
+            "zh": "每秒的秒数"
+          },
           "body": {
             "en": "Old games for fixed hardware like the NES did just enough work per frame, so on faster or slower machines they sped up or slowed down — hence the \"turbo\" button on old PCs. Today developers rarely know the exact hardware, so the second key job of a game loop is to run the game at a consistent speed despite hardware differences.",
             "zh": "为 NES 这类固定硬件编写的老游戏每帧只做恰好足够的工作，所以换到更快或更慢的机器上，游戏本身就会变快或变慢——这就是老式 PC 上有“turbo”按钮的原因。如今开发者很少能确切知道目标硬件，所以游戏循环的第二个关键职责是：无论硬件差异如何，都让游戏以一致的速度运行。"
@@ -68,10 +107,16 @@
     },
     {
       "num": "9.3",
-      "title": { "en": "The Pattern", "zh": "模式描述" },
+      "title": {
+        "en": "The Pattern",
+        "zh": "模式描述"
+      },
       "points": [
         {
-          "title": { "en": "Pattern definition", "zh": "模式定义" },
+          "title": {
+            "en": "Pattern definition",
+            "zh": "模式定义"
+          },
           "body": {
             "en": "A game loop runs continuously during gameplay. Each turn of the loop, it processes user input without blocking, updates the game state, and renders the game. It tracks the passage of time to control the rate of gameplay.",
             "zh": "游戏循环在游戏过程中持续运行。循环的每一轮都以非阻塞的方式处理用户输入、更新游戏状态并渲染游戏。它追踪时间的流逝，以此控制游戏的运行速率。"
@@ -81,17 +126,26 @@
     },
     {
       "num": "9.4",
-      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "title": {
+        "en": "When to Use It",
+        "zh": "何时使用"
+      },
       "points": [
         {
-          "title": { "en": "You will almost certainly use it", "zh": "你几乎一定会用到它" },
+          "title": {
+            "en": "You will almost certainly use it",
+            "zh": "你几乎一定会用到它"
+          },
           "body": {
             "en": "Unlike most patterns, the author is confident you will use this one. If you use a game engine you won't write it yourself, but it is still there. Even turn-based games need it, because animation and music keep running while the game waits for your turn.",
             "zh": "与大多数模式不同，作者确信你一定会用到这个模式。如果使用游戏引擎，你不必自己编写它，但它依然存在。即便是回合制游戏也需要它，因为在等待你行动时，动画和音乐仍在继续。"
           }
         },
         {
-          "title": { "en": "Engine vs. library", "zh": "引擎与库的区别" },
+          "title": {
+            "en": "Engine vs. library",
+            "zh": "引擎与库的区别"
+          },
           "body": {
             "en": "For the author, the game loop marks the difference between an \"engine\" and a \"library\". With a library, you own the main game loop and call into the library. An engine owns the loop and calls into your code.",
             "zh": "在作者看来，游戏循环正是“引擎”和“库”的区别所在：使用库时，你掌控主游戏循环并调用库；而引擎掌控循环，并调用你的代码。"
@@ -101,18 +155,30 @@
     },
     {
       "num": "9.5",
-      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "title": {
+        "en": "Keep in Mind",
+        "zh": "注意事项"
+      },
       "points": [
         {
-          "title": { "en": "The loop is performance-critical", "zh": "循环对性能至关重要" },
+          "title": {
+            "en": "The loop is performance-critical",
+            "zh": "循环对性能至关重要"
+          },
           "body": {
             "en": "The game loop is some of the most important code in your game. If a program spends 90% of its time in 10% of the code, the game loop is firmly in that 10%, so be careful with it and mindful of its efficiency.",
             "zh": "游戏循环是整个游戏中最重要的代码之一。如果说程序 90% 的时间花在 10% 的代码上，那么游戏循环必然属于那 10%，所以要谨慎对待它，并留意它的效率。"
           }
         },
         {
-          "title": { "en": "Coordinating with the platform's event loop", "zh": "与平台的事件循环协调" },
-          "subsection": { "en": "You may need to coordinate with the platform's event loop", "zh": "你可能需要与平台的事件循环协调" },
+          "title": {
+            "en": "Coordinating with the platform's event loop",
+            "zh": "与平台的事件循环协调"
+          },
+          "subsection": {
+            "en": "You may need to coordinate with the platform's event loop",
+            "zh": "你可能需要与平台的事件循环协调"
+          },
           "body": {
             "en": "On a platform with its own GUI event loop, two application loops are in play and must cooperate. On Windows you can make your loop the only one and call PeekMessage(), which, unlike GetMessage(), doesn't block. In a web browser the event loop is built into the execution model, so you use it as your game loop via something like requestAnimationFrame().",
             "zh": "如果平台自带图形界面和事件循环，就会同时存在两个应用循环，它们必须和平相处。在 Windows 上，你可以让自己的循环成为唯一的循环，并调用 PeekMessage()——与 GetMessage() 不同，它不会阻塞。而在网页浏览器中，事件循环深植于执行模型之中，你只能把它当作游戏循环来用，例如通过 requestAnimationFrame() 回调你的代码。"
@@ -122,19 +188,34 @@
     },
     {
       "num": "9.6",
-      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "title": {
+        "en": "Sample Code",
+        "zh": "示例代码"
+      },
       "points": [
         {
-          "title": { "en": "Run as fast as you can: no control", "zh": "尽可能快地跑：无法控制速度" },
-          "subsection": { "en": "Run, run as fast as you can", "zh": "跑，能跑多快就跑多快" },
+          "title": {
+            "en": "Run as fast as you can: no control",
+            "zh": "尽可能快地跑：无法控制速度"
+          },
+          "subsection": {
+            "en": "Run, run as fast as you can",
+            "zh": "跑，能跑多快就跑多快"
+          },
           "body": {
             "en": "The simplest loop just calls processInput(), update(), and render() repeatedly. You have no control over how fast it runs: on a fast machine it spins too fast to follow, on a slow machine it crawls, and content-heavy parts of the game actually play slower.",
             "zh": "最简单的循环只是反复调用 processInput()、update() 和 render()。你无法控制它运行的速度：在快的机器上它快得让人看不清，在慢的机器上它慢如蜗牛，而且内容繁重的场景实际上会玩得更慢。"
           }
         },
         {
-          "title": { "en": "Take a nap: sleep to a fixed frame rate", "zh": "小睡一会儿：用 sleep 锁定帧率" },
-          "subsection": { "en": "Take a little nap", "zh": "小睡一会儿" },
+          "title": {
+            "en": "Take a nap: sleep to a fixed frame rate",
+            "zh": "小睡一会儿：用 sleep 锁定帧率"
+          },
+          "subsection": {
+            "en": "Take a little nap",
+            "zh": "小睡一会儿"
+          },
           "body": {
             "en": "For 60 FPS you have about 16 ms per frame (1000 ms / FPS). Process the frame, then sleep until it's time for the next one. This keeps the game from running too fast, but doesn't help if it runs too slowly: if a frame takes longer than 16 ms the game simply slows down.",
             "zh": "要达到 60 FPS，每帧大约有 16 毫秒（1000 毫秒 / FPS）。处理完一帧后，就睡眠到下一帧该开始的时刻。这能防止游戏跑得太快，但对跑得太慢无能为力：如果一帧耗时超过 16 毫秒，游戏就会直接变慢。"
@@ -142,8 +223,14 @@
           "code": "while (true) {\n  double start = getCurrentTime();\n  processInput();\n  update();\n  render();\n\n  sleep(start + MS_PER_FRAME - getCurrentTime());\n}"
         },
         {
-          "title": { "en": "Variable (fluid) time step", "zh": "可变（流动）时间步长" },
-          "subsection": { "en": "One small step, one giant step", "zh": "一小步，一大步" },
+          "title": {
+            "en": "Variable (fluid) time step",
+            "zh": "可变（流动）时间步长"
+          },
+          "subsection": {
+            "en": "One small step, one giant step",
+            "zh": "一小步，一大步"
+          },
           "body": {
             "en": "Choose the time step based on how much real time passed since the last frame, and pass that elapsed time to update(). Longer frames mean bigger steps, so the game always keeps up with real time; a bullet's velocity is scaled by elapsed time and crosses the screen in the same real time whether in twenty small steps or four big ones.",
             "zh": "根据自上一帧以来经过的真实时间来决定时间步长，并把这段经过的时间传给 update()。帧耗时越长，步子就越大，所以游戏总能跟上真实时间；子弹的速度乘以经过的时间，无论是二十个小步还是四个大步，它都会在相同的真实时间内飞过屏幕。"
@@ -151,16 +238,28 @@
           "code": "double lastTime = getCurrentTime();\nwhile (true) {\n  double current = getCurrentTime();\n  double elapsed = current - lastTime;\n  processInput();\n  update(elapsed);\n  render();\n  lastTime = current;\n}"
         },
         {
-          "title": { "en": "Why variable steps are non-deterministic and unstable", "zh": "为什么可变步长不确定且不稳定" },
-          "subsection": { "en": "One small step, one giant step", "zh": "一小步，一大步" },
+          "title": {
+            "en": "Why variable steps are non-deterministic and unstable",
+            "zh": "为什么可变步长不确定且不稳定"
+          },
+          "subsection": {
+            "en": "One small step, one giant step",
+            "zh": "一小步，一大步"
+          },
           "body": {
             "en": "A deterministic program gives the same outputs for the same inputs. With variable steps, a fast machine updates a bullet 50 times while a slow one updates it 5 times, so floating-point rounding errors accumulate differently and the bullet ends up in different places. Physics engines also rely on damping tuned to a particular time step; vary it and the physics can literally blow up.",
             "zh": "确定性的程序在相同输入下总是给出相同输出。使用可变步长时，快机器可能把子弹更新 50 次，而慢机器只更新 5 次，浮点舍入误差的累积因此不同，子弹最终会停在不同的位置。此外，物理引擎依赖针对特定时间步长调校的阻尼（damping）；步长一变，物理模拟就可能真的“爆炸”。"
           }
         },
         {
-          "title": { "en": "Play catch up: fixed update, variable render", "zh": "追赶时间：固定步长更新，可变渲染" },
-          "subsection": { "en": "Play catch up", "zh": "把时间追回来" },
+          "title": {
+            "en": "Play catch up: fixed update, variable render",
+            "zh": "追赶时间：固定步长更新，可变渲染"
+          },
+          "subsection": {
+            "en": "Play catch up",
+            "zh": "把时间追回来"
+          },
           "body": {
             "en": "Rendering captures an instant and doesn't care how much time passed, so update with a fixed time step but render flexibly. Each frame, add the elapsed real time to a lag variable, then run update() in fixed MS_PER_UPDATE steps until the game clock catches up, and render once. The game simulates at a constant rate on any hardware; only the visible output gets choppier on slow machines.",
             "zh": "渲染只捕捉某一瞬间，并不关心过去了多少时间，所以可以用固定时间步长更新，而灵活地安排渲染。每帧把经过的真实时间累加到 lag 变量上，然后以固定的 MS_PER_UPDATE 步长反复调用 update()，直到游戏时钟追上真实时间，再渲染一次。这样游戏在任何硬件上都以恒定速率模拟，只是在慢机器上画面会更卡顿。"
@@ -168,16 +267,28 @@
           "code": "double previous = getCurrentTime();\ndouble lag = 0.0;\nwhile (true) {\n  double current = getCurrentTime();\n  double elapsed = current - previous;\n  previous = current;\n  lag += elapsed;\n\n  processInput();\n\n  while (lag >= MS_PER_UPDATE) {\n    update();\n    lag -= MS_PER_UPDATE;\n  }\n\n  render();\n}"
         },
         {
-          "title": { "en": "Choosing MS_PER_UPDATE", "zh": "如何选择 MS_PER_UPDATE" },
-          "subsection": { "en": "Play catch up", "zh": "把时间追回来" },
+          "title": {
+            "en": "Choosing MS_PER_UPDATE",
+            "zh": "如何选择 MS_PER_UPDATE"
+          },
+          "subsection": {
+            "en": "Play catch up",
+            "zh": "把时间追回来"
+          },
           "body": {
             "en": "MS_PER_UPDATE is no longer the visible frame rate, just the granularity of updates. Make it short (often faster than 60 FPS) for high fidelity, but it must be longer than the time update() takes on the slowest hardware, or the game can never catch up. You can also bail out of the inner loop after a maximum number of iterations so the game slows down rather than locking up.",
             "zh": "MS_PER_UPDATE 不再是可见的帧率，而只是更新的粒度。为了高保真度应让它尽量短（通常快于 60 FPS），但它必须大于最慢硬件上执行一次 update() 所需的时间，否则游戏永远追不上。你还可以让内层循环在达到最大迭代次数后退出，这样游戏只会变慢，而不会彻底卡死。"
           }
         },
         {
-          "title": { "en": "Residual lag and render interpolation", "zh": "残余延迟与渲染插值" },
-          "subsection": { "en": "Stuck in the middle", "zh": "卡在中间" },
+          "title": {
+            "en": "Residual lag and render interpolation",
+            "zh": "残余延迟与渲染插值"
+          },
+          "subsection": {
+            "en": "Stuck in the middle",
+            "zh": "卡在中间"
+          },
           "body": {
             "en": "Since rendering happens at arbitrary times, it often falls between two updates, making motion look stuttery. The leftover lag tells exactly how far into the next update we are, so pass the normalized value lag / MS_PER_UPDATE (0 to just under 1) to render(). The renderer draws objects extrapolated by that fraction; the guess is sometimes wrong, but less noticeable than stutter.",
             "zh": "由于渲染发生在任意时刻，它经常落在两次更新之间，导致运动看起来一顿一顿的。剩余的 lag 恰好表明我们已进入下一次更新多远，所以把归一化后的 lag / MS_PER_UPDATE（从 0 到略小于 1）传给 render()。渲染器按这个比例外推物体的位置来绘制；这种猜测有时会出错，但比卡顿更不易察觉。"
@@ -188,27 +299,48 @@
     },
     {
       "num": "9.7",
-      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "title": {
+        "en": "Design Decisions",
+        "zh": "设计决策"
+      },
       "points": [
         {
-          "title": { "en": "Who owns the loop: platform, engine, or you?", "zh": "谁掌控循环：平台、引擎还是你自己？" },
-          "subsection": { "en": "Do you own the game loop, or does the platform?", "zh": "游戏循环由你掌控，还是由平台掌控？" },
+          "title": {
+            "en": "Who owns the loop: platform, engine, or you?",
+            "zh": "谁掌控循环：平台、引擎还是你自己？"
+          },
+          "subsection": {
+            "en": "Do you own the game loop, or does the platform?",
+            "zh": "游戏循环由你掌控，还是由平台掌控？"
+          },
           "body": {
             "en": "Using the platform's event loop is simple and plays nice with the platform, but you lose control over timing and such loops are often slow and choppy. Using an engine's loop saves you from writing tricky code but costs flexibility. Writing your own gives total control, but you must explicitly hand control to the platform periodically so it doesn't hang.",
             "zh": "使用平台的事件循环简单，且能与平台和谐共处，但你失去了对时间的控制，而且这类循环通常又慢又卡。使用引擎的循环可以省去编写棘手代码的麻烦，但会失去灵活性。自己编写则拥有完全的控制权，但你必须定期把控制权显式交还给平台，避免它挂起。"
           }
         },
         {
-          "title": { "en": "Managing power consumption", "zh": "管理电量消耗" },
-          "subsection": { "en": "How do you manage power consumption?", "zh": "如何管理电量消耗？" },
+          "title": {
+            "en": "Managing power consumption",
+            "zh": "管理电量消耗"
+          },
+          "subsection": {
+            "en": "How do you manage power consumption?",
+            "zh": "如何管理电量消耗？"
+          },
           "body": {
             "en": "On phones and laptops, power matters. Running as fast as possible (typical for PC games) spends all spare cycles on FPS and fidelity but uses as much power as it can. Clamping the frame rate (usually 30 or 60 FPS) sleeps for the rest of each frame, giving a \"good enough\" experience while sparing the battery.",
             "zh": "在手机和笔记本上，电量很重要。尽可能快地运行（PC 游戏的常见做法）会把所有空闲周期都用于提高帧率和画质，但也会尽可能多地耗电。限制帧率（通常为 30 或 60 FPS）则会在每帧剩余的时间里休眠，在提供“足够好”的体验的同时节省电量。"
           }
         },
         {
-          "title": { "en": "Four ways to control gameplay speed", "zh": "控制游戏速度的四种方式" },
-          "subsection": { "en": "How do you control gameplay speed?", "zh": "如何控制游戏速度？" },
+          "title": {
+            "en": "Four ways to control gameplay speed",
+            "zh": "控制游戏速度的四种方式"
+          },
+          "subsection": {
+            "en": "How do you control gameplay speed?",
+            "zh": "如何控制游戏速度？"
+          },
           "body": {
             "en": "Fixed step with no synchronization is simple but speed depends directly on hardware. Fixed step with synchronization is power-friendly and never too fast, but can play too slowly. Variable time step adapts both ways but is non-deterministic and unstable. Fixed update step with variable rendering is the most complex but the most adaptable: it drops rendering frames to keep up and is smoother on fast machines.",
             "zh": "无同步的固定步长很简单，但速度直接受硬件影响。带同步的固定步长省电且不会过快，但可能过慢。可变时间步长能同时适应快与慢，但不确定且不稳定。固定更新步长加可变渲染最复杂，但适应性最强：它通过丢弃渲染帧来跟上进度，并在快机器上提供更流畅的体验。"
@@ -218,10 +350,16 @@
     },
     {
       "num": "9.8",
-      "title": { "en": "See Also", "zh": "参见" },
+      "title": {
+        "en": "See Also",
+        "zh": "参见"
+      },
       "points": [
         {
-          "title": { "en": "Further reading", "zh": "延伸阅读" },
+          "title": {
+            "en": "Further reading",
+            "zh": "延伸阅读"
+          },
           "body": {
             "en": "The classic article on game loops is Glenn Fiedler's \"Fix Your Timestep\", followed closely by Witters' article on game loops. The Unity framework's complex game loop is also documented in a detailed illustration.",
             "zh": "关于游戏循环的经典文章是 Glenn Fiedler 的《Fix Your Timestep》，Witters 关于游戏循环的文章紧随其后。Unity 框架的复杂游戏循环也有一张详细的图解可供参考。"
@@ -231,25 +369,66 @@
     }
   ],
   "terms": [
-    { "en": "game loop", "zh": "游戏循环" },
-    { "en": "batch mode program", "zh": "批处理程序" },
-    { "en": "event loop", "zh": "事件循环" },
-    { "en": "non-blocking input", "zh": "非阻塞输入" },
-    { "en": "tick / frame", "zh": "tick / 帧" },
-    { "en": "frames per second (FPS)", "zh": "每秒帧数（帧率）" },
-    { "en": "time step", "zh": "时间步长" },
-    { "en": "variable (fluid) time step", "zh": "可变（流动）时间步长" },
-    { "en": "deterministic", "zh": "确定性的" },
-    { "en": "lag", "zh": "滞后量（lag）" },
-    { "en": "interpolation / extrapolation", "zh": "插值 / 外推" },
-    { "en": "frame rate clamping", "zh": "帧率限制" }
+    {
+      "en": "game loop",
+      "zh": "游戏循环"
+    },
+    {
+      "en": "batch mode program",
+      "zh": "批处理程序"
+    },
+    {
+      "en": "event loop",
+      "zh": "事件循环"
+    },
+    {
+      "en": "non-blocking input",
+      "zh": "非阻塞输入"
+    },
+    {
+      "en": "tick / frame",
+      "zh": "tick / 帧"
+    },
+    {
+      "en": "frames per second (FPS)",
+      "zh": "每秒帧数（帧率）"
+    },
+    {
+      "en": "time step",
+      "zh": "时间步长"
+    },
+    {
+      "en": "variable (fluid) time step",
+      "zh": "可变（流动）时间步长"
+    },
+    {
+      "en": "deterministic",
+      "zh": "确定性的"
+    },
+    {
+      "en": "lag",
+      "zh": "滞后量（lag）"
+    },
+    {
+      "en": "interpolation / extrapolation",
+      "zh": "插值 / 外推"
+    },
+    {
+      "en": "frame rate clamping",
+      "zh": "帧率限制"
+    }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "9.2",
       "q": "What is the first key thing that distinguishes a game loop from a GUI event loop? 游戏循环与事件循环最关键的区别是什么？",
-      "options": ["它只在空闲事件中更新游戏", "It processes user input but doesn't wait for it（处理输入但不等待输入）", "它每秒只运行一次", "它不需要渲染"],
+      "options": [
+        "它只在空闲事件中更新游戏",
+        "It processes user input but doesn't wait for it（处理输入但不等待输入）",
+        "它每秒只运行一次",
+        "它不需要渲染"
+      ],
       "answer": 1,
       "explain": "Games keep moving even without input. 游戏在没有输入时也要继续运行，所以循环不能阻塞在输入上。"
     },
@@ -257,7 +436,12 @@
       "type": "fill",
       "ref": "9.4",
       "q": "With a library, you own the main loop; an ___ owns the loop and calls into your code.",
-      "answer": ["engine", "game engine", "引擎", "游戏引擎"],
+      "answer": [
+        "engine",
+        "game engine",
+        "引擎",
+        "游戏引擎"
+      ],
       "explain": "作者认为这是“引擎”与“库”的区别。An engine owns the loop."
     },
     {
@@ -271,7 +455,12 @@
       "type": "choice",
       "ref": "9.5",
       "q": "On Windows, which call lets your own game loop handle OS events without blocking? 哪个函数不会阻塞？",
-      "options": ["GetMessage()", "WaitForSingleObject()", "requestAnimationFrame()", "PeekMessage()"],
+      "options": [
+        "GetMessage()",
+        "WaitForSingleObject()",
+        "requestAnimationFrame()",
+        "PeekMessage()"
+      ],
       "answer": 3,
       "explain": "PeekMessage() returns immediately, unlike GetMessage(). requestAnimationFrame() 是浏览器中的回调方式。"
     },
@@ -279,14 +468,25 @@
       "type": "fill",
       "ref": "9.6",
       "q": "To run at 60 FPS, each frame has roughly ___ milliseconds（1000 ms / FPS）。",
-      "answer": ["16", "16ms", "16 ms", "16.67", "16.7"],
+      "answer": [
+        "16",
+        "16ms",
+        "16 ms",
+        "16.67",
+        "16.7"
+      ],
       "explain": "1000 / 60 ≈ 16.7 ms。如果一帧处理超过这个时间，sleep 版本的循环就会变慢。"
     },
     {
       "type": "choice",
       "ref": "9.6",
       "q": "Why does the author reject the variable time step? 作者为什么不推荐可变时间步长？",
-      "options": ["它会让游戏在快机器上跑得太快", "它无法跟上真实时间", "It makes the game non-deterministic and physics unstable（不确定且物理不稳定）", "它需要额外的线程"],
+      "options": [
+        "它会让游戏在快机器上跑得太快",
+        "它无法跟上真实时间",
+        "It makes the game non-deterministic and physics unstable（不确定且物理不稳定）",
+        "它需要额外的线程"
+      ],
       "answer": 2,
       "explain": "Floating-point error accumulates differently on different machines, and damping is tuned to one step size. 浮点误差累积不同，阻尼依赖固定步长。"
     },
@@ -301,7 +501,9 @@
       "type": "fill",
       "ref": "9.6",
       "q": "To smooth motion between updates, the loop calls render(lag / ___), passing a value from 0 to just under 1.",
-      "answer": ["MS_PER_UPDATE"],
+      "answer": [
+        "MS_PER_UPDATE"
+      ],
       "explain": "除以 MS_PER_UPDATE 进行归一化，渲染器无需关心帧率，只需按 0~1 之间的比例外推位置。"
     },
     {
@@ -315,7 +517,12 @@
       "type": "choice",
       "ref": "9.7",
       "q": "Mobile games often clamp the frame rate to 30 or 60 FPS. 主要目的是什么？",
-      "options": ["To save battery by sleeping when the frame's work is done（省电）", "为了让物理更确定", "为了避免与浏览器事件循环冲突", "为了提高画面细节"],
+      "options": [
+        "To save battery by sleeping when the frame's work is done（省电）",
+        "为了让物理更确定",
+        "为了避免与浏览器事件循环冲突",
+        "为了提高画面细节"
+      ],
       "answer": 0,
       "explain": "Clamping gives a \"good enough\" experience and sleeps for the rest of the frame. 限制帧率后，剩余时间休眠以节省电量。"
     },
@@ -325,6 +532,86 @@
       "q": "List one pro and one con of writing your own game loop instead of using the platform's event loop. 用中英文回答。",
       "answer": "EN: Pro — total control, designed for your game's needs. Con — you must interface with the platform, periodically handing control back so the framework doesn't hang. 中：优点是完全掌控、可为游戏量身设计；缺点是必须与平台打交道，定期交还控制权以免框架挂起或混乱。",
       "explain": "对比：使用平台循环简单但失去时间控制；使用引擎循环省事但不够灵活。"
+    },
+    {
+      "type": "scenario",
+      "ref": "9.2",
+      "title": "回合制游戏也需要循环 · A turn-based game that never freezes",
+      "q": "你在用 C++ 自研引擎做一款回合制 tactics RPG。主程序目前是：while (true) { Command c = waitForPlayerCommand(); applyCommand(c); render(); }。QA 反馈：轮到玩家时，待机动画、水面波纹、背景音乐的 crossfade 全都“冻住”，直到按键才动一下；更糟的是 Windows 认为窗口“未响应”。请重新设计主循环，说明游戏逻辑的“回合”与 game loop 的“帧”分别如何推进。",
+      "answer": "问题在于循环阻塞在输入上，就像老式文字冒险或 GUI 事件循环。Game loop 的第一个关键点：处理输入，但不等待输入。改为 while (running) { processInput(); update(); render(); }。processInput() 用非阻塞方式拉取输入，例如 Windows 下用 PeekMessage()（而不是会阻塞的 GetMessage()）并分派系统消息，窗口因此不会“未响应”。回合逻辑放进 TurnManager，作为一个状态机由 update() 驱动：状态为 WaitingForPlayer 时，如果本帧没有命令就什么都不做，但动画、粒子、音频系统照常每帧 update。只有 processInput() 收到玩家命令后，TurnManager 才执行该命令并切换到 EnemyTurn。所以 game state 按回合前进，而 visual / audio state 每帧都前进。",
+      "code": "while (running) {\n  MSG msg;\n  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {  // non-blocking\n    TranslateMessage(&msg);\n    DispatchMessage(&msg);\n  }\n  input.poll();                       // processInput()\n\n  turnManager.update(input);          // only advances on a command\n  animations.update();                // always keeps running\n  audio.update();\n\n  render();\n}",
+      "checklist": [
+        "指出阻塞式输入（waitFor... / GetMessage）是根因",
+        "循环 processInput → update → render，输入处理 non-blocking",
+        "回合逻辑由状态机驱动，等待时不阻塞循环",
+        "动画、音频每帧更新，与回合推进解耦",
+        "提到需要处理平台消息（PeekMessage）"
+      ],
+      "explain": "§9.2 指出游戏“keep moving even when the user isn't providing input”，循环必须“processes user input, but doesn't wait for it”；§9.4 专门提到回合制游戏的动画与音乐也要持续运行，§9.5 提到 PeekMessage()。"
+    },
+    {
+      "type": "scenario",
+      "ref": "9.5",
+      "title": "网页游戏的循环归谁 · The browser owns the loop",
+      "q": "团队要把一款 HTML5 跑酷游戏移植到浏览器。同事直接照搬 PC 版的 while (true) { processInput(); update(); render(); }，结果页面卡死、Tab 无响应。修改后改用 setInterval(tick, 16)，又出现了抖动，而且切换到后台 Tab 时角色会“瞬移”。请根据书中对平台事件循环的讨论，设计浏览器中的主循环，并处理后台切换带来的超大 elapsed。",
+      "answer": "浏览器的 event loop 内建在执行模型里，JS 单线程，while(true) 永远不交还控制权，页面就卡死。书中的结论是：在 Web 上你无法拥有经典 game loop，平台的事件循环当主循环，用 requestAnimationFrame() 回调驱动每一帧。setInterval 与显示刷新不同步，所以会抖动。设计：frame(timestamp) 中计算 elapsed，累加到 lag，按固定 MS_PER_UPDATE 跑若干次 update()，然后用 lag / MS_PER_UPDATE 进行插值渲染，最后再次调用 requestAnimationFrame(frame)。后台 Tab 时 rAF 会暂停或被大幅节流，回到前台时 elapsed 可能是几秒甚至几分钟。若照单全收，update 循环会一口气追几百步（spiral of death）。所以要把 elapsed clamp 到一个上限（例如 250ms），并限制每帧最多 update 的次数；或者在 visibilitychange 时暂停游戏。代价是：失去对时机的控制，帧调度由浏览器决定。",
+      "code": "const MS_PER_UPDATE = 1000 / 60;\nconst MAX_ELAPSED = 250;\nlet previous = performance.now();\nlet lag = 0;\n\nfunction frame(now) {\n  let elapsed = Math.min(now - previous, MAX_ELAPSED); // tab was hidden?\n  previous = now;\n  lag += elapsed;\n\n  processInput();\n  while (lag >= MS_PER_UPDATE) {\n    update();\n    lag -= MS_PER_UPDATE;\n  }\n  render(lag / MS_PER_UPDATE);\n  requestAnimationFrame(frame);   // hand control back to the browser\n}\nrequestAnimationFrame(frame);",
+      "checklist": [
+        "说明浏览器的 event loop 不能被 while(true) 取代，必须交还控制权",
+        "使用 requestAnimationFrame 回调作为每帧入口",
+        "在回调内部仍可使用 fixed update + lag 累积",
+        "处理后台恢复后的超大 elapsed：clamp 或限制追帧次数 / 暂停",
+        "承认代价：timing 由平台控制 (you lose control over timing)"
+      ],
+      "explain": "§9.5 “If you're targeting a web browser, the event loop ... will run the show ... You'll call something like requestAnimationFrame()”；§9.7 列出 “Use the platform's event loop” 的利弊。clamp elapsed 对应书中提到的“bail after a maximum number of iterations”，后台 Tab 节流属于书外的平台细节。"
+    },
+    {
+      "type": "scenario",
+      "ref": "9.6",
+      "title": "联网射击游戏的子弹分歧 · Divergent bullets in a networked shooter",
+      "q": "一款 2 人 P2P 合作射击游戏使用 lockstep 同步：双方只交换输入，各自运行模拟。主循环是 variable time step：update(elapsed)，所有速度都乘以 elapsed。测试发现：高配机器跑 144 FPS，低配机器只有 25 FPS，几分钟后两边同一颗子弹的位置不同，命中判定出现分歧；低配机上偶尔还有箱子被物理引擎“弹飞上天”。请分析原因并重新设计主循环。",
+      "answer": "原因：variable time step 让模拟变得 non-deterministic 且 unstable。(1) 浮点舍入误差：高配机一秒内对子弹积分 144 次，低配机只有 25 次，误差的累积方式不同，同一颗子弹的位置因此分叉；lockstep 依赖“相同输入 → 相同输出”，这个前提被破坏了。(2) 物理引擎的 damping 是按特定步长调校的，低配机的大步长让积分不稳定，物体就被“弹飞”。改为 fixed update time step, variable rendering：用 lag 累计真实时间，以固定 MS_PER_UPDATE（例如 1000/60 ms）反复调用 update()，两端每一步的 dt 完全相同，步数只由游戏时间决定。render() 与模拟解耦，慢机器只是少画几帧。另外要设置每帧最大 update 次数，防止慢机永远追不上。完全确定性还需要固定随机种子、一致的浮点设置等，这超出了本章范围。",
+      "code": "const double MS_PER_UPDATE = 1000.0 / 60.0;\nconst int MAX_STEPS = 5;\n\ndouble previous = getCurrentTime();\ndouble lag = 0.0;\nwhile (true) {\n  double current = getCurrentTime();\n  lag += current - previous;\n  previous = current;\n\n  processInput();\n  int steps = 0;\n  while (lag >= MS_PER_UPDATE && steps++ < MAX_STEPS) {\n    update();               // fixed dt: same on every machine\n    lag -= MS_PER_UPDATE;\n  }\n  render(lag / MS_PER_UPDATE);\n}",
+      "checklist": [
+        "指出 variable time step 导致 non-deterministic：不同步数累积不同的浮点误差",
+        "指出物理 damping 按固定步长调校，大步长导致不稳定 / blow up",
+        "改用 fixed update time step + variable rendering（lag 累积）",
+        "加入最大追帧次数保护",
+        "说明 lockstep 依赖确定性"
+      ],
+      "explain": "§9.6 “One small step, one giant step” 用 Fred 和 George 的联网例子说明 variable time step “made the game non-deterministic and unstable”，并提到 damping“carefully tuned to a certain time step”。lockstep、随机种子等属于书外的实践延伸。"
+    },
+    {
+      "type": "scenario",
+      "ref": "9.6",
+      "title": "高刷屏上的卡顿 · Stutter on a 144Hz monitor",
+      "q": "一款 2D 平台跳跃游戏采用 fixed update（60 次/秒）+ variable rendering。在 144Hz 显示器上，玩家反馈横向卷轴“一顿一顿”，尽管 FPS 计数显示 144。你发现 render() 直接使用实体的 position 绘制。请解释为何高刷新率反而显得卡顿，设计 render(alpha) 的插值方案，并讨论“extrapolation 猜错”的问题，以及另一种常见做法的取舍。",
+      "answer": "原因是 residual lag：模拟每 16.7ms 才前进一次，而渲染每 6.9ms 一次，多数帧渲染的是同一个模拟状态，画面在“重复、重复、跳一步”之间交替，于是出现 judder。书中的方案：循环结束时 lag 中剩下的部分就是“已经进入下一步多远”，调用 render(lag / MS_PER_UPDATE)，alpha 在 [0, 1) 之间。renderer 根据速度向前外推：drawPos = pos + velocity * alpha * stepTime。这样相机和角色都能平滑移动。风险：外推只是猜测，下一步可能撞墙或急停，渲染位置会略微越界然后被拉回；书中认为这种修正通常比卡顿更不明显。工程上另一种常见做法是 interpolation：每个实体保存 previousPos，绘制 lerp(previousPos, pos, alpha)。永远不会猜错，代价是画面固定落后一个 update 步（约 16ms 的输入延迟）以及每个实体多存一份状态。",
+      "code": "void Renderer::render(double alpha) {   // alpha = lag / MS_PER_UPDATE\n  for (Entity* e : world.entities()) {\n    // Book's approach: extrapolate along current velocity.\n    Vec2 drawPos = e->pos + e->velocity * (alpha * STEP_SECONDS);\n\n    // Alternative: interpolate between the last two simulated states.\n    // Vec2 drawPos = lerp(e->prevPos, e->pos, alpha);\n\n    drawSprite(e->sprite, drawPos);\n  }\n}",
+      "checklist": [
+        "说明 update 频率与 render 频率不一致导致 judder（residual lag）",
+        "用 lag / MS_PER_UPDATE 归一化为 0 ~ 1 的 alpha 传给 render",
+        "根据 velocity 外推绘制位置",
+        "指出外推可能猜错（撞墙），但修正通常不明显",
+        "能比较 interpolation（prevPos）方案：不会猜错，但多一步延迟"
+      ],
+      "explain": "§9.6 “Stuck in the middle”：“we actually know exactly how far between update frames we are when we render: it's stored in lag”，并承认“the extrapolation is a bit of a guess”。prevPos 插值方案来自书中引用的 Fix Your Timestep 一类实践，不是本章的原始方案。"
+    },
+    {
+      "type": "scenario",
+      "ref": "9.7",
+      "title": "手游的耗电与帧率 · Battery vs. frame rate on mobile",
+      "q": "一款休闲三消手游上线后，差评集中在“玩 20 分钟手机发烫、掉电 30%”。Profiler 显示：游戏在静止的选关界面也以 120 FPS 满负荷运行。产品要求：对局中保持流畅，平板高刷设备也要好看，但必须大幅降低耗电。请根据 Design Decisions 中关于 power consumption 与 gameplay speed 的选项，设计这款游戏的 game loop 策略。",
+      "answer": "当前策略是 run as fast as it can：剩余的 CPU 全部花在提高 FPS 上，适合插电的 PC，不适合手机。改为 clamp the frame rate：设定上限（对局 60 FPS，静止菜单可以降到 30 FPS，甚至在没有动画时只在输入或事件发生时重绘），一帧做完后 sleep 掉剩余时间，让 CPU/GPU 休眠。时间推进上，三消逻辑简单，使用 fixed time step with synchronization 就足够：固定步长 + 帧末 sleep 同步，最简单也最省电。缺点是机器太慢时游戏整体变慢；对三消来说可以接受。若要兼顾高刷平板的流畅度，可以采用 fixed update + variable rendering，并把渲染上限设为设备刷新率与电量模式的较小值。实际在移动平台上，一般通过平台的 display link / vsync 回调来限帧，而不是自己调用 sleep()。",
+      "code": "const double TARGET_MS = inMenu ? 1000.0 / 30 : 1000.0 / 60;\n\nwhile (running) {\n  double start = getCurrentTime();\n  processInput();\n  update();\n  if (sceneIsDirty()) render();       // idle screen: skip redraws\n  double remaining = start + TARGET_MS - getCurrentTime();\n  if (remaining > 0) sleep(remaining); // let the CPU rest -> save battery\n}",
+      "checklist": [
+        "识别当前是 run as fast as it can，耗电高",
+        "采用 clamp the frame rate：设定 FPS 上限，剩余时间 sleep",
+        "按场景动态调整上限（菜单降帧 / 无变化时不重绘）",
+        "说明 fixed step with synchronization 的取舍：省电、简单，但慢机会变慢",
+        "提到平台 vsync / display link 作为同步手段"
+      ],
+      "explain": "§9.7 “How do you manage power consumption?”：手游通常“set an upper limit on the frame rate ... it will just sleep for the rest”；“Fixed time step with synchronization”被描述为 power-friendly。按场景降帧和 display link 属于书外的工程实践。"
     }
   ]
 }

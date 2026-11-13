@@ -1,6 +1,9 @@
 {
   "id": "component",
-  "title": { "en": "Component", "zh": "组件" },
+  "title": {
+    "en": "Component",
+    "zh": "组件"
+  },
   "summary": {
     "en": "Component lets a single entity span multiple domains (input, physics, graphics, sound...) without coupling those domains to each other. Each domain's code lives in its own component class, and the entity shrinks to a container of components that can be mixed and matched like dishes ordered à la carte.",
     "zh": "组件模式让一个实体可以横跨多个领域（输入、物理、图形、声音……），而这些领域彼此之间不产生耦合。每个领域的代码放在各自的组件类中，实体则退化为一个组件容器，可以像单点菜品一样自由搭配组件。"
@@ -8,10 +11,16 @@
   "sections": [
     {
       "num": "14.1",
-      "title": { "en": "Intent", "zh": "意图" },
+      "title": {
+        "en": "Intent",
+        "zh": "意图"
+      },
       "points": [
         {
-          "title": { "en": "Span domains without coupling them", "zh": "横跨多个领域而不耦合" },
+          "title": {
+            "en": "Span domains without coupling them",
+            "zh": "横跨多个领域而不耦合"
+          },
           "body": {
             "en": "The intent of Component is to allow a single entity to span multiple domains without coupling the domains to each other.",
             "zh": "组件模式的意图是：允许单个实体横跨多个领域，同时不让这些领域彼此耦合。"
@@ -21,18 +30,30 @@
     },
     {
       "num": "14.2",
-      "title": { "en": "Motivation", "zh": "动机" },
+      "title": {
+        "en": "Motivation",
+        "zh": "动机"
+      },
       "points": [
         {
-          "title": { "en": "The 5,000-line dumping ground", "zh": "五千行的“垃圾场”类" },
+          "title": {
+            "en": "The 5,000-line dumping ground",
+            "zh": "五千行的“垃圾场”类"
+          },
           "body": {
             "en": "Our platformer hero Bjørn needs input, physics, collision, animation, rendering, and sound. Software Architecture 101 says domains should stay isolated, but cramming them all into one class leads to a huge file only the bravest dare touch, where trivial changes have far-reaching effects and bugs accumulate faster than features.",
             "zh": "我们平台游戏的主角 Bjørn 需要处理输入、物理、碰撞、动画、渲染和声音。软件架构的基本原则告诉我们，不同领域应该彼此隔离，但把它们全塞进一个类里，就会得到一个巨大的源文件，只有最勇敢的程序员才敢碰；任何看似微小的改动都可能牵一发而动全身，bug 积累得比功能还快。"
           }
         },
         {
-          "title": { "en": "Coupling and concurrency", "zh": "耦合与并发" },
-          "subsection": { "en": "The Gordian knot", "zh": "戈尔迪之结" },
+          "title": {
+            "en": "Coupling and concurrency",
+            "zh": "耦合与并发"
+          },
+          "subsection": {
+            "en": "The Gordian knot",
+            "zh": "戈尔迪之结"
+          },
           "body": {
             "en": "Worse than size is coupling: code like \"if colliding with floor and not invisible, play a sound\" forces anyone editing it to understand physics, graphics, and sound. On multi-core hardware, games often split threads along domain boundaries, so a single class whose methods must be called from different threads invites deadlocks and other concurrency bugs.",
             "zh": "比体积更糟糕的是耦合：像“如果碰到地面且不是隐身状态，就播放声音”这样的代码，要求修改它的人必须同时懂物理、图形和声音。在多核硬件上，游戏常按领域边界划分线程，一个类的不同方法必须从不同线程调用，这无异于在招惹死锁等并发 bug。"
@@ -40,24 +61,42 @@
           "code": "if (collidingWithFloor() && (getRenderState() != INVISIBLE)) {\n  playSound(HIT_FLOOR);\n}"
         },
         {
-          "title": { "en": "Slicing along domain boundaries", "zh": "沿领域边界切分" },
-          "subsection": { "en": "Cutting the knot", "zh": "斩断死结" },
+          "title": {
+            "en": "Slicing along domain boundaries",
+            "zh": "沿领域边界切分"
+          },
+          "subsection": {
+            "en": "Cutting the knot",
+            "zh": "斩断死结"
+          },
           "body": {
             "en": "Like Alexander the Great, we cut the knot: slice the monolithic Bjorn class along domain boundaries, e.g. moving input handling into an InputComponent that Bjorn owns. Repeating this for each domain leaves Bjorn as a thin shell binding the components together, and the components don't know about each other except where they really need to talk.",
             "zh": "像亚历山大大帝那样一剑斩断死结：沿领域边界把庞大的 Bjorn 类切开，例如把输入处理移到 Bjorn 拥有的 InputComponent 中。对每个领域重复这一过程，Bjorn 就只剩下一个把组件绑在一起的薄壳；组件之间互不了解，只在确实需要交互的地方才彼此通信。"
           }
         },
         {
-          "title": { "en": "Composition over inheritance", "zh": "组合优于继承" },
-          "subsection": { "en": "Tying back together", "zh": "重新组合起来" },
+          "title": {
+            "en": "Composition over inheritance",
+            "zh": "组合优于继承"
+          },
+          "subsection": {
+            "en": "Tying back together",
+            "zh": "重新组合起来"
+          },
           "body": {
             "en": "Components are reusable. Consider decorations (visible, not interactive), props (visible and interactive), and zones (invisible but interactive). An inheritance hierarchy can't reuse both collision and rendering for Prop without the \"Deadly Diamond\" of multiple inheritance, or duplicating code, or bloating GameObject. With components, a decoration is a GameObject with a GraphicsComponent, a zone has a PhysicsComponent, and a prop has both.",
             "zh": "组件是可复用的。考虑装饰物（可见但不可交互）、道具（可见且可交互）和区域（不可见但可交互）。用继承层级的话，Prop 想同时复用碰撞和渲染代码，就会陷入多继承的“致命菱形”，否则只能复制代码，或者把一切都塞进 GameObject。用组件的话，装饰物就是带 GraphicsComponent 的 GameObject，区域带 PhysicsComponent，道具两者都有。"
           }
         },
         {
-          "title": { "en": "À la carte, plug-and-play", "zh": "单点菜品，即插即用" },
-          "subsection": { "en": "Tying back together", "zh": "重新组合起来" },
+          "title": {
+            "en": "À la carte, plug-and-play",
+            "zh": "单点菜品，即插即用"
+          },
+          "subsection": {
+            "en": "Tying back together",
+            "zh": "重新组合起来"
+          },
           "body": {
             "en": "Monolithic classes are like a menu of combos: you need a class for every combination of features. Components are à la carte dining — each entity picks just the dishes it wants. They are plug-and-play for objects, building rich entities by plugging reusable components into sockets.",
             "zh": "单一庞大的类就像只能点套餐的菜单：每一种功能组合都需要一个单独的类。组件则像单点：每个实体只挑选自己想要的菜。组件就是对象的“即插即用”，把可复用的组件插到实体的插槽上，就能构建出行为丰富的复杂实体。"
@@ -67,17 +106,26 @@
     },
     {
       "num": "14.3",
-      "title": { "en": "The Pattern", "zh": "模式" },
+      "title": {
+        "en": "The Pattern",
+        "zh": "模式"
+      },
       "points": [
         {
-          "title": { "en": "Entity as a container of components", "zh": "实体是组件的容器" },
+          "title": {
+            "en": "Entity as a container of components",
+            "zh": "实体是组件的容器"
+          },
           "body": {
             "en": "A single entity spans multiple domains. To keep the domains isolated, the code for each is placed in its own component class, and the entity is reduced to a simple container of components.",
             "zh": "单个实体横跨多个领域。为了保持领域间的隔离，每个领域的代码都放在各自的组件类中，实体则简化为一个单纯的组件容器。"
           }
         },
         {
-          "title": { "en": "An overloaded name", "zh": "一个含义过多的名字" },
+          "title": {
+            "en": "An overloaded name",
+            "zh": "一个含义过多的名字"
+          },
           "body": {
             "en": "\"Component\", like \"Object\", means everything and nothing; business software has an unrelated Component pattern for decoupled web services. The author kept the name because patterns document existing practice and engines like XNA and Delta3D already use it.",
             "zh": "“组件”和“对象”一样，在编程中什么都能指，又什么都不特指；商业软件中就有一个毫不相干的“组件”模式，指通过网络通信的解耦服务。作者沿用这个名字，是因为设计模式记录的是现有实践，而 XNA、Delta3D 等引擎早已这样称呼它。"
@@ -87,10 +135,16 @@
     },
     {
       "num": "14.4",
-      "title": { "en": "When to Use It", "zh": "何时使用" },
+      "title": {
+        "en": "When to Use It",
+        "zh": "何时使用"
+      },
       "points": [
         {
-          "title": { "en": "Three signs", "zh": "三个信号" },
+          "title": {
+            "en": "Three signs",
+            "zh": "三个信号"
+          },
           "body": {
             "en": "Components are most common in the core class that defines game entities. Use them when a class touches multiple domains you want decoupled, when a class is getting massive and hard to work with, or when you want objects sharing different capabilities but inheritance can't pick the reused parts precisely enough.",
             "zh": "组件最常见于定义游戏实体的核心类中。以下情况适合使用：一个类涉及多个希望彼此解耦的领域；一个类变得庞大且难以维护；你想定义多种共享不同能力的对象，但继承无法足够精确地挑选要复用的部分。"
@@ -100,17 +154,26 @@
     },
     {
       "num": "14.5",
-      "title": { "en": "Keep in Mind", "zh": "注意事项" },
+      "title": {
+        "en": "Keep in Mind",
+        "zh": "注意事项"
+      },
       "points": [
         {
-          "title": { "en": "Added complexity", "zh": "增加的复杂度" },
+          "title": {
+            "en": "Added complexity",
+            "zh": "增加的复杂度"
+          },
           "body": {
             "en": "Each conceptual object becomes a cluster of objects that must be instantiated, initialized, and wired together; communication between components gets harder and memory layout is more complex. For a large codebase this may be worth it, but beware of over-engineering a solution to a non-existent problem.",
             "zh": "每个概念上的对象都变成一组需要实例化、初始化并正确连接的对象；组件之间的通信更困难，内存布局的控制也更复杂。对于大型代码库，这样的复杂度也许值得，但要小心不要为一个并不存在的问题过度设计“解决方案”。"
           }
         },
         {
-          "title": { "en": "Indirection vs. data locality", "zh": "间接访问与数据局部性" },
+          "title": {
+            "en": "Indirection vs. data locality",
+            "zh": "间接访问与数据局部性"
+          },
           "body": {
             "en": "You often hop through a level of indirection — get the component, then act — which can hurt performance in tight inner loops. On the flip side, components make it easier to apply Data Locality and can improve cache coherence.",
             "zh": "使用组件时常常需要多经过一层间接——先取得组件，再进行操作——在性能关键的内层循环中，这种指针跳转可能拖慢速度。但反过来看，组件也让数据局部性（Data Locality）模式更容易应用，往往能提升缓存一致性。"
@@ -120,19 +183,34 @@
     },
     {
       "num": "14.6",
-      "title": { "en": "Sample Code", "zh": "示例代码" },
+      "title": {
+        "en": "Sample Code",
+        "zh": "示例代码"
+      },
       "points": [
         {
-          "title": { "en": "The monolithic update()", "zh": "庞大的 update()" },
-          "subsection": { "en": "A monolithic class", "zh": "单一庞大的类" },
+          "title": {
+            "en": "The monolithic update()",
+            "zh": "庞大的 update()"
+          },
+          "subsection": {
+            "en": "A monolithic class",
+            "zh": "单一庞大的类"
+          },
           "body": {
             "en": "The monolithic Bjorn::update() reads the joystick to adjust velocity, moves and resolves collisions through the world, then picks and draws a sprite. Even this trivial version is a single function several coders would have to work in. (Also: avoid real character names in code — marketing may rename him \"Sven\" days before ship.)",
             "zh": "单一庞大的 Bjorn::update() 先读取摇杆调整速度，再通过世界对象移动并处理碰撞，最后选出并绘制精灵。即使这个极简版本，也已经是好几位程序员都得进去修改的同一个函数。（另外：别在代码中使用角色的真名——市场部可能在发售前几天把他改名为“Sven”。）"
           }
         },
         {
-          "title": { "en": "Splitting out input", "zh": "拆出输入组件" },
-          "subsection": { "en": "Splitting out a domain", "zh": "拆分出一个领域" },
+          "title": {
+            "en": "Splitting out input",
+            "zh": "拆出输入组件"
+          },
+          "subsection": {
+            "en": "Splitting out a domain",
+            "zh": "拆分出一个领域"
+          },
           "body": {
             "en": "The input-handling code moves into an InputComponent whose update() takes the Bjorn and adjusts its velocity. Bjorn owns an InputComponent and delegates to it, so Bjorn no longer references Controller at all.",
             "zh": "输入处理代码被移入 InputComponent，它的 update() 接收 Bjorn 并调整其速度。Bjorn 拥有一个 InputComponent 并委托给它，于是 Bjorn 不再引用 Controller。"
@@ -140,8 +218,14 @@
           "code": "class InputComponent {\npublic:\n  void update(Bjorn& bjorn) {\n    switch (Controller::getJoystickDirection()) {\n      case DIR_LEFT:\n        bjorn.velocity -= WALK_ACCELERATION;\n        break;\n      case DIR_RIGHT:\n        bjorn.velocity += WALK_ACCELERATION;\n        break;\n    }\n  }\n\nprivate:\n  static const int WALK_ACCELERATION = 1;\n};"
         },
         {
-          "title": { "en": "What's left: components plus shared state", "zh": "剩下的：组件加共享状态" },
-          "subsection": { "en": "Splitting out the rest", "zh": "拆分其余部分" },
+          "title": {
+            "en": "What's left: components plus shared state",
+            "zh": "剩下的：组件加共享状态"
+          },
+          "subsection": {
+            "en": "Splitting out the rest",
+            "zh": "拆分其余部分"
+          },
           "body": {
             "en": "Physics (with its Volume) and graphics (with its sprites) move out too, taking their data with them. Bjorn now just holds its components and the state shared across domains. Position and velocity stay because they are \"pan-domain\" state used by nearly every component, and because they let components communicate without being coupled to each other.",
             "zh": "物理（连同它的 Volume）和图形（连同它的精灵）也被移出，各自带走了自己的数据。Bjorn 现在只持有组件以及跨领域共享的状态。位置和速度之所以留下，一是因为它们是几乎所有组件都要用的“泛领域”状态，二是因为它们让组件能够在互不耦合的情况下通信。"
@@ -149,8 +233,14 @@
           "code": "class Bjorn {\npublic:\n  int velocity;\n  int x, y;\n\n  void update(World& world, Graphics& graphics) {\n    input_.update(*this);\n    physics_.update(*this, world);\n    graphics_.update(*this, graphics);\n  }\n\nprivate:\n  InputComponent input_;\n  PhysicsComponent physics_;\n  GraphicsComponent graphics_;\n};"
         },
         {
-          "title": { "en": "Robo-Bjørn: swapping input for demo mode", "zh": "机器人 Bjørn：替换输入实现演示模式" },
-          "subsection": { "en": "Robo-Bjørn", "zh": "机器人 Bjørn" },
+          "title": {
+            "en": "Robo-Bjørn: swapping input for demo mode",
+            "zh": "机器人 Bjørn：替换输入实现演示模式"
+          },
+          "subsection": {
+            "en": "Robo-Bjørn",
+            "zh": "机器人 Bjørn"
+          },
           "body": {
             "en": "Making InputComponent an abstract interface, with PlayerInputComponent as one implementation, lets Bjorn take any input component via its constructor, at the cost of a virtual call. Consoles require a demo mode, so a DemoInputComponent with AI gives a computer-controlled Bjørn while physics and graphics don't even notice the difference.",
             "zh": "把 InputComponent 改成抽象接口，PlayerInputComponent 作为其中一种实现，Bjorn 就可以通过构造函数接收任意输入组件，代价是多了一次虚函数调用。主机游戏通常要求有演示模式，于是一个带 AI 的 DemoInputComponent 就能让电脑操控 Bjørn，而物理和图形组件根本察觉不到差别。"
@@ -158,8 +248,14 @@
           "code": "Bjorn* bjorn = new Bjorn(new PlayerInputComponent());\n\n// Demo mode:\nBjorn* bjorn = new Bjorn(new DemoInputComponent());"
         },
         {
-          "title": { "en": "No Bjørn at all: a generic GameObject", "zh": "根本没有 Bjørn：通用的 GameObject" },
-          "subsection": { "en": "No Bjørn at all?", "zh": "根本不需要 Bjørn？" },
+          "title": {
+            "en": "No Bjørn at all: a generic GameObject",
+            "zh": "根本没有 Bjørn：通用的 GameObject"
+          },
+          "subsection": {
+            "en": "No Bjørn at all?",
+            "zh": "根本不需要 Bjørn？"
+          },
           "body": {
             "en": "Once all components are interfaces, nothing about Bjorn is \"Bjørn\"; it becomes a generic GameObject (a component bag). A factory function such as createBjorn() (a Factory Method) wires up the right concrete components. Entity component systems go further: an entity is just an ID, and separate component collections know which ID they belong to.",
             "zh": "当所有组件都变成接口后，Bjorn 身上已经没有任何“Bjørn”特有的东西了，它变成了通用的 GameObject（一个组件袋）。像 createBjorn() 这样的工厂函数（工厂方法模式）负责装配合适的具体组件。实体组件系统（ECS）走得更远：实体只是一个 ID，各组件存放在独立的集合中，并记录自己所属实体的 ID。"
@@ -170,42 +266,72 @@
     },
     {
       "num": "14.7",
-      "title": { "en": "Design Decisions", "zh": "设计决策" },
+      "title": {
+        "en": "Design Decisions",
+        "zh": "设计决策"
+      },
       "points": [
         {
-          "title": { "en": "Which components do I need?", "zh": "我需要哪些组件？" },
+          "title": {
+            "en": "Which components do I need?",
+            "zh": "我需要哪些组件？"
+          },
           "body": {
             "en": "The most important question is what set of components you need, which depends on your game's needs and genre. The bigger and more complex the engine, the more finely you'll want to slice components.",
             "zh": "最重要的设计问题是：我需要哪些组件？答案取决于游戏的需求和类型。引擎越庞大复杂，组件往往切分得越细。"
           }
         },
         {
-          "title": { "en": "Who creates the components?", "zh": "由谁创建组件？" },
-          "subsection": { "en": "How does the object get its components?", "zh": "对象如何获得它的组件？" },
+          "title": {
+            "en": "Who creates the components?",
+            "zh": "由谁创建组件？"
+          },
+          "subsection": {
+            "en": "How does the object get its components?",
+            "zh": "对象如何获得它的组件？"
+          },
           "body": {
             "en": "If the object creates its own components, it always has what it needs, but it's harder to reconfigure and loses the recombination flexibility. If outside code provides them, the object becomes a flexible, reusable generic container and can be decoupled from concrete component types, knowing only the interfaces.",
             "zh": "如果对象自己创建组件，就能保证它总有所需的组件，但难以重新配置，失去了重新组合组件的灵活性。如果由外部代码提供组件，对象就变得灵活，成为可反复复用的通用容器，并且只依赖组件接口，与具体组件类型解耦。"
           }
         },
         {
-          "title": { "en": "Communicating via shared container state", "zh": "通过容器的共享状态通信" },
-          "subsection": { "en": "How do components communicate with each other?", "zh": "组件之间如何通信？" },
+          "title": {
+            "en": "Communicating via shared container state",
+            "zh": "通过容器的共享状态通信"
+          },
+          "subsection": {
+            "en": "How do components communicate with each other?",
+            "zh": "组件之间如何通信？"
+          },
           "body": {
             "en": "Components can communicate by modifying the container's state, staying fully decoupled. But shared data must be pushed up into the container (muddying it and wasting memory, e.g. invisible objects carrying render data), and communication becomes implicit and dependent on update order — updating graphics before physics would draw last frame's position.",
             "zh": "组件可以通过修改容器对象的状态来通信，从而保持完全解耦。但需要共享的数据必须上移到容器中（让容器变得混乱并浪费内存，例如不可见对象也要背着渲染数据），而且通信变得隐式，并依赖于组件的更新顺序——如果先更新图形再更新物理，就会把 Bjørn 画在上一帧的位置。"
           }
         },
         {
-          "title": { "en": "Direct references between components", "zh": "组件之间直接引用" },
-          "subsection": { "en": "How do components communicate with each other?", "zh": "组件之间如何通信？" },
+          "title": {
+            "en": "Direct references between components",
+            "zh": "组件之间直接引用"
+          },
+          "subsection": {
+            "en": "How do components communicate with each other?",
+            "zh": "组件之间如何通信？"
+          },
           "body": {
             "en": "Components that need to talk can hold direct references, e.g. the graphics component asks the physics component isOnGround() to choose a jump sprite. It's simple and fast, but those two components become tightly coupled — a step back toward the monolith, though limited to the pairs that interact.",
             "zh": "需要通信的组件可以直接持有彼此的引用，例如图形组件询问物理组件 isOnGround() 来决定是否使用跳跃精灵。这种方式简单又快，但这两个组件会紧密耦合——相当于向庞大单类倒退了一步，不过耦合只限于确实需要交互的那几对组件。"
           }
         },
         {
-          "title": { "en": "Sending messages through the container", "zh": "通过容器发送消息" },
-          "subsection": { "en": "How do components communicate with each other?", "zh": "组件之间如何通信？" },
+          "title": {
+            "en": "Sending messages through the container",
+            "zh": "通过容器发送消息"
+          },
+          "subsection": {
+            "en": "How do components communicate with each other?",
+            "zh": "组件之间如何通信？"
+          },
           "body": {
             "en": "The most complex option: the container broadcasts messages to every component's receive() (including the sender — beware feedback loops). Siblings are coupled only by message values, which is the Mediator pattern with the container as mediator, and the container stays simple. In practice you use all three: shared state for basics like position, direct references for closely related pairs, messaging for fire-and-forget things like collision sounds.",
             "zh": "最复杂的选择：容器把消息广播给每个组件的 receive()（包括发送者自己——小心陷入反馈循环）。兄弟组件之间只通过消息值耦合，这就是以容器为中介者的中介者（Mediator）模式，容器本身也保持简单。实践中三种方式都会用到：共享状态用于位置等基础信息，直接引用用于关系紧密的组件对，消息用于“发出即不管”的通信，例如碰撞时播放声音。"
@@ -216,17 +342,26 @@
     },
     {
       "num": "14.8",
-      "title": { "en": "See Also", "zh": "参考" },
+      "title": {
+        "en": "See Also",
+        "zh": "参考"
+      },
       "points": [
         {
-          "title": { "en": "Unity, Delta3D, XNA", "zh": "Unity、Delta3D 与 XNA" },
+          "title": {
+            "en": "Unity, Delta3D, XNA",
+            "zh": "Unity、Delta3D 与 XNA"
+          },
           "body": {
             "en": "Unity's core GameObject is built entirely around components; Delta3D has GameActor with ActorComponent; XNA's Game class owns a collection of GameComponents, applying the pattern at the level of the main game object rather than individual entities.",
             "zh": "Unity 的核心 GameObject 类完全围绕组件设计；Delta3D 有 GameActor 和 ActorComponent；XNA 的 Game 类拥有一组 GameComponent，它是在整个游戏主对象的层面而非单个实体层面应用该模式。"
           }
         },
         {
-          "title": { "en": "Component vs. Strategy", "zh": "组件与策略模式" },
+          "title": {
+            "en": "Component vs. Strategy",
+            "zh": "组件与策略模式"
+          },
           "body": {
             "en": "Like Strategy, Component delegates part of an object's behavior to a subordinate object. But a strategy is usually stateless — it defines how an object behaves, not what it is — while components often hold state that defines the object's identity. A stateless component shared across containers really behaves like a strategy.",
             "zh": "与策略（Strategy）模式一样，组件也把对象的部分行为委托给一个从属对象。但策略对象通常是无状态的——它定义对象如何行事，而不是对象是什么；组件则往往持有描述对象、决定其身份的状态。一个在多个容器之间共享的无状态组件，其实就更像策略了。"
@@ -236,30 +371,69 @@
     }
   ],
   "terms": [
-    { "en": "component", "zh": "组件" },
-    { "en": "domain", "zh": "领域" },
-    { "en": "coupling / decoupling", "zh": "耦合 / 解耦" },
-    { "en": "composition over inheritance", "zh": "组合优于继承" },
-    { "en": "Deadly Diamond", "zh": "致命菱形（菱形继承）" },
-    { "en": "container object", "zh": "容器对象" },
-    { "en": "pan-domain state", "zh": "泛领域状态" },
-    { "en": "demo mode", "zh": "演示模式" },
-    { "en": "entity component system (ECS)", "zh": "实体组件系统" },
-    { "en": "Mediator", "zh": "中介者模式" }
+    {
+      "en": "component",
+      "zh": "组件"
+    },
+    {
+      "en": "domain",
+      "zh": "领域"
+    },
+    {
+      "en": "coupling / decoupling",
+      "zh": "耦合 / 解耦"
+    },
+    {
+      "en": "composition over inheritance",
+      "zh": "组合优于继承"
+    },
+    {
+      "en": "Deadly Diamond",
+      "zh": "致命菱形（菱形继承）"
+    },
+    {
+      "en": "container object",
+      "zh": "容器对象"
+    },
+    {
+      "en": "pan-domain state",
+      "zh": "泛领域状态"
+    },
+    {
+      "en": "demo mode",
+      "zh": "演示模式"
+    },
+    {
+      "en": "entity component system (ECS)",
+      "zh": "实体组件系统"
+    },
+    {
+      "en": "Mediator",
+      "zh": "中介者模式"
+    }
   ],
   "exercises": [
     {
       "type": "fill",
       "ref": "14.1",
       "q": "Component pattern: allow a single entity to span multiple ___ without coupling them to each other（让单一实体横跨多个领域）。",
-      "answer": ["domains", "domain", "领域"],
+      "answer": [
+        "domains",
+        "domain",
+        "领域"
+      ],
       "explain": "Intent 的关键词就是 domains（领域）：输入、物理、渲染、声音等。"
     },
     {
       "type": "choice",
       "ref": "14.2",
       "q": "用继承实现 Decoration / Prop / Zone 时，Prop 想同时复用碰撞和渲染代码会遇到什么问题？",
-      "options": ["The vtable becomes too large", "Zones become visible", "The Deadly Diamond of multiple inheritance", "Rendering runs on the wrong thread"],
+      "options": [
+        "The vtable becomes too large",
+        "Zones become visible",
+        "The Deadly Diamond of multiple inheritance",
+        "Rendering runs on the wrong thread"
+      ],
       "answer": 2,
       "explain": "多继承时存在两条通向同一基类的路径，即“致命菱形”。否则只能复制代码，或把一切推进 GameObject 浪费内存。"
     },
@@ -274,7 +448,12 @@
       "type": "choice",
       "ref": "14.5",
       "q": "Which is NOT listed as a cost of the Component pattern? 以下哪项不是组件模式的代价？",
-      "options": ["Objects become clusters that must be wired together", "Communication between components is harder", "Extra indirection in inner loops", "It makes Data Locality impossible to apply"],
+      "options": [
+        "Objects become clusters that must be wired together",
+        "Communication between components is harder",
+        "Extra indirection in inner loops",
+        "It makes Data Locality impossible to apply"
+      ],
       "answer": 3,
       "explain": "恰恰相反：组件让数据局部性模式更容易应用，有时还能提升缓存一致性。"
     },
@@ -289,7 +468,12 @@
       "type": "choice",
       "ref": "14.6",
       "q": "把 InputComponent 抽象成接口后，作者举的主要好处是什么？",
-      "options": ["Input handling becomes faster", "A DemoInputComponent with AI can drive Bjørn in demo mode while physics and graphics are unchanged", "Bjorn no longer needs a constructor", "Physics can run on the GPU"],
+      "options": [
+        "Input handling becomes faster",
+        "A DemoInputComponent with AI can drive Bjørn in demo mode while physics and graphics are unchanged",
+        "Bjorn no longer needs a constructor",
+        "Physics can run on the GPU"
+      ],
       "answer": 1,
       "explain": "只需换一个组件就得到电脑操控的演示模式，其余代码完全复用；代价是 update() 变成虚函数调用。"
     },
@@ -297,7 +481,12 @@
       "type": "fill",
       "ref": "14.6",
       "q": "In an entity component system, the game entity is just an ___ (a number), and components know which entity they belong to.",
-      "answer": ["ID", "identifier", "编号", "标识符"],
+      "answer": [
+        "ID",
+        "identifier",
+        "编号",
+        "标识符"
+      ],
       "explain": "ECS 把解耦做到极致：实体只是一个 ID，可以在实体不知情的情况下添加组件。"
     },
     {
@@ -311,7 +500,12 @@
       "type": "choice",
       "ref": "14.7",
       "q": "Routing messages between components through the container object is which GoF pattern? 通过容器转发消息属于哪个模式？",
-      "options": ["Mediator（中介者）", "Strategy（策略）", "Prototype（原型）", "Decorator（装饰器）"],
+      "options": [
+        "Mediator（中介者）",
+        "Strategy（策略）",
+        "Prototype（原型）",
+        "Decorator（装饰器）"
+      ],
       "answer": 0,
       "explain": "两个或多个对象通过中间对象间接通信，就是中介者模式；这里容器就是中介者。"
     },
@@ -326,9 +520,91 @@
       "type": "choice",
       "ref": "14.8",
       "q": "Component 与 Strategy 的主要区别？ Main difference?",
-      "options": ["Strategy objects always hold more state", "Components are always stateless", "Strategy only works with inheritance", "A strategy is usually stateless (how it behaves); a component often holds state defining what the object is"],
+      "options": [
+        "Strategy objects always hold more state",
+        "Components are always stateless",
+        "Strategy only works with inheritance",
+        "A strategy is usually stateless (how it behaves); a component often holds state defining what the object is"
+      ],
       "answer": 3,
       "explain": "策略封装算法而不含数据；组件往往持有定义对象身份的状态。无状态、可共享的组件就更接近策略。"
+    },
+    {
+      "type": "scenario",
+      "ref": "14.2",
+      "title": "生存游戏的物体体系 · Survival-game object hierarchy",
+      "q": "你在做一款开放世界生存游戏。现有继承树：GameObject → Renderable → Tree；GameObject → Collidable → TriggerVolume。新需求接踵而来：草丛只渲染不碰撞；可破坏的木箱既要渲染、又要碰撞、还要有 Health；隐形的伤害毒雾要碰撞 + Health 但不渲染。继承树开始出现“既要 A 又要 B”的问题。请用 Component pattern 重新设计，并说明为什么继承在这里走不通。",
+      "answer": "继承的问题：木箱既想复用 Renderable 的渲染代码，又想复用 Collidable 的碰撞代码，只能多继承，导致 Deadly Diamond（两条路径回到 GameObject）；或者复制其中一份代码；或者把一切都推到 GameObject 基类，让草丛背着用不上的物理数据、毒雾背着用不上的渲染数据浪费内存。Component 方案：只有一个 GameObject 类，持有 position/rotation 等 pan-domain 状态，以及可选的组件指针：GraphicsComponent、PhysicsComponent、HealthComponent（为 nullptr 表示没有该能力）。草丛 = Graphics；TriggerVolume = Physics；木箱 = Graphics + Physics + Health；毒雾 = Physics + Health。各组件互不知道对方，渲染程序员改 GraphicsComponent 不用懂物理。不同物体由工厂函数（createCrate()、createGrass()）或数据驱动的 prefab 组装——就像 à la carte 点菜，而不是只能点套餐。",
+      "code": "class GameObject {\npublic:\n  Vec3 position;\n  GameObject(GraphicsComponent* g, PhysicsComponent* p, HealthComponent* h)\n    : graphics_(g), physics_(p), health_(h) {}\n  void update(World& world, Graphics& gfx) {\n    if (physics_)  physics_->update(*this, world);\n    if (health_)   health_->update(*this);\n    if (graphics_) graphics_->update(*this, gfx);\n  }\nprivate:\n  GraphicsComponent* graphics_;\n  PhysicsComponent*  physics_;\n  HealthComponent*   health_;\n};\n\nGameObject* createCrate() {\n  return new GameObject(new CrateGraphics(), new BoxPhysics(), new HealthComponent(50));\n}\nGameObject* createPoisonFog() {\n  return new GameObject(nullptr, new TriggerPhysics(), new HealthComponent(1));\n}",
+      "checklist": [
+        "指出继承的困境：多继承的 Deadly Diamond、代码重复、或把一切推到基类浪费内存",
+        "单一 GameObject + 按能力划分的组件（Graphics/Physics/Health）",
+        "不同物体 = 不同组件组合，没有子类爆炸",
+        "组件之间互相解耦，按 domain 切分"
+      ],
+      "explain": "对应 §14.2 Motivation 中 Decoration / Prop / Zone 的例子：“No code duplication, no multiple inheritance, and only three classes instead of four.” Composition over inheritance 是这一节的核心。"
+    },
+    {
+      "type": "scenario",
+      "ref": "14.6",
+      "title": "本地、联机与 AI 共用角色 · Local, online and bot players",
+      "q": "一款 4 人合作平台跳跃游戏：每个角色可能由本地手柄控制、由网络另一端的玩家控制、或者在有人掉线时由 AI bot 接管；主菜单闲置 30 秒还要进入 demo mode。现在 Player 类的 update() 里用 if (isRemote) … else if (isBot) … 分支处理输入，物理和渲染代码也混在其中。请用 Component pattern 设计，让“谁在控制”可以在运行时切换，且物理、渲染代码完全不受影响。",
+      "answer": "把输入抽象为接口 InputComponent { virtual void update(GameObject&) = 0; }，具体实现：LocalPadInput（读手柄）、NetworkInput（从网络包里取远端玩家的输入）、BotInput（AI 决策）、DemoInput（标题画面自动演示）。它们都只做一件事：根据各自的来源修改 GameObject 的共享状态（velocity、jumpPressed 等）。PhysicsComponent 和 GraphicsComponent 只读这些共享状态，根本不知道输入来自哪里。GameObject 持有 InputComponent* input_，提供 setInput()；玩家掉线时网络层调用 obj.setInput(new BotInput())，重连后再换回 NetworkInput。代价：update() 变成一次 virtual call，略慢，但对每帧几个角色可以忽略。注意组件更新顺序要保持 input → physics → graphics，否则会渲染上一帧的位置。",
+      "code": "class InputComponent {\npublic:\n  virtual ~InputComponent() {}\n  virtual void update(GameObject& obj) = 0;\n};\n\nclass NetworkInput : public InputComponent {\npublic:\n  explicit NetworkInput(PeerId peer) : peer_(peer) {}\n  virtual void update(GameObject& obj) {\n    InputPacket p = net::latestInput(peer_);\n    obj.velocity.x = p.axisX * RUN_SPEED;\n    obj.wantsJump = p.jump;\n  }\nprivate:\n  PeerId peer_;\n};\n\n// Player drops: AI takes over; physics/graphics untouched\nvoid onDisconnect(GameObject& obj) { obj.setInput(new BotInput()); }",
+      "checklist": [
+        "InputComponent 是抽象接口，有多个具体实现（本地、网络、AI、demo）",
+        "输入组件通过修改容器的共享状态（velocity 等）与物理组件通信",
+        "物理和渲染组件完全不需要知道输入来源",
+        "运行时替换组件即可切换控制者",
+        "提到 virtual call 的代价或更新顺序问题"
+      ],
+      "explain": "对应 §14.6 Robo-Bjørn：“just by swapping out a component, we’ve got a fully functioning computer-controlled player for demo mode”。网络输入与掉线接管是同一思路的工程扩展。"
+    },
+    {
+      "type": "scenario",
+      "ref": "14.7",
+      "title": "组件之间如何对话 · How components talk",
+      "q": "在一款 2D 动作平台游戏里，Hero 有 InputComponent、PhysicsComponent、AnimationComponent、RenderComponent、AudioComponent。需求：(1) 所有组件都要用到 position/velocity；(2) 动画要根据 physics 的 isOnGround() 选择跳跃/站立动画；(3) 落地、撞墙时要播放音效；(4) Animation 与 Render 需要共享当前帧的 UV 和 pivot。请为每条需求选择通信方式（shared state / direct reference / messaging），并说明理由和要避免的坑。",
+      "answer": "(1) position/velocity 是 pan-domain 状态，放进容器 GameObject，作为 shared state；组件彼此不知道对方，但会产生隐式的顺序依赖——必须固定 update 顺序 input → physics → animation → render，否则会出现“渲染上一帧位置”这类难查的 bug。(2) Animation 与 Physics 关系密切，让 AnimationComponent 持有 PhysicsComponent* 直接调用 isOnGround()——简单、快，耦合只限于这一对组件。(3) 音效属于“less important”、fire-and-forget 的通知：PhysicsComponent 调 container.send(MSG_LANDED)，容器把消息广播给所有组件，AudioComponent 在 receive() 中播放声音。这样 Physics 不依赖 Audio；坑是消息也会发回给发送者自身，注意不要形成 feedback loop。(4) UV/pivot 只与图形相关，不应推进容器（否则让所有不可见物体也浪费内存、弄脏容器类），让 Render 直接引用 Animation 即可。总原则：三种方式并不互斥，先从简单的开始，需要时再加通信路径。",
+      "code": "class Component {\npublic:\n  virtual ~Component() {}\n  virtual void receive(int message) = 0;\n};\n\nclass AudioComponent : public Component {\npublic:\n  virtual void receive(int message) {\n    if (message == MSG_LANDED) audio.play(SFX_LAND);\n  }\n};\n\nclass AnimationComponent : public Component {\npublic:\n  explicit AnimationComponent(PhysicsComponent* physics) : physics_(physics) {}\n  void update(GameObject& obj) {\n    current_ = physics_->isOnGround() ? &idle_ : &jump_;\n  }\n  virtual void receive(int) {}\nprivate:\n  PhysicsComponent* physics_;  // direct reference: closely related pair\n  Clip idle_, jump_;\n  Clip* current_ = &idle_;\n};",
+      "checklist": [
+        "共享基础状态（position/velocity）放在容器对象里",
+        "指出 shared state 带来的更新顺序依赖问题",
+        "关系紧密的成对组件（animation↔physics/render）用直接引用",
+        "音效这类 fire-and-forget 通知用消息广播，容器是 Mediator",
+        "不把只属于部分组件的数据推进容器；三种方式可并存"
+      ],
+      "explain": "对应 §14.7 “How do components communicate with each other?”：书中结论是“you’ll likely end up … using a bit of all of them”——shared state 用于 position，相关领域直接引用，messaging 用于像播放音效这样的“less important communication”。"
+    },
+    {
+      "type": "scenario",
+      "ref": "14.5",
+      "title": "五千个单位的性能 · Five thousand RTS units",
+      "q": "一款 RTS 每局有 5000 个单位。你们刚把单位重构成 Component 结构：每个 Unit 用 new 出来，内部持有 PhysicsComponent*、AIComponent*、RenderComponent*，主循环对每个 unit 调 unit->update()，再由它依次调各组件的虚函数。profiler 显示每帧大量 cache miss，帧率比重构前还差。同时一个新同事想把只有 3 种方块的休闲消除小游戏也照搬这套系统。请分析两个问题并给出建议。",
+      "answer": "RTS：性能问题来自 Component 带来的间接层——从 Unit 指针跳到各个分散在堆上的组件，每次都可能 cache miss，再加上虚函数调用。在 5000 个单位的 hot loop 里，这种 pointer chasing 成本很高。但 Component 也有“flip side”：组件按 domain 切开后，正好方便使用 Data Locality——把同类组件放进连续数组（vector<PhysicsComponent>、vector<AIComponent>），由各 system 依次遍历：先更新所有 physics，再所有 AI，再所有 render。Unit 只保存组件的索引（或者干脆只是一个 entity ID），这样内存访问是线性的、cache 友好，且同类组件的更新顺序也更清晰。消除小游戏：Component pattern 引入了不少复杂度——每个对象变成一组需要实例化、初始化和正确连接的对象，组件间通信也更麻烦。3 种方块没有跨 domain 的大类问题，也没有组合复用的需求，这是在为不存在的问题 over-engineering；一个简单的 Tile 类就够了。",
+      "code": "// Components stored contiguously, updated per system\nstruct World {\n  std::vector<PhysicsComponent> physics;\n  std::vector<AIComponent>      ai;\n  std::vector<RenderComponent>  render;\n\n  void update() {\n    for (auto& p : physics) p.update();\n    for (auto& a : ai)      a.update();\n    for (auto& r : render)  r.update();\n  }\n};\n\nstruct Unit {  // just indices into the arrays\n  int physicsIndex, aiIndex, renderIndex;\n};",
+      "checklist": [
+        "识别出组件间接层（pointer chasing、virtual call）在 hot loop 中的代价",
+        "提出按类型连续存储组件、按 system 批量更新（Data Locality）",
+        "知道组件也可以让性能更好（flip side）",
+        "指出小项目引入 Component 是 over-engineering"
+      ],
+      "explain": "对应 §14.5 Keep in Mind：“take care to ensure you aren’t over-engineering a ‘solution’ to a non-existent problem”，以及“this pointer following may lead to poor performance”与其“flip side”——组件让 Data Locality 更易实现。"
+    },
+    {
+      "type": "scenario",
+      "ref": "14.7",
+      "title": "关卡编辑器里的 Prefab · Prefabs in a level editor",
+      "q": "你们的 RPG 引擎要支持策划在 level editor 里拖拽组合出新物体：例如“会说话的雕像”= Render + Dialogue，“陷阱宝箱”= Render + Physics + Loot + Trap。现在 GameObject 的构造函数里写死了 new 所有组件。请设计组件由谁组装：对象自己创建，还是外部提供？如何防止策划漏配某个必需组件导致运行时崩溃？对于 1000 发子弹共用的 BulletMovement 这类没有状态的组件，你会怎么处理？",
+      "answer": "选择“由外部代码提供组件”：GameObject 变成通用组件容器，只认识组件接口，不依赖具体类型；一个 PrefabFactory 读取编辑器导出的 prefab 数据（组件名列表 + 参数），通过注册表 map<string, ComponentCreator> 创建具体组件并 addComponent()。好处是灵活——无需新增 C++ 类就能组合新物体。代价是失去“对象自己创建组件时总能保证组件齐全”的安全性，因此要补上保护：每个组件声明依赖（如 Trap 需要 Physics），工厂在加载 prefab 时校验并给出清晰的错误；编辑器里在保存时就提示。对于常用固定组合，可保留 createBjorn() 这样的工厂函数。BulletMovement 若完全无状态（速度等存在容器或另一个组件里），可以让 1000 个子弹共享同一个实例——此时它更像 Strategy pattern。",
+      "code": "using Creator = std::function<Component*(const Json&)>;\nstd::map<std::string, Creator> componentRegistry;\n\nGameObject* PrefabFactory::create(const Prefab& prefab) {\n  GameObject* obj = new GameObject();\n  for (const ComponentDesc& d : prefab.components) {\n    obj->addComponent(componentRegistry.at(d.type)(d.params));\n  }\n  // Validate declared dependencies, e.g. Trap requires Physics\n  for (Component* c : obj->components()) {\n    for (const std::string& dep : c->requires())\n      if (!obj->has(dep)) reportError(prefab.name, c->name(), dep);\n  }\n  return obj;\n}",
+      "checklist": [
+        "选择外部提供组件，GameObject 成为通用容器、只依赖接口",
+        "对比“对象自己创建组件”的好处：保证组件齐全",
+        "用依赖声明 + 加载时校验弥补漏配风险",
+        "无状态组件可以共享实例，并说明它接近 Strategy pattern"
+      ],
+      "explain": "对应 §14.7 “How does the object get its components?”：外部提供让“our object becomes a generic component container”，而自己创建则“ensures that the object always has the components it needs”。共享无状态组件来自 §14.8 与 Strategy 的对比；依赖校验是书外的工程实践。"
     }
   ]
 }

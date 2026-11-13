@@ -1,6 +1,9 @@
 {
   "id": "prototype",
-  "title": { "en": "Prototype", "zh": "原型模式" },
+  "title": {
+    "en": "Prototype",
+    "zh": "原型模式"
+  },
   "summary": {
     "en": "The Prototype pattern lets an object spawn copies of itself via clone(), cloning both class and state. The author finds the design pattern rarely the best answer in C++, examines prototypes as a language paradigm (Self, JavaScript), and recommends prototypal delegation for reusing data in game data files.",
     "zh": "原型模式让一个对象通过 clone() 生成与自身相似的副本，既复制类型，也复制状态。作者认为在 C++ 中这个设计模式很少是最佳方案；他还考察了作为语言范式的原型（Self、JavaScript），并推荐在游戏数据文件中用原型委托来复用数据。"
@@ -8,17 +11,26 @@
   "sections": [
     {
       "num": "5.0",
-      "title": { "en": "Prototype (Introduction)", "zh": "原型模式（引言）" },
+      "title": {
+        "en": "Prototype (Introduction)",
+        "zh": "原型模式（引言）"
+      },
       "points": [
         {
-          "title": { "en": "More than one meaning of \"prototype\"", "zh": "“原型”一词不止一种含义" },
+          "title": {
+            "en": "More than one meaning of \"prototype\"",
+            "zh": "“原型”一词不止一种含义"
+          },
           "body": {
             "en": "Many people say \"prototype\" today without meaning the design pattern. The chapter covers the original pattern, but also the other, more interesting places where the term and its underlying concepts show up.",
             "zh": "如今很多人都在说“原型”，但指的并不是这个设计模式。本章既讲原始的设计模式，也会介绍“原型”这个术语及其背后的概念出现的其他更有趣的地方。"
           }
         },
         {
-          "title": { "en": "Roots in Sketchpad", "zh": "源自 Sketchpad" },
+          "title": {
+            "en": "Roots in Sketchpad",
+            "zh": "源自 Sketchpad"
+          },
           "body": {
             "en": "Design Patterns cites Ivan Sutherland's Sketchpad (1963) as one of the first examples of this pattern in the wild. That same project essentially invented the basic concepts of CAD, interactive graphics, and object-oriented programming.",
             "zh": "《设计模式》一书把 Ivan Sutherland 于 1963 年开发的 Sketchpad 列为这一模式最早的实际应用之一。同一个项目还基本上开创了 CAD、交互式图形和面向对象编程的基本概念。"
@@ -28,10 +40,16 @@
     },
     {
       "num": "5.1",
-      "title": { "en": "The Prototype Design Pattern", "zh": "原型设计模式" },
+      "title": {
+        "en": "The Prototype Design Pattern",
+        "zh": "原型设计模式"
+      },
       "points": [
         {
-          "title": { "en": "The problem: a parallel class hierarchy of spawners", "zh": "问题：与怪物平行的生成器类层级" },
+          "title": {
+            "en": "The problem: a parallel class hierarchy of spawners",
+            "zh": "问题：与怪物平行的生成器类层级"
+          },
           "body": {
             "en": "In a Gauntlet-style game, each monster type (Ghost, Demon, Sorcerer…) has its own class and enters through a spawner. Brute-forcing it with one spawner class per monster class creates a parallel class hierarchy full of boilerplate and duplication.",
             "zh": "在一个类似《圣铠传说》（Gauntlet）的游戏里，每种怪物（Ghost、Demon、Sorcerer……）都有自己的类，并通过“生成器”（spawner）进入场景。如果为每个怪物类都写一个生成器类，就会产生一套平行的类层级，充满样板代码和重复。"
@@ -39,7 +57,10 @@
           "code": "class Spawner {\npublic:\n  virtual ~Spawner() {}\n  virtual Monster* spawnMonster() = 0;\n};\n\nclass GhostSpawner : public Spawner {\npublic:\n  virtual Monster* spawnMonster() {\n    return new Ghost();\n  }\n};"
         },
         {
-          "title": { "en": "Objects that spawn copies of themselves", "zh": "能生成自身副本的对象" },
+          "title": {
+            "en": "Objects that spawn copies of themselves",
+            "zh": "能生成自身副本的对象"
+          },
           "body": {
             "en": "The key idea of Prototype is that an object can spawn other objects similar to itself. The Monster base class gets an abstract clone() method, and each subclass returns a new object identical to itself in class and state.",
             "zh": "原型模式的核心思想是：一个对象可以生成与自身相似的其他对象。Monster 基类声明一个抽象的 clone() 方法，每个子类都返回一个与自己类型和状态都相同的新对象。"
@@ -47,7 +68,10 @@
           "code": "class Ghost : public Monster {\npublic:\n  Ghost(int health, int speed)\n  : health_(health), speed_(speed) {}\n\n  virtual Monster* clone() {\n    return new Ghost(health_, speed_);\n  }\n\nprivate:\n  int health_;\n  int speed_;\n};"
         },
         {
-          "title": { "en": "One spawner holding a prototype", "zh": "持有原型的单一生成器" },
+          "title": {
+            "en": "One spawner holding a prototype",
+            "zh": "持有原型的单一生成器"
+          },
           "body": {
             "en": "Now a single Spawner class suffices: it holds a hidden prototypal monster and stamps out more by calling clone() on it. Because state is cloned too, you can make spawners for fast, weak, or slow ghosts just by configuring the prototype differently.",
             "zh": "这样只需要一个 Spawner 类：它内部持有一个隐藏的原型怪物，通过调用其 clone() 来“复印”出更多怪物。由于状态也会被复制，只要把原型配置得不同，就能做出生成快速、虚弱或缓慢幽灵的生成器。"
@@ -55,16 +79,28 @@
           "code": "class Spawner {\npublic:\n  Spawner(Monster* prototype) : prototype_(prototype) {}\n  Monster* spawnMonster() { return prototype_->clone(); }\nprivate:\n  Monster* prototype_;\n};\n\nMonster* ghostPrototype = new Ghost(15, 3);\nSpawner* ghostSpawner = new Spawner(ghostPrototype);"
         },
         {
-          "subsection": { "en": "How well does it work?", "zh": "效果如何？" },
-          "title": { "en": "Drawbacks of the pattern", "zh": "该模式的缺点" },
+          "subsection": {
+            "en": "How well does it work?",
+            "zh": "效果如何？"
+          },
+          "title": {
+            "en": "Drawbacks of the pattern",
+            "zh": "该模式的缺点"
+          },
           "body": {
             "en": "You still must implement clone() in every monster class, which is about as much code as the spawners. Writing a correct clone() raises semantic questions such as deep vs. shallow copy. Moreover, the problem is contrived: modern engines avoid a class per monster, using patterns like Component and Type Object instead.",
             "zh": "每个怪物类仍然要实现 clone()，代码量和写生成器差不多。要写出正确的 clone() 还会碰到语义上的难题，比如深拷贝还是浅拷贝（恶魔手里的干草叉要不要一起复制？）。而且这个问题本身是人为构造的：现代引擎并不会为每种怪物写一个类，而是使用组件（Component）和类型对象（Type Object）等模式。"
           }
         },
         {
-          "subsection": { "en": "Spawn functions", "zh": "生成函数" },
-          "title": { "en": "Alternatives: spawn functions and templates", "zh": "替代方案：生成函数与模板" },
+          "subsection": {
+            "en": "Spawn functions",
+            "zh": "生成函数"
+          },
+          "title": {
+            "en": "Alternatives: spawn functions and templates",
+            "zh": "替代方案：生成函数与模板"
+          },
           "body": {
             "en": "Instead of spawner classes, the one Spawner can store a function pointer to a spawn function like spawnGhost(). Or, using C++ templates, SpawnerFor<T> makes the monster type a type parameter; the non-template Spawner base class lets code work with any spawner without itself being templated.",
             "zh": "不必写生成器类，唯一的 Spawner 可以保存一个指向 spawnGhost() 这类生成函数的函数指针。或者利用 C++ 模板，用 SpawnerFor<T> 把怪物类型作为类型参数；保留非模板的 Spawner 基类，可以让使用生成器的代码不必自己也带上模板参数。"
@@ -72,8 +108,14 @@
           "code": "template <class T>\nclass SpawnerFor : public Spawner {\npublic:\n  virtual Monster* spawnMonster() { return new T(); }\n};\n\nSpawner* ghostSpawner = new SpawnerFor<Ghost>();"
         },
         {
-          "subsection": { "en": "First-class types", "zh": "一等类型" },
-          "title": { "en": "First-class types make it trivial", "zh": "有一等类型就简单了" },
+          "subsection": {
+            "en": "First-class types",
+            "zh": "一等类型"
+          },
+          "title": {
+            "en": "First-class types make it trivial",
+            "zh": "有一等类型就简单了"
+          },
           "body": {
             "en": "In C++ types aren't first-class, so parameterizing Spawner by a type takes gymnastics. In dynamically-typed languages like JavaScript, Python, or Ruby, classes are regular objects, so you just pass the monster's class to the spawner. The author admits he has never found a case where the Prototype design pattern was the best answer.",
             "zh": "C++ 中类型不是一等公民，所以让 Spawner 以类型为参数需要绕些弯子。在 JavaScript、Python、Ruby 这类动态类型语言里，类本身就是普通对象，直接把怪物的类传给生成器即可。作者坦言，他还没遇到过原型设计模式是最佳答案的情形。"
@@ -83,42 +125,72 @@
     },
     {
       "num": "5.2",
-      "title": { "en": "The Prototype Language Paradigm", "zh": "原型语言范式" },
+      "title": {
+        "en": "The Prototype Language Paradigm",
+        "zh": "原型语言范式"
+      },
       "points": [
         {
-          "title": { "en": "OOP without classes", "zh": "没有类的面向对象" },
+          "title": {
+            "en": "OOP without classes",
+            "zh": "没有类的面向对象"
+          },
           "body": {
             "en": "A fairly uncontroversial definition of OOP is that it bundles data and code together into objects, tightly binding state and behavior. Classes are not the only way to do that: Dave Ungar and Randall Smith created Self in the 1980s, a thoroughly object-oriented language with no classes.",
             "zh": "对面向对象编程的一个争议较小的定义是：它把数据和代码捆绑成“对象”，把状态和行为紧密结合在一起。类并非实现这一点的唯一方式：Dave Ungar 和 Randall Smith 在 20 世纪 80 年代创造了 Self 语言，它完全面向对象，却没有类。"
           }
         },
         {
-          "subsection": { "en": "Self", "zh": "Self 语言" },
-          "title": { "en": "State and behavior both live on the object", "zh": "状态和行为都在对象自身上" },
+          "subsection": {
+            "en": "Self",
+            "zh": "Self 语言"
+          },
+          "title": {
+            "en": "State and behavior both live on the object",
+            "zh": "状态和行为都在对象自身上"
+          },
           "body": {
             "en": "In class-based languages, state lives in the instance but behavior lives in the class, reached through a level of indirection (e.g. a vtable in C++). Self removes that distinction: to look anything up you just look on the object, so a single object can even have a method unique to it.",
             "zh": "在基于类的语言里，状态存放在实例中，行为却存放在类中，需要经过一层间接才能找到（比如 C++ 的虚函数表）。Self 消除了这种区别：查找任何东西都只需在对象本身上找，因此一个对象甚至可以拥有独属于它的方法。"
           }
         },
         {
-          "subsection": { "en": "Self", "zh": "Self 语言" },
-          "title": { "en": "Delegation and cloning", "zh": "委托与克隆" },
+          "subsection": {
+            "en": "Self",
+            "zh": "Self 语言"
+          },
+          "title": {
+            "en": "Delegation and cloning",
+            "zh": "委托与克隆"
+          },
           "body": {
             "en": "For reuse, Self uses delegation: if a field or method isn't found on an object, the lookup is delegated to its parent object, then that one's parent, and so on. To create new objects, you clone: shape one object how you want, then clone it as many times as needed. Every object effectively supports the Prototype pattern automatically.",
             "zh": "为了复用，Self 使用委托：如果在某个对象上找不到字段或方法，查找就会被委托给它的父对象，再到父对象的父对象，依此类推。要创建新对象就用克隆：先把一个对象塑造成想要的样子，然后随意克隆多少份。可以说每个对象都自动支持原型模式。"
           }
         },
         {
-          "subsection": { "en": "How did it go?", "zh": "结果如何？" },
-          "title": { "en": "Pure prototypes aren't fun to program in", "zh": "纯原型语言用起来并不愉快" },
+          "subsection": {
+            "en": "How did it go?",
+            "zh": "结果如何？"
+          },
+          "title": {
+            "en": "Pure prototypes aren't fun to program in",
+            "zh": "纯原型语言用起来并不愉快"
+          },
           "body": {
             "en": "The author built a prototype-based language (Finch) and found it simply wasn't fun to use: the language was simple because it pushed complexity onto the user, and he missed the structure classes provide. He suspects most people like well-defined \"kinds of things\". Still, Self's VM innovations (JIT compilation, garbage collection, optimized dispatch) now power many dynamic languages.",
             "zh": "作者自己实现了一门基于原型的语言（Finch），却发现用它编程并不愉快：语言之所以简单，是因为把复杂性推给了使用者，他怀念类所提供的结构。他猜测大多数人都喜欢明确定义的“事物种类”。不过，Self 在虚拟机上的创新（即时编译、垃圾回收、方法分派优化）如今支撑着许多动态语言。"
           }
         },
         {
-          "subsection": { "en": "What about JavaScript?", "zh": "那 JavaScript 呢？" },
-          "title": { "en": "JavaScript is prototypal but used like classes", "zh": "JavaScript 基于原型，用法却像类" },
+          "subsection": {
+            "en": "What about JavaScript?",
+            "zh": "那 JavaScript 呢？"
+          },
+          "title": {
+            "en": "JavaScript is prototypal but used like classes",
+            "zh": "JavaScript 基于原型，用法却像类"
+          },
           "body": {
             "en": "JavaScript took inspiration from Self: objects delegate failed lookups to their prototype. Yet cloning, the core operation, is missing (Object.create() came only with ECMAScript 5). In practice you create objects with new and a constructor function, store state on the instance, and put shared methods on Weapon.prototype, which looks a lot like classes.",
             "zh": "JavaScript 受 Self 启发：对象在查找失败时会委托给它的原型。但原型语言的核心操作——克隆——却不见踪影（Object.create() 直到 ECMAScript 5 才加入）。实践中，人们用 new 加构造函数创建对象，把状态放在实例上，把共享的方法放在 Weapon.prototype 上，这和类非常相似。"
@@ -129,17 +201,26 @@
     },
     {
       "num": "5.3",
-      "title": { "en": "Prototypes for Data Modeling", "zh": "用原型进行数据建模" },
+      "title": {
+        "en": "Prototypes for Data Modeling",
+        "zh": "用原型进行数据建模"
+      },
       "points": [
         {
-          "title": { "en": "Data needs tools for managing complexity too", "zh": "数据同样需要管理复杂度的工具" },
+          "title": {
+            "en": "Data needs tools for managing complexity too",
+            "zh": "数据同样需要管理复杂度的工具"
+          },
           "body": {
             "en": "The share of game bytes that are data keeps growing, and many games today are an engine driven entirely by data. Moving content into data files doesn't solve organizational problems; programming languages exist partly to manage complexity (functions, inheritance), and large data sets want similar features.",
             "zh": "游戏中数据所占的比例一直在增长，如今很多游戏的代码只是一个由数据完全驱动的“引擎”。把内容挪进数据文件并不会自动解决组织上的难题；编程语言之所以存在，部分原因正是它提供了管理复杂度的工具（函数、继承），而数据量大了以后也需要类似的功能。"
           }
         },
         {
-          "title": { "en": "A \"prototype\" field for delegation", "zh": "用“prototype”字段实现委托" },
+          "title": {
+            "en": "A \"prototype\" field for delegation",
+            "zh": "用“prototype”字段实现委托"
+          },
           "body": {
             "en": "Goblin variants in JSON duplicate health, resists, and weaknesses. Declare that a \"prototype\" field names another object to delegate to: any property missing on this object is looked up on the prototype. The prototype is metadata about the data object, not a property of the goblin itself.",
             "zh": "用 JSON 定义的各种哥布林会重复填写生命值、抗性和弱点。我们规定：如果对象有一个“prototype”字段，它指定了另一个被委托的对象名，本对象中不存在的属性都去原型上查找。“prototype”是描述数据对象的元数据，而不是哥布林本身的属性。"
@@ -147,7 +228,10 @@
           "code": "{\n  \"name\": \"goblin wizard\",\n  \"prototype\": \"goblin grunt\",\n  \"spells\": [\"fire ball\", \"lightning bolt\"]\n}"
         },
         {
-          "title": { "en": "Delegate to a concrete object, not an abstract base", "zh": "委托给具体对象而非抽象基类" },
+          "title": {
+            "en": "Delegate to a concrete object, not an abstract base",
+            "zh": "委托给具体对象而非抽象基类"
+          },
           "body": {
             "en": "No abstract \"base goblin\" was created; the archer and wizard simply delegate to the simplest real goblin, the grunt. This fits games well, where bosses and unique items are often refinements of common objects, e.g. the Sword of Head-Detaching is just a longsword with a damage bonus.",
             "zh": "这里并没有另建一个抽象的“基础哥布林”，弓箭手和法师直接委托给最简单的那个真实哥布林——步兵。这很适合游戏：头目和独特物品往往只是普通对象的强化版，比如“斩首之剑”不过是带有伤害加成的长剑。"
@@ -158,23 +242,58 @@
     }
   ],
   "terms": [
-    { "en": "prototype", "zh": "原型" },
-    { "en": "clone()", "zh": "克隆" },
-    { "en": "spawner", "zh": "生成器" },
-    { "en": "parallel class hierarchy", "zh": "平行类层级" },
-    { "en": "deep clone / shallow clone", "zh": "深拷贝 / 浅拷贝" },
-    { "en": "first-class type", "zh": "一等类型" },
-    { "en": "delegation", "zh": "委托" },
-    { "en": "constructor function", "zh": "构造函数" },
-    { "en": "data modeling", "zh": "数据建模" },
-    { "en": "metadata", "zh": "元数据" }
+    {
+      "en": "prototype",
+      "zh": "原型"
+    },
+    {
+      "en": "clone()",
+      "zh": "克隆"
+    },
+    {
+      "en": "spawner",
+      "zh": "生成器"
+    },
+    {
+      "en": "parallel class hierarchy",
+      "zh": "平行类层级"
+    },
+    {
+      "en": "deep clone / shallow clone",
+      "zh": "深拷贝 / 浅拷贝"
+    },
+    {
+      "en": "first-class type",
+      "zh": "一等类型"
+    },
+    {
+      "en": "delegation",
+      "zh": "委托"
+    },
+    {
+      "en": "constructor function",
+      "zh": "构造函数"
+    },
+    {
+      "en": "data modeling",
+      "zh": "数据建模"
+    },
+    {
+      "en": "metadata",
+      "zh": "元数据"
+    }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "5.1",
       "q": "原型模式的核心思想是什么？ / What is the key idea of the Prototype pattern?",
-      "options": ["A class guarantees it has only one instance", "An object can spawn other objects similar to itself（对象能生成与自身相似的对象）", "A request is wrapped in an object", "State changes swap the object's class"],
+      "options": [
+        "A class guarantees it has only one instance",
+        "An object can spawn other objects similar to itself（对象能生成与自身相似的对象）",
+        "A request is wrapped in an object",
+        "State changes swap the object's class"
+      ],
       "answer": 1,
       "explain": "Each monster implements clone(), so any instance can serve as a prototype. 任意实例都可以作为“模板”来复制。"
     },
@@ -189,14 +308,24 @@
       "type": "fill",
       "ref": "5.1",
       "q": "Writing clone() raises a tricky question: should it be a deep or a ___ clone? 例如克隆恶魔时是否也克隆它的干草叉。",
-      "answer": ["shallow", "浅", "浅拷贝", "浅克隆"],
+      "answer": [
+        "shallow",
+        "浅",
+        "浅拷贝",
+        "浅克隆"
+      ],
       "explain": "深拷贝会连同引用的对象一起复制，浅拷贝只复制引用。"
     },
     {
       "type": "choice",
       "ref": "5.1",
       "q": "Why does the author call the monster-spawner problem \"contrived\"? 为什么说这个例子是人为构造的？",
-      "options": ["Because C++ cannot allocate objects at runtime", "Because spawners are never used in games", "Because modern engines don't usually have a separate class per monster; they use Component and Type Object", "Because cloning is too slow for games"],
+      "options": [
+        "Because C++ cannot allocate objects at runtime",
+        "Because spawners are never used in games",
+        "Because modern engines don't usually have a separate class per monster; they use Component and Type Object",
+        "Because cloning is too slow for games"
+      ],
       "answer": 2,
       "explain": "大型类层级难以管理，现代引擎用组件和类型对象来建模不同实体。"
     },
@@ -211,7 +340,12 @@
       "type": "choice",
       "ref": "5.2",
       "q": "In Self, 当对象自身找不到某个字段或方法时会发生什么？",
-      "options": ["The lookup is delegated to the object's parent（委托给父对象）", "A runtime error is thrown immediately", "The object's class is consulted", "The object is cloned"],
+      "options": [
+        "The lookup is delegated to the object's parent（委托给父对象）",
+        "A runtime error is thrown immediately",
+        "The object's class is consulted",
+        "The object is cloned"
+      ],
       "answer": 0,
       "explain": "Self 没有类，查找失败时沿父对象链委托，这就是 delegation。"
     },
@@ -226,14 +360,23 @@
       "type": "fill",
       "ref": "5.2",
       "q": "The core operation of a prototype-based language, ___, is nowhere to be seen in JavaScript（JavaScript 中没有这个核心操作）。",
-      "answer": ["cloning", "clone", "克隆"],
+      "answer": [
+        "cloning",
+        "clone",
+        "克隆"
+      ],
       "explain": "JavaScript 没有克隆对象的方法，最接近的 Object.create() 直到 ES5 才出现。"
     },
     {
       "type": "choice",
       "ref": "5.2",
       "q": "In typical JavaScript, where do shared methods like attack() usually live? 共享方法通常放在哪里？",
-      "options": ["On each instance, copied by the constructor", "In a global function table", "In a separate class declaration", "On the constructor's prototype object, e.g. Weapon.prototype"],
+      "options": [
+        "On each instance, copied by the constructor",
+        "In a global function table",
+        "In a separate class declaration",
+        "On the constructor's prototype object, e.g. Weapon.prototype"
+      ],
       "answer": 3,
       "explain": "状态在实例上，行为通过委托存放在 Weapon.prototype 上——这和类非常相似。"
     },
@@ -243,6 +386,85 @@
       "q": "说明在 JSON 数据中加入 \"prototype\" 字段的作用，并解释为什么作者没有创建抽象的 base goblin。",
       "answer": "EN: The \"prototype\" field names another object to delegate to; missing properties fall back to it, removing duplication (e.g. health, resists). No abstract base was needed: you just delegate to the simplest concrete goblin, which suits games full of one-off refinements like bosses and unique items. 中：\"prototype\" 字段指定一个委托对象，缺失的属性回退到它上面查找，从而消除重复（如生命值、抗性）。不需要抽象基类，直接委托给最简单的具体哥布林即可，这很适合充满头目、独特物品等“变体”的游戏。",
       "explain": "关键词：single delegation（单一委托）、metadata（元数据）、reuse data（复用数据）。"
+    },
+    {
+      "type": "scenario",
+      "ref": "5.1",
+      "title": "可配置的刷怪笼 · Configurable spawners",
+      "q": "一款 Gauntlet 风格的地牢射击游戏里，每种怪物都有自己的 class（Ghost、Demon、Sorcerer），现在有 GhostSpawner、DemonSpawner……一一对应的平行类层次。关卡设计师还想要“快速幽灵刷怪笼”“血少但数量多的恶魔刷怪笼”。请用 Prototype pattern 重新设计 Spawner：需要给 Monster 加什么接口？如何不新增任何类就得到“快速幽灵”刷怪笼？",
+      "answer": "给基类加 virtual Monster* clone() = 0;，每个子类返回一个“类型和状态都与自己相同”的新对象，例如 Ghost::clone() 返回 new Ghost(health_, speed_)。然后只保留一个 Spawner 类，它持有一个隐藏的 prototype（像从不离开蜂巢的蜂后），spawnMonster() 就是 prototype_->clone()。因为 clone 复制的不仅是 class，还有 state，所以“快速幽灵刷怪笼” = new Spawner(new Ghost(15, 8))，“脆皮恶魔刷怪笼” = new Spawner(new Demon(5, 3))，不需要任何新类，设计师甚至可以在编辑器里调参数生成 prototype。代价：每个怪物类都要实现 clone()，代码量与原来的 spawner 类差不多；Spawner 需负责 prototype 的生命周期。",
+      "code": "class Monster {\npublic:\n  virtual ~Monster() {}\n  virtual Monster* clone() = 0;\n};\n\nclass Ghost : public Monster {\npublic:\n  Ghost(int health, int speed) : health_(health), speed_(speed) {}\n  virtual Monster* clone() { return new Ghost(health_, speed_); }\nprivate:\n  int health_, speed_;\n};\n\nclass Spawner {\npublic:\n  Spawner(Monster* prototype) : prototype_(prototype) {}\n  Monster* spawnMonster() { return prototype_->clone(); }\nprivate:\n  Monster* prototype_;\n};\n\nSpawner* fastGhosts = new Spawner(new Ghost(15, 8));",
+      "checklist": [
+        "Monster 基类提供虚函数 clone()，子类返回同类型同状态的副本",
+        "只需一个 Spawner 类，持有 prototype 并调用 clone()",
+        "利用“克隆状态”：不同参数的 prototype 即不同刷怪笼，无需新类",
+        "指出代价：每个子类都要写 clone()，代码量并没少多少"
+      ],
+      "explain": "对应 §5.1 The Prototype Design Pattern：“it doesn’t just clone the class of the prototype, it clones its state too… a spawner for fast ghosts, weak ghosts, or slow ghosts just by creating an appropriate prototype ghost.”"
+    },
+    {
+      "type": "scenario",
+      "ref": "5.1",
+      "title": "恶魔的干草叉 · Deep or shallow clone?",
+      "q": "沿用上题的 clone() 设计。现在 Demon 持有 Weapon* pitchfork_（带耐久度 durability），还持有 Monster* target_（正在追击的玩家）和 Squad* squad_（所属小队）。QA 发现：一只新刷出来的恶魔打几下后，所有同刷怪笼的恶魔的干草叉都坏了；另一个 bug 是新恶魔一出生就追向 prototype 最后的目标。请为 Demon::clone() 决定每个指针字段该 deep copy、shallow copy 还是重置，并说明理由。",
+      "answer": "这正是书中说的 clone() 的 semantic rathole：deep 还是 shallow？要按字段的“所有权与语义”逐个决定。pitchfork_：每只恶魔独占、且有可变状态（durability），必须 deep clone（new Weapon(*pitchfork_) 或 pitchfork_->clone()），否则共享同一把叉子就会出现一起坏掉的 bug。若武器的不可变定义数据（模型、基础伤害）想共享，可拆成 WeaponType（flyweight，浅拷贝）+ 实例耐久（深拷贝）。target_：运行时 AI 状态，不属于“模板”，应重置为 nullptr。squad_：关系引用，不应复制出一个新 Squad，可浅拷贝或由 Spawner 在生成后重新分配。总结：prototype 应只保存“配置”，可变的实例资源深拷贝、共享只读数据浅拷贝、运行时状态重置。",
+      "code": "Monster* Demon::clone() {\n  Demon* d = new Demon(health_, speed_);\n  d->pitchfork_ = pitchfork_->clone(); // deep: owned + mutable\n  d->target_    = nullptr;             // reset: runtime AI state\n  d->squad_     = nullptr;             // assigned by the spawner\n  return d;\n}",
+      "checklist": [
+        "识别 deep vs shallow clone 的问题",
+        "可变且独占的资源（武器耐久）需深拷贝",
+        "运行时状态（target）不应被克隆，应重置",
+        "共享只读数据或外部关系可以浅拷贝/重新指定",
+        "说明 prototype 应只代表“配置模板”"
+      ],
+      "explain": "§5.1 How well does it work?：“Does it do a deep clone or shallow one? In other words, if a demon is holding a pitchfork, does cloning the demon clone the pitchfork too?” 书中只提出问题，逐字段的处理规则是工程上的补充。"
+    },
+    {
+      "type": "scenario",
+      "ref": "5.1",
+      "title": "不用 Prototype 的刷怪笼 · Spawners without clone()",
+      "q": "团队在评审上面的 clone() 方案。有人指出：项目里怪物其实只有 4 个 C++ 类，大部分差异来自数据；还有人说可以用 template 或函数指针。请比较至少三种实现“按类型参数化的 Spawner”的方案（clone()、spawn function、template SpawnerFor<T>），说明各自的代码量和适用场景，并给出你在现代引擎中的最终建议。",
+      "answer": "(1) Prototype clone()：每个子类写 clone()，代码量≈原来的 spawner 类，优势是能连同状态一起克隆；但有 deep/shallow 的语义难题。(2) Spawn function：Monster* spawnGhost() { return new Ghost(); }，Spawner 存一个函数指针 SpawnCallback，比写一整个类少很多样板。(3) Template：template<class T> class SpawnerFor : public Spawner { Monster* spawnMonster() { return new T(); } }，保留非模板基类 Spawner，使不关心怪物类型的代码可以统一使用 Spawner*。在 JS/Python 等 first-class types 语言里直接传类对象即可。最终建议：既然差异主要来自数据，根本不该为每种怪物写一个类——用 Component 或 Type Object 把“种类”建模为数据，Spawner 只持有一个 Breed/配置对象，参数由设计师在数据文件里定义。作者也坦言没找到 Prototype 设计模式是最佳答案的场景。",
+      "code": "// spawn function\ntypedef Monster* (*SpawnCallback)();\nMonster* spawnGhost() { return new Ghost(); }\nSpawner* s1 = new Spawner(spawnGhost);\n\n// template, with a common non-template base\nclass Spawner {\npublic:\n  virtual ~Spawner() {}\n  virtual Monster* spawnMonster() = 0;\n};\ntemplate <class T>\nclass SpawnerFor : public Spawner {\npublic:\n  virtual Monster* spawnMonster() { return new T(); }\n};\nSpawner* s2 = new SpawnerFor<Ghost>();",
+      "checklist": [
+        "列出 clone()、函数指针、template 三种方案并比较样板代码",
+        "解释 template 方案为何需要非模板基类 Spawner",
+        "提到动态语言中 first-class types 可直接传类",
+        "指出“每种怪物一个类”本身是 contrived，推荐 Component / Type Object",
+        "引用作者观点：很少有 Prototype 是最佳答案的场景"
+      ],
+      "explain": "对应 §5.1 的 Spawn functions、Templates、First-class types 小节，以及作者结论 “I honestly can’t say I’ve found a case where I felt the Prototype design pattern was the best answer.”"
+    },
+    {
+      "type": "scenario",
+      "ref": "5.3",
+      "title": "去重的怪物数据表 · Deduplicating monster data",
+      "q": "一款 ARPG 的怪物和装备都用 JSON 配置。goblin grunt、goblin wizard、goblin archer、goblin shaman 四个条目都复制了相同的 minHealth、maxHealth、resists、weaknesses。上次平衡性调整时，策划改了三个，漏改了一个。请设计一种基于 prototype delegation 的数据格式和加载器：字段如何查找？是否需要一个抽象的 “base goblin”？如何处理循环引用和 Boss 级别的独特装备（如 “Sword of Head-Detaching”）？",
+      "answer": "约定：若对象有 \"prototype\" 字段，其值是另一个条目的 name；查找属性时先找自身，找不到就委托给 prototype，再沿链向上（single delegation）。\"prototype\" 是 metadata 而非数据——哥布林没有原型，原型是“描述哥布林的数据对象”的属性。不需要抽象的 base goblin：直接挑最简单的 goblin grunt 作原型，wizard/archer/shaman 只写自己特有的 spells/attacks。改血量只需改 grunt 一处。独特物品同理：Sword of Head-Detaching 的 prototype 是 longsword，只写 damageBonus，非常适合 Boss 和 unique item 这类“常规对象的精炼版”。加载器（工程补充）：载入后建立 name→object 表，可在加载期把链“展平”成最终属性以免运行时反复查找；用 visiting 集合检测循环引用并报错；缺失原型名也要报错提示策划。",
+      "code": "// data\n{ \"name\": \"goblin grunt\", \"minHealth\": 20, \"maxHealth\": 30,\n  \"resists\": [\"cold\", \"poison\"], \"weaknesses\": [\"fire\", \"light\"] }\n{ \"name\": \"goblin wizard\", \"prototype\": \"goblin grunt\",\n  \"spells\": [\"fire ball\", \"lightning bolt\"] }\n{ \"name\": \"Sword of Head-Detaching\", \"prototype\": \"longsword\",\n  \"damageBonus\": 20 }\n\n// loader (JS)\nfunction lookup(db, entry, key, seen = new Set()) {\n  if (key in entry) return entry[key];\n  if (!entry.prototype) return undefined;\n  if (seen.has(entry.name)) throw new Error('cycle at ' + entry.name);\n  seen.add(entry.name);\n  return lookup(db, db[entry.prototype], key, seen);\n}",
+      "checklist": [
+        "定义 \"prototype\" 字段：属性查找失败时委托给另一条目",
+        "说明它是 metadata 而非游戏实体的数据",
+        "不建抽象 base，直接用一个具体条目作为原型",
+        "适用于 Boss / unique item 这类基于常规对象的变体",
+        "加载器处理缺失原型、循环引用（可在加载时展平）"
+      ],
+      "explain": "对应 §5.3 Prototypes for Data Modeling：“Any properties that don’t exist on the first object fall back to being looked up on the prototype”，以及 “we just picked one of the goblins who was the simplest and delegated to it”。循环检测和展平是书外的工程补充。"
+    },
+    {
+      "type": "scenario",
+      "ref": "5.2",
+      "title": "纯原型脚本语言？ · A pure-prototype scripting language?",
+      "q": "你的工作室要为 RPG 的 mod 社区设计一门嵌入式脚本语言。一位引擎程序员提议：“学 Self，完全没有 class，所有对象都靠 clone + delegation，实现简单、灵活，每个 NPC 都可以有独一无二的方法。”请评估这个提议：它的优点是什么？作者自己的体验和 JavaScript 的发展说明了什么？你会怎样设计，让 mod 作者既能复用行为，又能定义清晰的“种类”？",
+      "answer": "优点：Self 式的原型语言在概念上极简——查找任何东西都只看对象本身，失败就委托给 parent；任何对象都能 clone，相当于自动获得 Prototype pattern，无需手写 clone()；实现也比 class 简单（JS 第一版十天写完），单个对象可以有独有方法，适合一次性的特殊 NPC。风险：作者实现了原型语言 Finch 后发现“it just wasn’t that fun to program in”，复杂度被推给了使用者，他最后又在库层面重建 class 的结构；大多数人喜欢 well-defined “kinds of things”，游戏本身也充满明确的职业、敌人种类、物品清单。JavaScript 虽源自 Self，但实践中更像 class：没有 clone 操作，用 constructor + prototype 存共享方法，state 在实例上、behavior 通过委托共享。建议：提供 class（或类似 JS 构造函数/class 语法）作为主要的结构化手段，同时保留 delegation 用于数据层面的“单个特例”（如在数据中用 prototype 字段派生 Boss），兼顾结构与灵活。",
+      "code": "// JS-style: state on the instance, behavior on a shared prototype\nfunction Npc(name, hp) {\n  this.name = name;\n  this.hp = hp;\n}\nNpc.prototype.greet = function() {\n  return 'Hello, I am ' + this.name;\n};\n\nconst guard = new Npc('Guard', 50);\n// one-off special behavior via delegation\nconst captain = Object.create(guard);\ncaptain.name = 'Captain';\ncaptain.greet = function() { return 'Halt!'; };",
+      "checklist": [
+        "说明 Self 的核心：无 class，查找失败委托给 parent，靠 clone 创建对象",
+        "列出优点：实现简单、灵活、对象可有独有行为",
+        "引用作者体验：纯原型语言把复杂度推给用户，人们更喜欢明确的“种类”",
+        "指出 JavaScript 实践中更接近 class（无 clone、constructor + prototype）",
+        "给出折中设计：以 class 结构为主，delegation 用于特例/数据"
+      ],
+      "explain": "对应 §5.2 The Prototype Language Paradigm：作者的 Finch 经历 “punted the complexity onto the user”，以及 “JavaScript in practice has more in common with class-based languages than with prototypal ones”。mod 语言的具体设计建议是在书中观点上的延伸。"
     }
   ]
 }
