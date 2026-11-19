@@ -283,6 +283,11 @@
     if (!next || !next.owner || !next.repo) return;
     cfg = next;
     setKeys();
+    // The previous GPP site stored its device token under this legacy key.
+    // Reuse it once on the same GitHub Pages origin, then keep the namespaced key.
+    try {
+      if (!ls(tokenKey) && ls('gpp-gh-token')) ls(tokenKey, ls('gpp-gh-token'));
+    } catch (e) {}
     remote = normalize(parse(ls(cacheKey), null));
     pending = parse(ls(pendingKey), {}) || {};
     recompute();

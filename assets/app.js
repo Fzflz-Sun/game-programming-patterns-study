@@ -31,6 +31,10 @@
   var UI = {
     zh: {
       contents: '目录', home: '首页', learn: '知识点', practice: '练习',
+      part: '篇', chapter: '章', introduction: '前言', ch: '第', chapterWord: '章',
+      repoLabel: '仓库', fileLabel: '文件', fineToken: '细粒度令牌',
+      syncHelp: '读取公开标注不需要令牌；写入需要仅限该仓库 Contents 读写的 fine-grained token，令牌只保存在本机浏览器。',
+      footerNote: '内容仅供个人学习。', unsavedLangConfirm: '语言切换会重新渲染页面。当前有未保存的笔记或作答，先保存再切换吗？\n\n按取消返回保存。',
       progress: '学习进度', starredOnly: '只看星标', showAll: '显示全部',
       allPoints: '全部知识点', starredPoints: '星标知识点', noStarred: '本章还没有星标知识点。',
       points: '个知识点', exercises: '道练习', chapters: '章', parts: '篇',
@@ -55,6 +59,10 @@
     },
     en: {
       contents: 'Contents', home: 'Home', learn: 'Concepts', practice: 'Practice',
+      part: 'Part', chapter: 'Chapter', introduction: 'Introduction', ch: 'Ch.', chapterWord: 'Chapter',
+      repoLabel: 'Repository', fileLabel: 'File', fineToken: 'Fine-grained token',
+      syncHelp: 'Public reading needs no token. Writing needs a fine-grained token with Contents read/write on this repository only; the token stays in this browser.',
+      footerNote: 'For personal study only.', unsavedLangConfirm: 'Switching language will redraw the page. There is an unsaved note or answer. Save it first?\n\nPress Cancel to return and save.',
       progress: 'Progress', starredOnly: 'Starred only', showAll: 'Show all',
       allPoints: 'All concepts', starredPoints: 'Starred concepts', noStarred: 'No starred concepts in this chapter yet.',
       points: 'concepts', exercises: 'exercises', chapters: 'chapters', parts: 'parts',
@@ -79,6 +87,10 @@
     },
     es: {
       contents: 'Índice', home: 'Inicio', learn: 'Conceptos', practice: 'Práctica',
+      part: 'Parte', chapter: 'Capítulo', introduction: 'Introducción', ch: 'Cap.', chapterWord: 'Capítulo',
+      repoLabel: 'Repositorio', fileLabel: 'Archivo', fineToken: 'Token fine-grained',
+      syncHelp: 'La lectura pública no necesita token. Para escribir se necesita un token fine-grained con permiso Contents de lectura y escritura solo en este repositorio; el token se queda en este navegador.',
+      footerNote: 'Solo para estudio personal.', unsavedLangConfirm: 'Cambiar de idioma volverá a dibujar la página. Hay una nota o respuesta sin guardar. ¿Guardarla primero?\n\nPulsa Cancelar para volver y guardar.',
       progress: 'Progreso', starredOnly: 'Solo destacados', showAll: 'Mostrar todo',
       allPoints: 'Todos los conceptos', starredPoints: 'Conceptos destacados', noStarred: 'Aún no hay conceptos destacados en este capítulo.',
       points: 'conceptos', exercises: 'ejercicios', chapters: 'capítulos', parts: 'partes',
@@ -252,7 +264,7 @@
     h += '<a class="toc-home' + (!activeId ? ' active' : '') + '" href="#/"><span class="home-glyph">⌂</span>' + esc(t('home')) + '</a>';
 
     toc.parts.forEach(function (p) {
-      h += '<div class="toc-part"><span>Part ' + p.num + '</span><b>' + esc(pick(p.title)) + '</b></div>';
+      h += '<div class="toc-part"><span>' + esc(t('part')) + ' ' + p.num + '</span><b>' + esc(pick(p.title)) + '</b></div>';
       p.chapters.forEach(function (c) {
         var on = c.id === activeId;
         var sc = starCount(c.id + '/');
@@ -298,15 +310,24 @@
     h += '<a class="side-back" href="#/">' + esc(book.author || '') + '</a>';
     sidebar.innerHTML = h;
     var collapse = sidebar.querySelector('.side-collapse');
-    if (collapse) collapse.addEventListener('click', function () { setSidebar(false); });
+    if (collapse) collapse.addEventListener('click', function () {
+      if (window.innerWidth <= 960) closeMobileNav();
+      else setSidebar(false);
+    });
+  }
+
+  function paintSidebarButton() {
+    var mobile = window.innerWidth <= 960;
+    var open = mobile ? document.body.classList.contains('nav-open') : !layout.classList.contains('sidebar-collapsed');
+    sidebarBtn.setAttribute('aria-expanded', String(open));
+    sidebarBtn.setAttribute('aria-label', t(mobile ? 'menu' : (open ? 'collapse' : 'expand')));
+    sidebarBtn.title = t(mobile ? 'menu' : (open ? 'collapse' : 'expand'));
   }
 
   function setSidebar(open) {
     sidebarCollapsed = !open;
     layout.classList.toggle('sidebar-collapsed', sidebarCollapsed);
-    sidebarBtn.setAttribute('aria-expanded', String(open));
-    sidebarBtn.setAttribute('aria-label', t(open ? 'collapse' : 'expand'));
-    sidebarBtn.title = t(open ? 'collapse' : 'expand');
+    paintSidebarButton();
     lsSet(':sidebar-collapsed', open ? '0' : '1');
   }
 
@@ -325,18 +346,18 @@
       '<div class="stat"><b id="statEx">—</b><span>' + esc(t('exercises')) + '</span></div></div></section>';
 
     toc.parts.forEach(function (p) {
-      h += '<section class="part-block"><h2><span class="pn">Part ' + p.num + '</span>' + esc(pick(p.title)) + '</h2><div class="cards">';
+      h += '<section class="part-block"><h2><span class="pn">' + esc(t('part')) + ' ' + p.num + '</span>' + esc(pick(p.title)) + '</h2><div class="cards">';
       p.chapters.forEach(function (c) {
         var pr = prog[c.id] || {};
         var sc = starCount(c.id + '/');
-        h += '<a class="card" href="#/' + encodeURIComponent(c.id) + '"><div class="cn">' + (c.num === 0 ? 'Introduction' : 'Chapter ' + c.num) + '</div>' +
+        h += '<a class="card" href="#/' + encodeURIComponent(c.id) + '"><div class="cn">' + (c.num === 0 ? esc(t('introduction')) : esc(t('chapter')) + ' ' + c.num) + '</div>' +
           '<div class="cz">' + esc(pick(c.title)) + '</div><div class="ce">' + esc(asLoc(c.title).en) + '</div>' +
           '<div class="cm"><span>' + (pr.score != null ? pr.score + ' / ' + pr.total : '—') + '</span><span>' +
           (sc ? '<span class="star-n">★ ' + sc + '</span>' : '') + (pr.read ? '<span class="ok">✓</span>' : '') + '</span></div></a>';
       });
       h += '</div></section>';
     });
-    h += '<p class="foot">' + esc(pick(book.title)) + (book.author ? ' · ' + esc(book.author) : '') + ' · Built with Bookleaf · 内容仅供个人学习。</p></div>';
+    h += '<p class="foot">' + esc(pick(book.title)) + (book.author ? ' · ' + esc(book.author) : '') + ' · Built with Bookleaf · ' + esc(t('footerNote')) + '</p></div>';
     main.innerHTML = h;
     loadAllStats();
   }
@@ -380,8 +401,8 @@
   }
 
   function chapterLabel(meta) {
-    if (meta.num === 0) return 'Introduction';
-    return 'Chapter ' + meta.num + ' · ' + pick(meta.part.title);
+    if (meta.num === 0) return t('introduction');
+    return t('chapter') + ' ' + meta.num + ' · ' + pick(meta.part.title);
   }
 
   function renderChapter(meta, ch, view, pointKey) {
@@ -435,17 +456,20 @@
         .filter(function (x) { return !starredView || A.stars[x.key]; });
       if (!pts.length) return;
       h += '<section class="section" id="s-' + esc(s.num) + '"><h2 class="sec-title"><span class="sn">§' + esc(s.num) + '</span>' +
-        stack(s.title, 'div', 'sec-lset') + '</h2>';
+        stackInline(asLoc(s.title), 'sec-lset') + '</h2>';
       pts.forEach(function (x) {
         var p = x.p, key = x.key, starred = !!A.stars[key], note = A.notes[key] || '';
         h += '<div class="point' + (starred ? ' starred' : '') + '" id="point-' + esc(key.replace(/[\/.]/g, '-')) + '" data-key="' + esc(key) + '">' +
           '<div class="pt-tools"><button class="star-btn" type="button" data-act="star" aria-pressed="' + starred + '" aria-label="' + esc(t(starred ? 'unstar' : 'star')) + '" title="' + esc(t(starred ? 'unstar' : 'star')) + '">' + (starred ? '★' : '☆') + '</button></div>' +
           '<div class="pt-title-mark">' + stackMarked(p.title, key + '/t', 'h3', 'pt-title') + '</div>' +
           '<div class="src"><span>' + esc(t('source')) + '</span>' + chipLabel(p.subsection || s.title) +
-          '<span class="tag">' + (meta.num === 0 ? 'Introduction' : 'Ch. ' + meta.num) + '</span><span>›</span>' +
+          '<span class="tag">' + (meta.num === 0 ? esc(t('introduction')) : esc(t('ch')) + ' ' + meta.num) + '</span><span>›</span>' +
           '<span class="tag">§' + esc(s.num) + '</span>' + (p.subsection ? '<span>›</span><span class="tag">' + esc(pick(p.subsection)) + '</span>' : '') + '</div>' +
           '<div class="body">' + stackMarked(p.body, key + '/b', 'p') + '</div>' +
-          (p.code ? '<pre><code><span class="mk code-mk" data-blk="' + esc(key + '/code') + '">' + highlight(p.code) + '</span></code></pre>' : '') +
+          (p.code ? (function () {
+            var codeMarks = A.marks[key + '/code'];
+            return '<pre><code><span class="mk code-mk" data-blk="' + esc(key + '/code') + '">' + (codeMarks && codeMarks.length ? window.BookleafAnnot.render(p.code, codeMarks) : highlight(p.code)) + '</span></code></pre>';
+          })() : '') +
           '<div class="note-wrap" data-note-key="' + esc(key) + '">' + noteView(key, note) + '</div></div>';
       });
       h += '</section>';
@@ -582,7 +606,9 @@
     } else if (e.type === 'fill') {
       h += '<form class="fill-row"><input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc(t('typeAnswer')) + '"><button class="btn primary" type="submit">' + esc(t('submit')) + '</button></form>';
     } else {
-      h += '<textarea class="open-area" placeholder="' + esc(t('writeFirst')) + '"></textarea><button class="btn primary reveal" type="button">' + esc(t('reveal')) + '</button>';
+      var openDraft = '';
+      try { openDraft = localStorage.getItem(ns + ':draft:' + meta.id + ':' + i) || ''; } catch (err) {}
+      h += '<textarea class="open-area" placeholder="' + esc(t('writeFirst')) + '">' + esc(openDraft) + '</textarea><button class="btn primary reveal" type="button">' + esc(t('reveal')) + '</button>';
     }
     return h + '<div class="fb"></div></div>';
   }
@@ -701,6 +727,14 @@
           fb.addEventListener('change', tally); tally(); update();
         });
       } else {
+        var openArea = box.querySelector('textarea');
+        var openSaveT = null;
+        openArea.addEventListener('input', function () {
+          clearTimeout(openSaveT);
+          openSaveT = setTimeout(function () {
+            try { localStorage.setItem(ns + ':draft:' + meta.id + ':' + i, openArea.value); } catch (err) {}
+          }, 350);
+        });
         box.querySelector('.reveal').addEventListener('click', function (ev) {
           ev.target.disabled = true; feedback(box, e, null);
         });
@@ -718,7 +752,7 @@
     var reset = document.getElementById('exReset');
     if (reset) reset.addEventListener('click', function () {
       (ch.exercises || []).forEach(function (e, i) {
-        if (e.type === 'scenario') { try { localStorage.removeItem(ns + ':draft:' + meta.id + ':' + i); } catch (err) {} }
+        if (e.type === 'scenario' || e.type === 'open') { try { localStorage.removeItem(ns + ':draft:' + meta.id + ':' + i); } catch (err) {} }
       });
       renderChapter(meta, ch, 'practice');
       renderSidebar(meta.id, ch, 'practice');
@@ -832,6 +866,16 @@
     var cfg = book.annotations || {};
     var repo = book.repo || {};
     document.getElementById('tokInput').value = '';
+    document.getElementById('syncTitle').textContent = t('syncTitle');
+    document.getElementById('syncIntro').textContent = t('syncIntro');
+    document.getElementById('syncHelp').textContent = t('syncHelp');
+    document.getElementById('factRepoLabel').textContent = t('repoLabel');
+    document.getElementById('factFileLabel').textContent = t('fileLabel');
+    document.getElementById('tokLabel').textContent = t('fineToken');
+    document.getElementById('tokLogout').textContent = t('disconnect');
+    document.getElementById('tokRefresh').textContent = t('refresh');
+    document.getElementById('tokClose').textContent = t('close');
+    document.getElementById('tokSave').textContent = t('connect');
     document.getElementById('syncRepo').textContent = repo.owner ? repo.owner + '/' + repo.name : '—';
     document.getElementById('syncFile').textContent = (cfg.branch || repo.branch || 'main') + ' / ' + (cfg.path || 'annotations.json');
     document.getElementById('tokState').textContent = A.hasToken() ? t('connected') : t('notConnected');
@@ -910,7 +954,7 @@
   function closeMobileNav() {
     menuOpen = false;
     document.body.classList.remove('nav-open');
-    if (window.innerWidth <= 960) sidebarBtn.setAttribute('aria-expanded', 'false');
+    if (typeof paintSidebarButton === 'function') paintSidebarButton();
   }
 
   /* --------------------------------------------------------------- controls */
@@ -933,12 +977,22 @@
         setTimeout(function () { langSeg.classList.remove('shake'); }, 400);
         return;
       }
+      if (hasUnsavedEditor() && !confirm(t('unsavedLangConfirm'))) return;
       activeLangs = activeLangs.filter(function (x) { return x !== lang; });
     } else {
+      if (hasUnsavedEditor() && !confirm(t('unsavedLangConfirm'))) return;
       activeLangs = LANGS.filter(function (k) { return activeLangs.indexOf(k) >= 0 || k === lang; });
     }
     saveLangs(); paintLang(); rerender();
   });
+
+  function hasUnsavedEditor() {
+    var note = main.querySelector('.note.editing textarea');
+    if (note && note.value.trim()) return true;
+    var areas = main.querySelectorAll('.open-area');
+    for (var i = 0; i < areas.length; i++) if (areas[i].value.trim()) return true;
+    return false;
+  }
 
   function rerender() {
     if (window.BookleafAnnot.configured) window.BookleafAnnot.refresh(false);
@@ -975,7 +1029,7 @@
     if (window.innerWidth <= 960) {
       menuOpen = !menuOpen;
       document.body.classList.toggle('nav-open', menuOpen);
-      sidebarBtn.setAttribute('aria-expanded', String(menuOpen));
+      paintSidebarButton();
       if (menuOpen) renderSidebar(currentRoute.id, currentRoute.id ? cache[currentRoute.id] : null, currentRoute.view);
     } else {
       setSidebar(layout.classList.contains('sidebar-collapsed'));
@@ -988,6 +1042,8 @@
   window.addEventListener('resize', function () {
     if (window.innerWidth > 960) { menuOpen = false; document.body.classList.remove('nav-open'); }
     else layout.classList.remove('sidebar-collapsed');
+    paintSidebarButton();
+    paintTheme();
   });
 
   /* --------------------------------------------------------- annotation feed */
@@ -1038,7 +1094,7 @@
     window.addEventListener('hashchange', function () { route(false); });
     route(false);
     if (sidebarCollapsed) setSidebar(false);
-    else sidebarBtn.setAttribute('aria-expanded', 'true');
+    else paintSidebarButton();
     paintLang();
     paintTheme();
     paintSync();

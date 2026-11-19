@@ -56,19 +56,19 @@
     <p class="dlg-status" id="dlgStatus"></p>
     <p id="syncIntro">星标、画线和笔记保存在 GitHub 仓库中，所有设备共享。读取公开数据不需要令牌；写入需要该仓库的 fine-grained token。</p>
     <div class="sync-facts">
-      <div><span>Repository</span><b id="syncRepo">—</b></div>
-      <div><span>File</span><code id="syncFile">—</code></div>
+      <div><span id="factRepoLabel">Repository</span><b id="syncRepo">—</b></div>
+      <div><span id="factFileLabel">File</span><code id="syncFile">—</code></div>
     </div>
-    <p class="muted">Stars, ink and notes are stored in this site's GitHub repository and shared across devices. Writes need a fine-grained token with <b>Contents: Read and write</b> on this repository only.</p>
+    <p class="muted" id="syncHelp">Stars, ink and notes are stored in this site's GitHub repository and shared across devices. Writes need a fine-grained token with <b>Contents: Read and write</b> on this repository only.</p>
     <p id="tokState"></p>
-    <label class="tok-label" for="tokInput">Fine-grained token</label>
+    <label class="tok-label" for="tokInput" id="tokLabel">Fine-grained token</label>
     <input id="tokInput" type="password" autocomplete="off" placeholder="github_pat_…">
     <div class="dlg-acts">
       <button class="btn" type="button" data-dlg="logout" id="tokLogout">断开本设备</button>
-      <button class="btn" type="button" data-dlg="refresh">立即刷新</button>
+      <button class="btn" type="button" data-dlg="refresh" id="tokRefresh">立即刷新</button>
       <span class="sp"></span>
-      <button class="btn" type="button" data-dlg="close">关闭</button>
-      <button class="btn primary" type="button" data-dlg="save">连接</button>
+      <button class="btn" type="button" data-dlg="close" id="tokClose">关闭</button>
+      <button class="btn primary" type="button" data-dlg="save" id="tokSave">连接</button>
     </div>
   </div>
 </dialog>
