@@ -1,784 +1,304 @@
 {
   "id": "architecture",
-  "title": {
-    "zh": "架构、性能与游戏",
-    "en": "Architecture, Performance, and Games",
-    "es": "Arquitectura, rendimiento y juegos"
-  },
+  "title": { "en": "Architecture, Performance, and Games", "zh": "架构、性能与游戏" },
   "summary": {
-    "zh": "软件架构关注的是如何组织代码，使其易于适应变化；解耦能把你在动手之前必须理解的东西降到最少。但抽象需要付出精力、增加复杂度，有时还会损失运行速度，因此必须在长期开发速度、运行性能和短期开发速度之间权衡。简洁能缓解这些矛盾。",
     "en": "Software architecture is about organizing code so it accommodates change; decoupling minimizes how much you must understand before making progress. But abstraction costs effort, complexity and sometimes runtime speed, and must be balanced against performance and short-term development speed. Simplicity eases these tensions.",
-    "es": "La arquitectura de software se ocupa de organizar el código para que se adapte al cambio; el desacoplamiento reduce al mínimo cuánto debes comprender antes de poder avanzar. Pero la abstracción cuesta esfuerzo, complejidad y, a veces, velocidad de ejecución, y debe equilibrarse con el rendimiento y la velocidad de desarrollo a corto plazo. La simplicidad alivia estas tensiones."
+    "zh": "软件架构关注的是如何组织代码，使其易于适应变化；解耦能把你在动手之前必须理解的东西降到最少。但抽象需要付出精力、增加复杂度，有时还会损失运行速度，因此必须在长期开发速度、运行性能和短期开发速度之间权衡。简洁能缓解这些矛盾。"
   },
   "sections": [
     {
       "num": "1.0",
-      "title": {
-        "zh": "架构、性能与游戏（引言）",
-        "en": "Architecture, Performance, and Games (Introduction)",
-        "es": "Arquitectura, rendimiento y juegos (Introducción)"
-      },
+      "title": { "en": "Architecture, Performance, and Games (Introduction)", "zh": "架构、性能与游戏（引言）" },
       "points": [
         {
-          "title": {
-            "zh": "介绍模式之前先交代背景",
-            "en": "Context before the patterns",
-            "es": "Contexto antes de los patrones"
-          },
+          "title": { "en": "Context before the patterns", "zh": "介绍模式之前先交代背景" },
           "body": {
-            "zh": "在深入讲解各个模式之前，作者先说明他如何看待软件架构以及它在游戏中的应用。这些背景有助于理解本书其余部分，当你被卷入“设计模式和软件架构到底是糟糕还是了不起”的争论时，也能提供弹药——就像军火商一样，他向双方都出售武器。",
             "en": "Before diving into patterns, the author explains how he thinks about software architecture and how it applies to games. This context helps with the rest of the book and gives you ammunition when arguing about whether design patterns and architecture are terrible or awesome — like an arms dealer, he sells to both sides.",
-            "es": "Antes de sumergirse en los patrones, el autor explica cómo concibe la arquitectura de software y cómo se aplica a los juegos. Este contexto ayuda a comprender el resto del libro y te da munición cuando se discute si los patrones de diseño y la arquitectura son algo terrible o algo extraordinario: como un traficante de armas, le vende a los dos bandos."
+            "zh": "在深入讲解各个模式之前，作者先说明他如何看待软件架构以及它在游戏中的应用。这些背景有助于理解本书其余部分，当你被卷入“设计模式和软件架构到底是糟糕还是了不起”的争论时，也能提供弹药——就像军火商一样，他向双方都出售武器。"
           }
         }
       ]
     },
     {
       "num": "1.1",
-      "title": {
-        "zh": "什么是软件架构？",
-        "en": "What is Software Architecture?",
-        "es": "¿Qué es la arquitectura de software?"
-      },
+      "title": { "en": "What is Software Architecture?", "zh": "什么是软件架构？" },
       "points": [
         {
-          "title": {
-            "zh": "各个领域之间的代码",
-            "en": "The code between the domains",
-            "es": "El código que hay entre los dominios"
-          },
+          "title": { "en": "The code between the domains", "zh": "各个领域之间的代码" },
           "body": {
-            "zh": "本书不讲 3D 图形的线性代数、物理、AI 搜索或音频，而是讲这些之间的代码——重点不在于写代码，而在于组织代码。每个程序都有某种组织方式，所以真正有意思的问题是：如何区分好的架构和坏的架构。",
             "en": "The book won't teach 3D math, physics, AI search or audio. It's about the code between all of that — less about writing code than organizing it. Every program has some organization, so the interesting question is how to tell a good architecture from a bad one.",
-            "es": "El libro no enseñará matemáticas 3D, física, búsqueda de IA ni audio. Trata del código que hay entre todo eso: menos sobre escribir código que sobre organizarlo. Todo programa tiene alguna organización, así que la pregunta interesante es cómo distinguir una buena arquitectura de una mala."
+            "zh": "本书不讲 3D 图形的线性代数、物理、AI 搜索或音频，而是讲这些之间的代码——重点不在于写代码，而在于组织代码。每个程序都有某种组织方式，所以真正有意思的问题是：如何区分好的架构和坏的架构。"
           }
         },
         {
-          "title": {
-            "zh": "架构关乎变化",
-            "en": "Architecture is about change",
-            "es": "La arquitectura tiene que ver con el cambio"
-          },
+          "subsection": { "en": "What is good software architecture?", "zh": "什么是好的软件架构？" },
+          "title": { "en": "Architecture is about change", "zh": "架构关乎变化" },
           "body": {
-            "zh": "好的设计意味着：当你做出修改时，整个程序仿佛早就为这次修改准备好了。关键在于，架构关乎变化：如果没人修改代码，设计好坏就无关紧要。衡量设计的标准是它能多容易地适应变化。",
             "en": "Good design means that when you make a change, it's as if the whole program was crafted in anticipation of it. The key point is that architecture is about change: if no one touches the code, its design is irrelevant. The measure of a design is how easily it accommodates changes.",
-            "es": "Un buen diseño significa que, cuando haces un cambio, es como si todo el programa se hubiera elaborado en previsión de ese cambio. El punto clave es que la arquitectura tiene que ver con el cambio: si nadie toca el código, su diseño es irrelevante. La medida de un diseño es la facilidad con la que se adapta a los cambios."
-          },
-          "subsection": {
-            "zh": "什么是好的软件架构？",
-            "en": "What is good software architecture?",
-            "es": "¿Qué es una buena arquitectura de software?"
+            "zh": "好的设计意味着：当你做出修改时，整个程序仿佛早就为这次修改准备好了。关键在于，架构关乎变化：如果没人修改代码，设计好坏就无关紧要。衡量设计的标准是它能多容易地适应变化。"
           }
         },
         {
-          "title": {
-            "zh": "理解代码是最耗时的一步",
-            "en": "Understanding the code is the slow part",
-            "es": "Entender el código es la parte lenta"
-          },
+          "subsection": { "en": "How do you make a change?", "zh": "如何做出修改？" },
+          "title": { "en": "Understanding the code is the slow part", "zh": "理解代码是最耗时的一步" },
           "body": {
-            "zh": "修改代码之前，你必须把相关部分“载入”大脑。我们往往忽略这一步，但它常常是编程中最耗时的环节——比把数据从磁盘换页到内存慢得多。一旦理解了问题，真正写代码有时反倒很简单。",
             "en": "Before changing code you must load the relevant parts into your brain. We tend to gloss over this step, but it's often the most time-consuming part of programming — slower than paging data from disk into RAM. Once you understand the problem, the actual coding is sometimes trivial.",
-            "es": "Antes de cambiar el código, debes cargar en tu cerebro las partes relevantes. Solemos pasar por alto este paso, pero a menudo es la parte de la programación que más tiempo consume: más lenta que paginar datos del disco a la RAM. Una vez que entiendes el problema, la codificación propiamente dicha a veces resulta trivial."
-          },
-          "subsection": {
-            "zh": "如何做出修改？",
-            "en": "How do you make a change?",
-            "es": "¿Cómo se hace un cambio?"
+            "zh": "修改代码之前，你必须把相关部分“载入”大脑。我们往往忽略这一步，但它常常是编程中最耗时的环节——比把数据从磁盘换页到内存慢得多。一旦理解了问题，真正写代码有时反倒很简单。"
           }
         },
         {
-          "title": {
-            "zh": "修改之后要清理",
-            "en": "Clean up after the change",
-            "es": "Limpieza después del cambio"
-          },
+          "subsection": { "en": "How do you make a change?", "zh": "如何做出修改？" },
+          "title": { "en": "Clean up after the change", "zh": "修改之后要清理" },
           "body": {
-            "zh": "代码能运行之后还要清理：编写测试（很多游戏代码其实是可测试的），并重新组织代码，让新代码与程序其余部分无缝融合。做得好的话，后来的人看不出任何一行代码是何时写的。编程流程是一个循环：理解、思考方案、编码、清理——而且无法跳出。",
             "en": "After the code works, there's cleanup: writing tests (much game code is testable) and reorganizing so the new code integrates seamlessly. Done right, the next person can't tell when any line was written. The programming flow is a loop: learn, solve, code, clean up — with no escape.",
-            "es": "Cuando el código ya funciona, viene la limpieza: escribir pruebas (mucho código de juego es verificable) y reorganizar para que el código nuevo se integre sin fisuras. Si se hace bien, la siguiente persona no puede distinguir cuándo se escribió cada línea. El flujo de la programación es un ciclo: entender, resolver, codificar, limpiar, y sin escapatoria."
-          },
-          "subsection": {
-            "zh": "如何做出修改？",
-            "en": "How do you make a change?",
-            "es": "¿Cómo se hace un cambio?"
+            "zh": "代码能运行之后还要清理：编写测试（很多游戏代码其实是可测试的），并重新组织代码，让新代码与程序其余部分无缝融合。做得好的话，后来的人看不出任何一行代码是何时写的。编程流程是一个循环：理解、思考方案、编码、清理——而且无法跳出。"
           }
         },
         {
-          "title": {
-            "zh": "解耦让需要装进脑子的知识最少",
-            "en": "Decoupling minimizes in-cranium knowledge",
-            "es": "El desacoplamiento minimiza el conocimiento que hay que tener en la cabeza"
-          },
+          "subsection": { "en": "How can decoupling help?", "zh": "解耦有什么帮助？" },
+          "title": { "en": "Decoupling minimizes in-cranium knowledge", "zh": "解耦让需要装进脑子的知识最少" },
           "body": {
-            "zh": "如果两段代码耦合，就无法在不理解其中一段的情况下理解另一段；解耦之后，可以独立地分析各自。架构的一个关键目标，就是把你取得进展之前必须装进脑子的知识降到最少。解耦的另一种定义是：修改一段代码不必连带修改另一段，因此改动的影响范围更小。",
             "en": "If two pieces of code are coupled, you can't understand one without understanding the other; decoupled, you can reason about each independently. A key goal of architecture is to minimize the knowledge you need in your head before you can make progress. Another definition: a change to one piece doesn't necessitate a change to another, so changes ripple less.",
-            "es": "Si dos partes del código están acopladas, no puedes entender una sin entender la otra; desacopladas, puedes razonar sobre cada una de forma independiente. Un objetivo clave de la arquitectura es minimizar el conocimiento que necesitas tener en la cabeza antes de poder avanzar. Otra definición: un cambio en una pieza no exige un cambio en otra, de modo que los cambios se propagan menos."
-          },
-          "subsection": {
-            "zh": "解耦有什么帮助？",
-            "en": "How can decoupling help?",
-            "es": "¿Cómo ayuda el desacoplamiento?"
+            "zh": "如果两段代码耦合，就无法在不理解其中一段的情况下理解另一段；解耦之后，可以独立地分析各自。架构的一个关键目标，就是把你取得进展之前必须装进脑子的知识降到最少。解耦的另一种定义是：修改一段代码不必连带修改另一段，因此改动的影响范围更小。"
           }
         }
       ]
     },
     {
       "num": "1.2",
-      "title": {
-        "zh": "代价是什么？",
-        "en": "At What Cost?",
-        "es": "¿Cuál es el costo?"
-      },
+      "title": { "en": "At What Cost?", "zh": "代价是什么？" },
       "points": [
         {
-          "title": {
-            "zh": "好的架构需要努力与自律",
-            "en": "Good architecture takes effort and discipline",
-            "es": "Una buena arquitectura exige esfuerzo y disciplina"
-          },
+          "title": { "en": "Good architecture takes effort and discipline", "zh": "好的架构需要努力与自律" },
           "body": {
-            "zh": "好的架构能大幅提升生产力，但它不是免费的。每次修改都要优雅地融入程序，还要在成千上万次小改动中保持设计。很多程序开头很漂亮，却因为一次又一次“就加一个小小的 hack”而慢慢死去。就像园艺一样，光种新植物不够，还得除草修剪。",
             "en": "Good architecture greatly improves productivity, but it isn't free. Every change must be integrated gracefully, and the design must be maintained through thousands of little changes. Many programs start beautifully and die a death of a thousand cuts from \"just one tiny little hack\". Like gardening, you must also weed and prune.",
-            "es": "Una buena arquitectura mejora enormemente la productividad, pero no es gratuita. Cada cambio debe integrarse con elegancia, y el diseño debe mantenerse a través de miles de cambios pequeños. Muchos programas comienzan de maravilla y mueren de mil cortes a causa de «solo un pequeño hack». Como en la jardinería, también hay que desmalezar y podar."
+            "zh": "好的架构能大幅提升生产力，但它不是免费的。每次修改都要优雅地融入程序，还要在成千上万次小改动中保持设计。很多程序开头很漂亮，却因为一次又一次“就加一个小小的 hack”而慢慢死去。就像园艺一样，光种新植物不够，还得除草修剪。"
           }
         },
         {
-          "title": {
-            "zh": "抽象是一种押注",
-            "en": "Abstraction is speculation",
-            "es": "La abstracción es una apuesta"
-          },
+          "title": { "en": "Abstraction is speculation", "zh": "抽象是一种押注" },
           "body": {
-            "zh": "每当你增加一层抽象或一个扩展点，你都是在押注将来会用到这份灵活性，同时增加了需要开发、调试和维护的代码与复杂度。如果猜错了，这种模块化反而会有害。YAGNI（“你不会需要它的”）就是用来抵制这种冲动的箴言。",
             "en": "Whenever you add a layer of abstraction or a point of extensibility, you are speculating that you'll need that flexibility later, adding code and complexity that must be developed, debugged and maintained. If the guess is wrong, the modularity becomes actively harmful. YAGNI — \"You aren't gonna need it\" — is a mantra against this urge.",
-            "es": "Cada vez que agregas una capa de abstracción o un punto de extensibilidad, estás especulando que necesitarás esa flexibilidad más adelante, y agregas código y complejidad que deben desarrollarse, depurarse y mantenerse. Si la apuesta sale mal, la modularidad pasa a ser activamente dañina. YAGNI —«no lo vas a necesitar»— es un mantra contra ese impulso."
+            "zh": "每当你增加一层抽象或一个扩展点，你都是在押注将来会用到这份灵活性，同时增加了需要开发、调试和维护的代码与复杂度。如果猜错了，这种模块化反而会有害。YAGNI（“你不会需要它的”）就是用来抵制这种冲动的箴言。"
           }
         },
         {
-          "title": {
-            "zh": "失控的架构",
-            "en": "Architecture spiraling out of control",
-            "es": "La arquitectura que se sale de control"
-          },
+          "title": { "en": "Architecture spiraling out of control", "zh": "失控的架构" },
           "body": {
-            "zh": "过度热衷架构会导致到处都是接口、插件系统、抽象基类和虚方法。要穿过层层脚手架才能找到真正干活的代码，而这些抽象层本身就塞满了你的“思维缓存”。这样的代码库让人反感设计模式；对可扩展性的盲目追求，让无数开发者花数年时间做一个“引擎”，却始终不知道它是用来做什么的。",
             "en": "Overzealous architecture yields interfaces, plug-in systems, abstract base classes and virtual methods everywhere. Tracing through the scaffolding to find real code takes forever, and the layers of abstraction fill your mental scratch disk. Such codebases turn people against design patterns, and the siren song of extensibility traps developers building an \"engine\" without knowing what it's for.",
-            "es": "Una arquitectura demasiado entusiasta produce interfaces, sistemas de complementos, clases base abstractas y métodos virtuales por todas partes. Recorrer todo ese andamiaje para encontrar el código que realmente hace el trabajo lleva una eternidad, y las capas de abstracción llenan tu «disco de trabajo» mental. Esas bases de código hacen que la gente se vuelva contra los patrones de diseño, y el canto de sirena de la extensibilidad atrapa a desarrolladores que construyen un «motor» sin saber para qué sirve."
+            "zh": "过度热衷架构会导致到处都是接口、插件系统、抽象基类和虚方法。要穿过层层脚手架才能找到真正干活的代码，而这些抽象层本身就塞满了你的“思维缓存”。这样的代码库让人反感设计模式；对可扩展性的盲目追求，让无数开发者花数年时间做一个“引擎”，却始终不知道它是用来做什么的。"
           }
         }
       ]
     },
     {
       "num": "1.3",
-      "title": {
-        "zh": "性能与速度",
-        "en": "Performance and Speed",
-        "es": "Rendimiento y velocidad"
-      },
+      "title": { "en": "Performance and Speed", "zh": "性能与速度" },
       "points": [
         {
-          "title": {
-            "zh": "灵活性有运行时开销",
-            "en": "Flexibility has a runtime cost",
-            "es": "La flexibilidad tiene un costo en tiempo de ejecución"
-          },
+          "title": { "en": "Flexibility has a runtime cost", "zh": "灵活性有运行时开销" },
           "body": {
-            "zh": "许多让代码更灵活的模式依赖虚函数分派、接口、指针和消息，这些都有一定的运行时开销。灵活性是一个谱系：调用具体方法时，类在编写代码时就已确定；通过虚方法或接口调用时，直到运行时才知道调用哪个类（更灵活，但有开销）；C++ 模板元编程则在编译期决定，有时能提供接口式的抽象而没有运行时代价。",
             "en": "Many flexible patterns rely on virtual dispatch, interfaces, pointers and messages, all with some runtime cost. There's a spectrum: calling a concrete method fixes the class at author time; a virtual method defers it to runtime (more flexible, some overhead); C++ templates decide at compile time, sometimes giving interface-like abstraction without runtime penalty.",
-            "es": "Muchos patrones flexibles dependen del despacho virtual, las interfaces, los punteros y los mensajes, todos con algún costo en tiempo de ejecución. Hay un espectro: llamar a un método concreto fija la clase en el momento de escribir el código; un método virtual lo aplaza hasta el tiempo de ejecución (más flexible, con cierta sobrecarga); las plantillas de C++ deciden en tiempo de compilación y a veces ofrecen una abstracción similar a una interfaz sin penalización en tiempo de ejecución."
+            "zh": "许多让代码更灵活的模式依赖虚函数分派、接口、指针和消息，这些都有一定的运行时开销。灵活性是一个谱系：调用具体方法时，类在编写代码时就已确定；通过虚方法或接口调用时，直到运行时才知道调用哪个类（更灵活，但有开销）；C++ 模板元编程则在编译期决定，有时能提供接口式的抽象而没有运行时代价。"
           }
         },
         {
-          "title": {
-            "zh": "性能完全建立在假设之上",
-            "en": "Performance is all about assumptions",
-            "es": "El rendimiento depende por completo de las suposiciones"
-          },
+          "title": { "en": "Performance is all about assumptions", "zh": "性能完全建立在假设之上" },
           "body": {
-            "zh": "架构通过减少程序中的假设来获得灵活性；而优化恰恰依赖于具体的限制：如果敌人永远不超过 256 个，就能把 ID 压进一个字节；如果只会对一个具体类型调用方法，就能静态分派或内联；如果所有实体都是同一个类，就能把它们放进一个连续数组。",
             "en": "Architecture makes programs flexible by encoding fewer assumptions. But optimization thrives on concrete limitations: never more than 256 enemies lets you pack an ID into a byte; one concrete type lets you statically dispatch or inline; all entities of the same class lets you store them in a contiguous array.",
-            "es": "La arquitectura hace que los programas sean flexibles al codificar menos suposiciones. Pero la optimización se apoya en limitaciones concretas: que nunca haya más de 256 enemigos permite comprimir un ID en un byte; un solo tipo concreto permite el despacho estático o la inserción en línea (inline); que todas las entidades sean de la misma clase permite almacenarlas en un arreglo contiguo."
+            "zh": "架构通过减少程序中的假设来获得灵活性；而优化恰恰依赖于具体的限制：如果敌人永远不超过 256 个，就能把 ID 压进一个字节；如果只会对一个具体类型调用方法，就能静态分派或内联；如果所有实体都是同一个类，就能把它们放进一个连续数组。"
           }
         },
         {
-          "title": {
-            "zh": "有趣的游戏需要快速迭代",
-            "en": "Fun games need fast iteration",
-            "es": "Los juegos divertidos necesitan iterar rápido"
-          },
+          "title": { "en": "Fun games need fast iteration", "zh": "有趣的游戏需要快速迭代" },
           "body": {
-            "zh": "灵活性并不是坏事：开发速度对找到乐趣至关重要。没有人（即使是 Will Wright）能在纸上设计出平衡的游戏，这需要反复迭代、实验和调整。让一个有趣的游戏变快，比让一个很快的游戏变有趣容易，所以一种折中是：在设计稳定之前保持代码灵活，之后再拆掉部分抽象来提升性能。",
             "en": "Flexibility isn't bad: development speed is vital for finding fun. No one, not even Will Wright, can design a balanced game on paper — it takes iteration, experimentation and tuning. It's easier to make a fun game fast than a fast game fun, so one compromise is to stay flexible until the design settles, then tear out abstraction for performance.",
-            "es": "La flexibilidad no es mala: la velocidad de desarrollo es vital para encontrar la diversión. Nadie, ni siquiera Will Wright, puede diseñar un juego equilibrado en papel: hacen falta iteración, experimentación y ajuste. Es más fácil hacer rápido un juego divertido que hacer divertido un juego rápido, así que una salida intermedia es mantener la flexibilidad hasta que el diseño se asiente y luego desmontar parte de la abstracción en favor del rendimiento."
+            "zh": "灵活性并不是坏事：开发速度对找到乐趣至关重要。没有人（即使是 Will Wright）能在纸上设计出平衡的游戏，这需要反复迭代、实验和调整。让一个有趣的游戏变快，比让一个很快的游戏变有趣容易，所以一种折中是：在设计稳定之前保持代码灵活，之后再拆掉部分抽象来提升性能。"
           }
         }
       ]
     },
     {
       "num": "1.4",
-      "title": {
-        "zh": "坏代码的好处",
-        "en": "The Good in Bad Code",
-        "es": "Lo bueno del código malo"
-      },
+      "title": { "en": "The Good in Bad Code", "zh": "坏代码的好处" },
       "points": [
         {
-          "title": {
-            "zh": "原型开发是正当的做法",
-            "en": "Prototyping is legitimate",
-            "es": "El prototipado es legítimo"
-          },
+          "title": { "en": "Prototyping is legitimate", "zh": "原型开发是正当的做法" },
           "body": {
-            "zh": "架构良好的代码需要时间，而维护它意味着要像优秀的露营者一样，让代码库比你来时更好一点。但游戏设计需要大量实验，早期代码常常会被丢掉。原型开发——写出刚好能回答某个设计问题的代码——是完全正当的编程实践。",
             "en": "Well-architected code takes time, and maintaining it means leaving the codebase better than you found it, like a good camper. But game design needs experimentation, and early code is often thrown away. Prototyping — code just functional enough to answer a design question — is a perfectly legitimate practice.",
-            "es": "El código bien arquitecturado lleva tiempo, y mantenerlo significa dejar la base de código mejor de lo que la encontraste, como un buen campista. Pero el diseño de juegos requiere experimentación, y el código temprano a menudo se desecha. El prototipado —código apenas lo bastante funcional para responder una pregunta de diseño— es una práctica perfectamente legítima."
+            "zh": "架构良好的代码需要时间，而维护它意味着要像优秀的露营者一样，让代码库比你来时更好一点。但游戏设计需要大量实验，早期代码常常会被丢掉。原型开发——写出刚好能回答某个设计问题的代码——是完全正当的编程实践。"
           }
         },
         {
-          "title": {
-            "zh": "确保一次性代码真的会被丢掉",
-            "en": "Make sure throwaway code gets thrown away",
-            "es": "Asegúrate de que el código desechable realmente se deseche"
-          },
+          "title": { "en": "Make sure throwaway code gets thrown away", "zh": "确保一次性代码真的会被丢掉" },
           "body": {
-            "zh": "最大的告诫是：既然写一次性代码，就必须确保能把它扔掉。糟糕的经理看到能跑的原型，就会让你“稍微整理一下”直接用上。必须让相关的人明白，这些代码虽然看起来能用，却无法维护，必须重写；一个技巧是用与游戏不同的语言来写原型，这样它在进入游戏之前就必须重写。",
             "en": "The big caveat: if you write throwaway code, you must be able to throw it away. Bad managers see a working prototype and ask you to \"just clean it up\" and ship it. People must understand that it can't be maintained and must be rewritten; one trick is to write the prototype in a different language from the game.",
-            "es": "La gran advertencia: si escribes código desechable, debes ser capaz de desecharlo. Los malos gerentes ven un prototipo que funciona y te piden que «solo lo ordenes un poco» y lo publiques. Hay que hacer entender a los demás que ese código no puede mantenerse y debe reescribirse; un truco consiste en escribir el prototipo en un lenguaje distinto del que usa el juego."
+            "zh": "最大的告诫是：既然写一次性代码，就必须确保能把它扔掉。糟糕的经理看到能跑的原型，就会让你“稍微整理一下”直接用上。必须让相关的人明白，这些代码虽然看起来能用，却无法维护，必须重写；一个技巧是用与游戏不同的语言来写原型，这样它在进入游戏之前就必须重写。"
           }
         }
       ]
     },
     {
       "num": "1.5",
-      "title": {
-        "zh": "寻求平衡",
-        "en": "Striking a Balance",
-        "es": "Encontrar el equilibrio"
-      },
+      "title": { "en": "Striking a Balance", "zh": "寻求平衡" },
       "points": [
         {
-          "title": {
-            "zh": "三种速度",
-            "en": "Three kinds of speed",
-            "es": "Tres clases de velocidad"
-          },
+          "title": { "en": "Three kinds of speed", "zh": "三种速度" },
           "body": {
-            "zh": "我们想要良好的架构（长期开发速度）、快速的运行性能（执行速度），以及尽快完成今天的功能（短期开发速度）。这些目标在一定程度上相互冲突：保持架构整洁会让每次修改多花一点力气；优化需要大量工程时间，而且会让代码僵化；一味赶功能则会留下一团乱麻，拖慢将来的效率。",
             "en": "We want nice architecture (long-term development speed), fast runtime performance (execution speed), and today's features done quickly (short-term development speed). These goals are partially in opposition: clean architecture adds effort to each change, optimization takes engineering time and calcifies code, and cramming features leaves a mess that saps future productivity.",
-            "es": "Queremos una arquitectura agradable (velocidad de desarrollo a largo plazo), un buen rendimiento en tiempo de ejecución (velocidad de ejecución) y las funciones de hoy terminadas pronto (velocidad de desarrollo a corto plazo). Estos objetivos se oponen en parte: la arquitectura limpia agrega esfuerzo a cada cambio, la optimización consume tiempo de ingeniería y osifica el código, y meter funciones a la fuerza deja un desorden que socava la productividad futura."
+            "zh": "我们想要良好的架构（长期开发速度）、快速的运行性能（执行速度），以及尽快完成今天的功能（短期开发速度）。这些目标在一定程度上相互冲突：保持架构整洁会让每次修改多花一点力气；优化需要大量工程时间，而且会让代码僵化；一味赶功能则会留下一团乱麻，拖慢将来的效率。"
           }
         },
         {
-          "title": {
-            "zh": "没有正确答案——这正是有趣之处",
-            "en": "No right answer — and that's exciting",
-            "es": "No hay una respuesta correcta, y eso es emocionante"
-          },
+          "title": { "en": "No right answer — and that's exciting", "zh": "没有正确答案——这正是有趣之处" },
           "body": {
-            "zh": "这里没有简单的答案，只有权衡：“只有不同口味的错误”。作者却觉得这令人兴奋：任何值得投入一生去精通的领域，核心都是一组相互交织的约束。就像国际象棋，棋子之间完美平衡，因此永远无法被彻底掌握；而设计糟糕的游戏会退化成反复使用同一种必胜战术。",
             "en": "There's no simple answer, only trade-offs: \"different flavors of wrong\". The author finds this exciting: every field worth a career has intertwined constraints at its center. Like chess, whose balanced pieces make it impossible to master, a well-balanced problem space offers endless strategies; a poorly designed game collapses into one winning tactic.",
-            "es": "No hay una respuesta simple, solo compensaciones: «distintos sabores de estar equivocado». El autor lo encuentra emocionante: todo campo que merece una carrera profesional tiene en su centro restricciones entrelazadas. Como el ajedrez, cuyas piezas equilibradas lo hacen imposible de dominar, un espacio de problemas bien equilibrado ofrece estrategias infinitas; un juego mal diseñado se reduce a una única táctica ganadora."
+            "zh": "这里没有简单的答案，只有权衡：“只有不同口味的错误”。作者却觉得这令人兴奋：任何值得投入一生去精通的领域，核心都是一组相互交织的约束。就像国际象棋，棋子之间完美平衡，因此永远无法被彻底掌握；而设计糟糕的游戏会退化成反复使用同一种必胜战术。"
           }
         }
       ]
     },
     {
       "num": "1.6",
-      "title": {
-        "zh": "简洁",
-        "en": "Simplicity",
-        "es": "Simplicidad"
-      },
+      "title": { "en": "Simplicity", "zh": "简洁" },
       "points": [
         {
-          "title": {
-            "zh": "简洁能缓解这些约束",
-            "en": "Simplicity eases the constraints",
-            "es": "La simplicidad alivia estas restricciones"
-          },
+          "title": { "en": "Simplicity eases the constraints", "zh": "简洁能缓解这些约束" },
           "body": {
-            "zh": "如果说有什么方法能缓解这些约束，那就是简洁：写出最干净、最直接的解决方案，让人读完后想象不出别的写法。先把数据结构和算法（大致按这个顺序）弄对。简单的代码意味着需要装进脑子的代码更少，而且常常运行得更快，因为开销更少。",
             "en": "If any method eases these constraints, it's simplicity: the cleanest, most direct solution, where after reading it you can't imagine any other. Get the data structures and algorithms right (in about that order). Simple code means less code to load into your head, and it often runs fast because there's less overhead.",
-            "es": "Si algo alivia estas restricciones, es la simplicidad: la solución más limpia y directa, aquella tras leer la cual no puedes imaginar ninguna otra. Acierta con las estructuras de datos y los algoritmos (más o menos en ese orden). El código simple significa menos código que cargar en tu cabeza, y a menudo se ejecuta rápido porque tiene menos sobrecarga."
+            "zh": "如果说有什么方法能缓解这些约束，那就是简洁：写出最干净、最直接的解决方案，让人读完后想象不出别的写法。先把数据结构和算法（大致按这个顺序）弄对。简单的代码意味着需要装进脑子的代码更少，而且常常运行得更快，因为开销更少。"
           }
         },
         {
-          "title": {
-            "zh": "简洁并不意味着写得快",
-            "en": "Simple isn't quick to write",
-            "es": "Lo simple no es rápido de escribir"
-          },
+          "title": { "en": "Simple isn't quick to write", "zh": "简洁并不意味着写得快" },
           "body": {
-            "zh": "简洁的代码并不会写得更快：好的解决方案不是代码的堆积，而是代码的提炼。帕斯卡说：“我本可以写一封更短的信，但我没有时间。”圣埃克苏佩里说：完美不是无可增添，而是无可删减。",
             "en": "Simple code doesn't take less time to write: a good solution is not an accretion of code but a distillation of it. Pascal: \"I would have written a shorter letter, but I did not have the time.\" Saint-Exupéry: perfection is reached when there is nothing left to take away.",
-            "es": "El código simple no requiere menos tiempo para escribirse: una buena solución no es una acumulación de código, sino su destilación. Pascal: «Habría escrito una carta más corta, pero no tuve tiempo». Saint-Exupéry: la perfección se alcanza cuando ya no queda nada que quitar."
+            "zh": "简洁的代码并不会写得更快：好的解决方案不是代码的堆积，而是代码的提炼。帕斯卡说：“我本可以写一封更短的信，但我没有时间。”圣埃克苏佩里说：完美不是无可增添，而是无可删减。"
           }
         },
         {
-          "title": {
-            "zh": "从用例中找出通用的解法",
-            "en": "Find the general solution behind use cases",
-            "es": "Encuentra la solución general detrás de los casos de uso"
-          },
+          "title": { "en": "Find the general solution behind use cases", "zh": "从用例中找出通用的解法" },
           "body": {
-            "zh": "问题通常以一堆用例的形式出现。新手往往逐个实现，写出大量条件分支，输入稍有不同就会出错。优雅的解法是通用的：用一小段逻辑正确覆盖大量用例，这需要透过零散的示例看到其背后隐藏的规律。",
             "en": "Problems usually arrive as a pile of use cases. Novices code them one at a time with reams of conditionals, which breaks on slightly different input. An elegant solution is general: a small bit of logic covering a large space of use cases, found by seeing the hidden order beneath the examples.",
-            "es": "Los problemas suelen llegar como un montón de casos de uso. Los principiantes los programan uno por uno con montones de condicionales, y el código falla ante una entrada ligeramente distinta. Una solución elegante es general: una pequeña porción de lógica que cubre un amplio espacio de casos de uso, encontrada al ver el orden oculto bajo los ejemplos."
+            "zh": "问题通常以一堆用例的形式出现。新手往往逐个实现，写出大量条件分支，输入稍有不同就会出错。优雅的解法是通用的：用一小段逻辑正确覆盖大量用例，这需要透过零散的示例看到其背后隐藏的规律。"
           }
         }
       ]
     },
     {
       "num": "1.7",
-      "title": {
-        "zh": "开始吧",
-        "en": "Get On With It, Already",
-        "es": "Manos a la obra, de una vez"
-      },
+      "title": { "en": "Get On With It, Already", "zh": "开始吧" },
       "points": [
         {
-          "title": {
-            "zh": "只在需要时抽象；底层优化要推迟",
-            "en": "Abstraction only where needed; optimize late",
-            "es": "Abstrae solo donde haga falta; optimiza tarde"
-          },
+          "title": { "en": "Abstraction only where needed; optimize late", "zh": "只在需要时抽象；底层优化要推迟" },
           "body": {
-            "zh": "抽象和解耦让程序演进更快更容易，但除非确信那段代码需要这种灵活性，否则不要在上面浪费时间。在整个开发周期中都要考虑并为性能做设计，但那些会把假设固化进代码的底层细节优化，要尽可能推迟。",
             "en": "Abstraction and decoupling make evolving the program easier, but don't spend time on them unless you're confident the code needs that flexibility. Think about and design for performance throughout development, but put off low-level optimizations that lock assumptions into code until as late as possible.",
-            "es": "La abstracción y el desacoplamiento facilitan la evolución del programa, pero no les dediques tiempo a menos que estés seguro de que el código necesita esa flexibilidad. Piensa en el rendimiento y diseña para él durante todo el desarrollo, pero pospone las optimizaciones de bajo nivel que fijan suposiciones en el código hasta el último momento posible."
+            "zh": "抽象和解耦让程序演进更快更容易，但除非确信那段代码需要这种灵活性，否则不要在上面浪费时间。在整个开发周期中都要考虑并为性能做设计，但那些会把假设固化进代码的底层细节优化，要尽可能推迟。"
           }
         },
         {
-          "title": {
-            "zh": "快速前进，但别留下烂摊子",
-            "en": "Move fast, but don't leave a mess",
-            "es": "Avanza rápido, pero no dejes un desastre"
-          },
+          "title": { "en": "Move fast, but don't leave a mess", "zh": "快速前进，但别留下烂摊子" },
           "body": {
-            "zh": "快速探索游戏的设计空间，但不要快到留下一团你必须忍受的乱麻。如果代码注定要丢弃，就别花时间把它写漂亮——摇滚明星之所以砸酒店房间，是因为他们第二天就退房。最重要的是：想做出有趣的东西，就要享受制作它的过程。",
             "en": "Explore the design space quickly, but not so fast that you leave a mess you must live with. If you're going to ditch code, don't waste time making it pretty — rock stars trash hotel rooms because they check out tomorrow. Above all, if you want to make something fun, have fun making it.",
-            "es": "Explora el espacio de diseño con rapidez, pero no tanto como para dejar un desorden con el que debas convivir. Si vas a desechar el código, no pierdas tiempo en dejarlo bonito: las estrellas de rock destrozan las habitaciones de hotel porque se van mañana. Y sobre todo, si quieres crear algo divertido, diviértete creándolo."
+            "zh": "快速探索游戏的设计空间，但不要快到留下一团你必须忍受的乱麻。如果代码注定要丢弃，就别花时间把它写漂亮——摇滚明星之所以砸酒店房间，是因为他们第二天就退房。最重要的是：想做出有趣的东西，就要享受制作它的过程。"
           }
         }
       ]
     }
   ],
   "terms": [
-    {
-      "term": {
-        "zh": "软件架构",
-        "en": "software architecture",
-        "es": "arquitectura de software"
-      }
-    },
-    {
-      "term": {
-        "zh": "解耦",
-        "en": "decoupling",
-        "es": "desacoplamiento"
-      }
-    },
-    {
-      "term": {
-        "zh": "抽象",
-        "en": "abstraction",
-        "es": "abstracción"
-      }
-    },
-    {
-      "term": {
-        "zh": "可扩展性",
-        "en": "extensibility",
-        "es": "extensibilidad"
-      }
-    },
-    {
-      "term": {
-        "zh": "你不会需要它（YAGNI）",
-        "en": "YAGNI (You aren't gonna need it)",
-        "es": "YAGNI (no lo vas a necesitar)"
-      }
-    },
-    {
-      "term": {
-        "zh": "虚函数分派",
-        "en": "virtual dispatch",
-        "es": "despacho virtual"
-      }
-    },
-    {
-      "term": {
-        "zh": "模板元编程",
-        "en": "template metaprogramming",
-        "es": "metaprogramación con plantillas"
-      }
-    },
-    {
-      "term": {
-        "zh": "原型开发",
-        "en": "prototyping",
-        "es": "prototipado"
-      }
-    },
-    {
-      "term": {
-        "zh": "权衡",
-        "en": "trade-off",
-        "es": "compensación (trade-off)"
-      }
-    },
-    {
-      "term": {
-        "zh": "简洁",
-        "en": "simplicity",
-        "es": "simplicidad"
-      }
-    }
+    { "en": "software architecture", "zh": "软件架构" },
+    { "en": "decoupling", "zh": "解耦" },
+    { "en": "abstraction", "zh": "抽象" },
+    { "en": "extensibility", "zh": "可扩展性" },
+    { "en": "YAGNI (You aren't gonna need it)", "zh": "你不会需要它（YAGNI）" },
+    { "en": "virtual dispatch", "zh": "虚函数分派" },
+    { "en": "template metaprogramming", "zh": "模板元编程" },
+    { "en": "prototyping", "zh": "原型开发" },
+    { "en": "trade-off", "zh": "权衡" },
+    { "en": "simplicity", "zh": "简洁" }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "1.1",
-      "q": {
-        "zh": "按作者的说法，衡量一个设计好坏的标准是什么？",
-        "en": "According to the author, what is the measure of a design?",
-        "es": "Según el autor, ¿cuál es la medida de un diseño?"
-      },
-      "explain": {
-        "zh": "架构关乎变化。没人修改的代码，设计好坏无关紧要。",
-        "en": "Architecture is about change. If no one ever touches the code, its design is irrelevant.",
-        "es": "La arquitectura tiene que ver con el cambio. Si nadie toca nunca el código, su diseño es irrelevante."
-      },
-      "options": [
-        {
-          "zh": "它使用了多少种设计模式",
-          "en": "How many design patterns it uses",
-          "es": "Cuántos patrones de diseño utiliza"
-        },
-        {
-          "zh": "它的代码有多少行",
-          "en": "How few lines of code it has",
-          "es": "Qué pocas líneas de código tiene"
-        },
-        {
-          "zh": "它适应变化的容易程度",
-          "en": "How easily it accommodates changes",
-          "es": "Con qué facilidad se adapta a los cambios"
-        },
-        {
-          "zh": "它的运行速度有多快",
-          "en": "How fast it runs",
-          "es": "Qué tan rápido se ejecuta"
-        }
-      ],
-      "answer": 2
+      "q": "According to the author, what is the measure of a design? 衡量设计好坏的标准是什么？",
+      "options": ["它使用了多少设计模式", "How few lines of code it has", "How easily it accommodates changes（适应变化的容易程度）", "How fast it runs"],
+      "answer": 2,
+      "explain": "Architecture is about change. 没人修改的代码，设计好坏无关紧要。"
     },
     {
       "type": "fill",
       "ref": "1.1",
-      "q": {
-        "zh": "两段代码___时，就无法在不理解其中一段的情况下理解另一段。",
-        "en": "If two pieces of code are ___, you can't understand one without understanding the other.",
-        "es": "Si dos fragmentos de código están ___, no puedes entender uno sin entender el otro."
-      },
-      "explain": {
-        "zh": "耦合意味着理解其一必须理解其二；解耦让你可以独立分析两者。",
-        "en": "Coupling means you must understand one to understand the other; decoupling lets you reason about each independently.",
-        "es": "El acoplamiento implica que para entender uno debes entender el otro; el desacoplamiento te permite analizar cada uno de forma independiente."
-      },
-      "answer": [
-        "coupled",
-        "耦合",
-        "耦合的"
-      ],
-      "answerText": {
-        "zh": "耦合",
-        "en": "coupled",
-        "es": "acoplados"
-      }
+      "q": "If two pieces of code are ___, you can't understand one without understanding the other. 两段代码___时，无法单独理解其中一段。",
+      "answer": ["coupled", "耦合", "耦合的"],
+      "explain": "Coupling 意味着理解其一必须理解其二；解耦让你可以独立分析。"
     },
     {
       "type": "truefalse",
       "ref": "1.1",
-      "q": {
-        "zh": "作者认为编程中最耗时的通常是敲代码本身，而不是理解已有代码。",
-        "en": "The author believes that typing the code is usually the slowest part of programming, not understanding existing code.",
-        "es": "El autor cree que escribir el código suele ser la parte más lenta de la programación, no entender el código existente."
-      },
-      "explain": {
-        "zh": "错。把相关代码装进脑子往往才是最耗时的部分；理解问题之后，编码有时反而很简单。",
-        "en": "False. Loading the relevant code into your brain is often the most time-consuming part; once you understand the problem, coding is sometimes trivial.",
-        "es": "Falso. Cargar el código relevante en tu cerebro suele ser la parte que más tiempo consume; una vez entendido el problema, programar a veces es trivial."
-      },
-      "answer": false
+      "q": "作者认为编程中最耗时的通常是敲代码本身，而不是理解已有代码。 Typing the code is usually the slowest part.",
+      "answer": false,
+      "explain": "False. Loading the relevant code into your brain is often the most time-consuming part; 理解问题后，编码有时很简单。"
     },
     {
       "type": "choice",
       "ref": "1.2",
-      "q": {
-        "zh": "YAGNI 代表什么？它对抗的是什么冲动？",
-        "en": "What does YAGNI stand for, and what urge does it fight?",
-        "es": "¿Qué significa YAGNI y contra qué impulso lucha?"
-      },
-      "explain": {
-        "zh": "每加一层抽象都是在押注将来会需要它；猜错了，这份灵活性就会变成有害的额外代码。",
-        "en": "Every added layer of abstraction bets that you'll need that flexibility later; if the guess is wrong, it becomes actively harmful extra code.",
-        "es": "Cada capa de abstracción que añades apuesta a que necesitarás esa flexibilidad más adelante; si la apuesta falla, se convierte en código extra activamente perjudicial."
-      },
-      "options": [
-        {
-          "zh": "You Always Get New Ideas——停止做原型的冲动",
-          "en": "You Always Get New Ideas — the urge to stop prototyping",
-          "es": "You Always Get New Ideas: el impulso de dejar de hacer prototipos"
-        },
-        {
-          "zh": "You Aren't Gonna Need It——对未来需求进行投机、过度设计的冲动",
-          "en": "You Aren't Gonna Need It — the urge to speculate about future needs and over-design",
-          "es": "You Aren't Gonna Need It: el impulso de especular sobre necesidades futuras y sobre-diseñar"
-        },
-        {
-          "zh": "Your Architecture Grows Naturally Itself——重构的冲动",
-          "en": "Your Architecture Grows Naturally Itself — the urge to refactor",
-          "es": "Your Architecture Grows Naturally Itself: el impulso de refactorizar"
-        },
-        {
-          "zh": "Yet Another Game Needs Iteration——过早优化的冲动",
-          "en": "Yet Another Game Needs Iteration — the urge to optimize early",
-          "es": "Yet Another Game Needs Iteration: el impulso de optimizar demasiado pronto"
-        }
-      ],
-      "answer": 1
+      "q": "What does YAGNI stand for, and what urge does it fight? YAGNI 对抗的是什么冲动？",
+      "options": ["You Always Get New Ideas — the urge to stop prototyping", "You Aren't Gonna Need It — 对未来需求进行投机、过度设计的冲动", "Your Architecture Grows Naturally Itself — the urge to refactor", "Yet Another Game Needs Iteration — the urge to optimize early"],
+      "answer": 1,
+      "explain": "每加一层抽象都是在押注将来会需要它；猜错了就是有害的额外代码。"
     },
     {
       "type": "open",
       "ref": "1.2",
-      "q": {
-        "zh": "为什么过多的抽象反而让代码更难修改？",
-        "en": "Why can too much abstraction make code *harder* to change?",
-        "es": "¿Por qué demasiada abstracción puede hacer que el código sea *más difícil* de cambiar?"
-      },
-      "explain": {
-        "zh": "核心观点：抽象是一种押注；猜错的押注会变成有害的负担。",
-        "en": "Key idea: abstraction is speculation; wrong guesses become actively harmful.",
-        "es": "Idea clave: la abstracción es especulación; las apuestas equivocadas se vuelven activamente dañinas."
-      },
-      "answer": {
-        "zh": "层层接口、插件和虚方法让你很难找到真正干活的代码，抽象层本身占满了思维缓存；用不上的灵活性只是更多需要维护的代码。",
-        "en": "Layers of interfaces, plug-ins and virtual methods take forever to trace through to find the real code, and the abstraction layers themselves fill your mental scratch disk; unused flexibility is just more code to maintain.",
-        "es": "Las capas de interfaces, complementos y métodos virtuales hacen que rastrear hasta el código real lleve una eternidad, y las propias capas de abstracción llenan tu disco de trabajo mental; la flexibilidad que no se usa no es más que código adicional que mantener."
-      }
+      "q": "Why can too much abstraction make code *harder* to change? 为什么过多的抽象反而让代码更难修改？",
+      "answer": "EN: Layers of interfaces, plug-ins and virtual methods take forever to trace through to find real code, and the abstraction layers themselves fill your mental scratch disk; unused flexibility is just more code to maintain. 中：层层接口、插件和虚方法让你很难找到真正干活的代码，抽象层本身占满了思维缓存；用不上的灵活性只是更多需要维护的代码。",
+      "explain": "Key idea: abstraction is speculation; wrong guesses become actively harmful. 抽象是押注。"
     },
     {
       "type": "choice",
       "ref": "1.3",
-      "q": {
-        "zh": "C++ 模板元编程在什么时候决定调用哪个类？",
-        "en": "C++ template metaprogramming decides which class to call at ___?",
-        "es": "¿Cuándo decide la metaprogramación con plantillas de C++ qué clase llamar?"
-      },
-      "explain": {
-        "zh": "具体方法调用在编写时确定，虚方法在运行时确定，模板介于两者之间——在编译期实例化时确定。",
-        "en": "A concrete method call is fixed at author time; a virtual method is resolved at runtime; templates sit in between — they are fixed at compile time, when instantiated.",
-        "es": "Una llamada a un método concreto se fija en tiempo de autoría; un método virtual se resuelve en tiempo de ejecución; las plantillas están entre ambos: se fijan en tiempo de compilación, al instanciarse."
-      },
-      "options": [
-        {
-          "zh": "编写时（author time）",
-          "en": "Author time",
-          "es": "Tiempo de autoría (author time)"
-        },
-        {
-          "zh": "运行时（runtime）",
-          "en": "Runtime",
-          "es": "Tiempo de ejecución (runtime)"
-        },
-        {
-          "zh": "加载时（load time）",
-          "en": "Load time",
-          "es": "Tiempo de carga (load time)"
-        },
-        {
-          "zh": "编译期（compile time，模板实例化时）",
-          "en": "Compile time (when the template is instantiated)",
-          "es": "Tiempo de compilación (cuando se instancia la plantilla)"
-        }
-      ],
-      "answer": 3
+      "q": "C++ template metaprogramming decides which class to call at ___? 模板在什么时候决定调用哪个类？",
+      "options": ["Author time（编写时）", "Runtime（运行时）", "Load time（加载时）", "Compile time（编译期，模板实例化时）"],
+      "answer": 3,
+      "explain": "具体方法调用在编写时确定，虚方法在运行时确定，模板介于两者之间——在编译期实例化时确定。"
     },
     {
       "type": "truefalse",
       "ref": "1.3",
-      "q": {
-        "zh": "作者认为，让有趣的游戏变快比让很快的游戏变有趣更容易。",
-        "en": "The author says it's easier to make a fun game fast than to make a fast game fun.",
-        "es": "El autor dice que es más fácil hacer rápido un juego divertido que hacer divertido un juego rápido."
-      },
-      "explain": {
-        "zh": "对。因此一种折中是：在设计稳定之前保持灵活，之后再拆掉部分抽象换取性能。",
-        "en": "True. So one compromise is to stay flexible until the design settles, then tear out some abstraction for performance.",
-        "es": "Verdadero. Por eso un compromiso consiste en mantenerse flexible hasta que el diseño se asiente y luego eliminar parte de la abstracción a cambio de rendimiento."
-      },
-      "answer": true
+      "q": "The author says it's easier to make a fun game fast than to make a fast game fun. 让有趣的游戏变快比让快的游戏变有趣更容易。",
+      "answer": true,
+      "explain": "True. 因此可以先保持灵活直到设计稳定，再拆掉部分抽象换取性能。"
     },
     {
       "type": "choice",
       "ref": "1.4",
-      "q": {
-        "zh": "作者提出了什么技巧，来避免原型代码被迫变成正式代码？",
-        "en": "What trick does the author suggest so prototype code isn't forced to become real code?",
-        "es": "¿Qué truco sugiere el autor para que el código de prototipo no se vea obligado a convertirse en código real?"
-      },
-      "explain": {
-        "zh": "用另一种语言来写，意味着它必须重写才能进入游戏。",
-        "en": "Writing it in a different language means it must be rewritten before it can end up in the game.",
-        "es": "Escribirlo en un lenguaje diferente significa que debe reescribirse antes de terminar en el juego."
-      },
-      "options": [
-        {
-          "zh": "用与游戏不同的语言来编写原型",
-          "en": "Write it in a different language from the game",
-          "es": "Escribirlo en un lenguaje distinto al del juego"
-        },
-        {
-          "zh": "为它添加大量单元测试",
-          "en": "Add many unit tests to it",
-          "es": "Añadirle muchas pruebas unitarias"
-        },
-        {
-          "zh": "用大量抽象来编写它",
-          "en": "Write it with lots of abstraction",
-          "es": "Escribirlo con mucha abstracción"
-        },
-        {
-          "zh": "永远不要给经理看",
-          "en": "Never show it to managers",
-          "es": "No mostrárselo nunca a los gerentes"
-        }
-      ],
-      "answer": 0
+      "q": "What trick does the author suggest so prototype code isn't forced to become real code? 如何防止原型代码被直接拿去上线？",
+      "options": ["用与游戏不同的语言编写原型", "Add many unit tests to it", "Write it with lots of abstraction", "Never show it to managers"],
+      "answer": 0,
+      "explain": "Writing it in a different language means it must be rewritten before ending up in the game."
     },
     {
       "type": "fill",
       "ref": "1.5",
-      "q": {
-        "zh": "三个相互竞争的目标都关乎某种___：长期开发、执行性能与短期开发。",
-        "en": "The three competing goals are all about some kind of ___: long-term development, execution, and short-term development.",
-        "es": "Los tres objetivos en conflicto giran en torno a algún tipo de ___: desarrollo a largo plazo, ejecución y desarrollo a corto plazo."
-      },
-      "explain": {
-        "zh": "长期开发速度、运行速度、短期开发速度，三者部分对立。",
-        "en": "Long-term development speed, execution speed and short-term development speed: the three are partly in opposition.",
-        "es": "Velocidad de desarrollo a largo plazo, velocidad de ejecución y velocidad de desarrollo a corto plazo: los tres se oponen en parte."
-      },
-      "answer": [
-        "speed",
-        "速度"
-      ],
-      "answerText": {
-        "zh": "速度",
-        "en": "speed",
-        "es": "velocidad"
-      }
+      "q": "The three competing goals are all about some kind of ___: long-term development, execution, and short-term development. 三个目标都关乎某种___。",
+      "answer": ["speed", "速度"],
+      "explain": "长期开发速度、运行速度、短期开发速度，三者部分对立。"
     },
     {
       "type": "fill",
       "ref": "1.6",
-      "q": {
-        "zh": "好的解法不是代码的堆积，而是代码的___。",
-        "en": "A good solution isn't an accretion of code, it's a ___ of it.",
-        "es": "Una buena solución no es una acumulación de código, sino una ___ del mismo."
-      },
-      "explain": {
-        "zh": "简洁的代码不一定写得快；正如帕斯卡所说，写一封更短的信反而更费时间。",
-        "en": "Simple code isn't necessarily quick to write; as Pascal said, writing a shorter letter takes more time.",
-        "es": "El código simple no necesariamente se escribe rápido; como dijo Pascal, escribir una carta más corta lleva más tiempo."
-      },
-      "answer": [
-        "distillation",
-        "提炼",
-        "精炼"
-      ],
-      "answerText": {
-        "zh": "提炼",
-        "en": "distillation",
-        "es": "destilación"
-      }
+      "q": "A good solution isn't an accretion of code, it's a ___ of it. 好的解法不是代码的堆积，而是代码的___。",
+      "answer": ["distillation", "提炼", "精炼"],
+      "explain": "Simple code 不一定写得快；正如帕斯卡所说，写短信更费时间。"
     },
     {
       "type": "open",
       "ref": "1.7",
-      "q": {
-        "zh": "作者对性能优化的时机给出了什么建议？",
-        "en": "What is his advice about when to optimize?",
-        "es": "¿Qué aconseja el autor sobre cuándo optimizar?"
-      },
-      "explain": {
-        "zh": "别等到距离发布只剩两个月时才发现游戏只有 1 帧每秒。",
-        "en": "Don't wait until two months before shipping to discover that the game runs at 1 FPS.",
-        "es": "No esperes a dos meses antes del lanzamiento para descubrir que el juego corre a 1 FPS."
-      },
-      "answer": {
-        "zh": "整个开发过程都要考虑并为性能做设计，但那些会把假设固化进代码的底层细节优化要尽可能推迟。",
-        "en": "Think about and design for performance throughout development, but put off low-level, nitty-gritty optimizations that lock assumptions into the code until as late as possible.",
-        "es": "Pensar en el rendimiento y diseñar para él a lo largo de todo el desarrollo, pero posponer lo más posible las optimizaciones de bajo nivel que fijan supuestos en el código."
-      }
-    },
-    {
-      "type": "scenario",
-      "ref": "1.5",
-      "q": {
-        "zh": "你接手一款分屏赛车游戏：同一个循环负责更新世界、绘制画面和刷新 HUD，AI 直接调用渲染与音频函数。基础主机上只有 30 FPS，高端硬件上可到 120 FPS。团队希望同屏车辆数翻倍。请运用本章概念，提出模块边界并决定先优化什么：说出模块与数据流，给出一种测量方案，并说明两个取舍。",
-        "en": "You inherit a split-screen racing game. One loop updates the world, draws the screen and updates the HUD; the AI directly calls renderer and audio functions. The game runs at 30 FPS on the base console and 120 FPS on high-end hardware. The team wants twice as many cars on screen. Using the chapter, propose a module boundary and decide what to optimize first. Name the modules and data flow, give one measurement plan, and state two trade-offs.",
-        "es": "Heredas un juego de carreras a pantalla dividida. Un único bucle actualiza el mundo, dibuja la pantalla y refresca el HUD; la IA llama directamente a funciones de renderizado y audio. El juego va a 30 FPS en la consola base y a 120 FPS en hardware de gama alta. El equipo quiere el doble de coches en pantalla. Con los conceptos del capítulo, propón una frontera entre módulos y decide qué optimizar primero. Nombra los módulos y el flujo de datos, describe un plan de medición y señala dos compromisos."
-      },
-      "explain": {
-        "zh": "本章把架构理解为“让代码易于修改的决策集合”，同时把性能视为要测量而不是猜测的需求。解耦让团队可以独立优化和替换模块；YAGNI 与简单性原则防止设计被投机性的层压垮。",
-        "en": "The chapter frames architecture as the set of decisions that make code easy to change, while performance is a requirement to measure rather than guess. Decoupling modules lets teams optimize and replace parts independently; YAGNI and simplicity keep the design from collapsing under speculative layers.",
-        "es": "El capítulo entiende la arquitectura como el conjunto de decisiones que facilitan cambiar el código, mientras que el rendimiento es un requisito que se mide, no se adivina. Desacoplar módulos permite optimizar y sustituir partes de forma independiente; YAGNI y la simplicidad evitan que el diseño se derrumbe bajo capas especulativas."
-      },
-      "title": {
-        "zh": "120 FPS 分屏赛车",
-        "en": "Split-screen racing at 120 FPS",
-        "es": "Carreras a pantalla dividida a 120 FPS"
-      },
-      "answer": {
-        "zh": "把模拟与表现、平台输入分开。RaceSimulation 拥有车辆、物理、AI 和比赛状态；Presentation 层读取每帧快照（位置、动画状态）来渲染；HUD 与音频消费事件或快照，而不是直接调用模拟内部。AI 只把意图（油门、转向、使用道具）写入模拟。先做性能测量：记录模拟、AI、渲染和 HUD 的每帧 CPU/GPU 时间，设定帧预算（60 FPS 为 16.6 ms；120 FPS 为 8.3 ms）。优化测出来的热点，通常是 AI、碰撞或数据布局，再考虑抽象。优先简单：只有变化或测量真正需要时才加边界。取舍：快照/复制带来内存与延迟；车辆翻倍会不均匀地增加 CPU 与 GPU 成本，并压缩基础硬件的余量。用帧时间百分位和分屏压力测试验证。",
-        "en": "Split simulation from presentation and platform input. A RaceSimulation owns cars, physics, AI and race state; a Presentation layer reads a per-frame snapshot (positions, animation state) and renders; HUD and audio consume events or snapshots rather than calling simulation internals. AI emits intents (throttle, steer, use-item) into the simulation. Profile first: record per-frame CPU/GPU timings for simulation, AI, rendering and HUD; set a frame budget (16.6 ms at 60 FPS; 8.3 ms at 120 FPS). Optimize the measured hot path, often AI/collision/data layout, before adding abstractions. Simplicity wins: add a boundary only where change or measurement demands it. Trade-offs: a snapshot/copy costs memory and latency; more cars raise CPU and GPU cost unevenly and reduce headroom on base hardware. Verify with frame-time percentiles and split-screen stress tests.",
-        "es": "Separa la simulación de la presentación y de la entrada de plataforma. Una RaceSimulation posee coches, física, IA y estado de carrera; una capa Presentation lee una instantánea por fotograma (posiciones, estado de animación) y dibuja; el HUD y el audio consumen eventos o instantáneas en lugar de llamar a las interioridades de la simulación. La IA emite intenciones (acelerar, girar, usar objeto) hacia la simulación. Primero mide: registra tiempos de CPU/GPU por fotograma para simulación, IA, renderizado y HUD; fija un presupuesto de fotograma (16,6 ms a 60 FPS; 8,3 ms a 120 FPS). Optimiza la ruta caliente medida, a menudo IA/colisiones/disposición de datos, antes de añadir abstracciones. La simplicidad gana: crea una frontera solo cuando el cambio o la medición la exijan. Compromisos: una instantánea/copia cuesta memoria y latencia; duplicar coches eleva el coste de CPU y GPU de forma desigual y reduce el margen en el hardware base. Verifica con percentiles de tiempo de fotograma y pruebas de estrés a pantalla dividida."
-      },
-      "checklist": [
-        {
-          "zh": "把模拟与表现/平台代码分开",
-          "en": "separates simulation from presentation/platform code",
-          "es": "separa la simulación de la presentación y del código de plataforma"
-        },
-        {
-          "zh": "说明 AI 与 HUD 如何和模拟通信",
-          "en": "defines how AI and HUD communicate with simulation",
-          "es": "define cómo se comunican la IA y el HUD con la simulación"
-        },
-        {
-          "zh": "先按子系统测量帧时间再优化",
-          "en": "measures frame time by subsystem before optimizing",
-          "es": "mide el tiempo por fotograma y por subsistema antes de optimizar"
-        },
-        {
-          "zh": "使用帧预算并定义验证方法",
-          "en": "uses a frame budget and defines a verification method",
-          "es": "usa un presupuesto de fotograma y define un método de verificación"
-        },
-        {
-          "zh": "优先简单，避免投机性抽象",
-          "en": "favors simplicity and avoids speculative abstraction",
-          "es": "prioriza la simplicidad y evita la abstracción especulativa"
-        },
-        {
-          "zh": "说明所选边界的具体取舍",
-          "en": "states concrete trade-offs of the chosen boundary",
-          "es": "señala compromisos concretos de la frontera elegida"
-        }
-      ]
+      "q": "作者对性能优化的时机给出了什么建议？ What is his advice about when to optimize?",
+      "answer": "EN: Think about and design for performance throughout development, but put off low-level, nitty-gritty optimizations that lock assumptions into the code until as late as possible. 中：整个开发过程都要考虑并为性能做设计，但会把假设固化进代码的底层优化要尽可能推迟。",
+      "explain": "Don't wait until two months before shipping to discover the game runs at 1 FPS. 也不能拖到发布前才发现只有 1 帧。"
     }
   ]
 }

@@ -1,288 +1,44 @@
 {
-  "book": {
-    "id": "gpp",
-    "title": {
-      "zh": "游戏编程模式",
-      "en": "Game Programming Patterns",
-      "es": "Patrones de programación de juegos"
-    },
-    "subtitle": {
-      "zh": "把书读成自己的",
-      "en": "A study edition",
-      "es": "Una edición de estudio"
-    },
-    "author": "Robert Nystrom",
-    "description": {
-      "zh": "以原书目录为骨架，把书中知识点整理为中、英、西三语，并配有基于场景的应用练习、画线、星标与跨设备笔记。",
-      "en": "The book’s own outline, its concepts in Chinese, English and Spanish, plus applied scenario practice, ink, stars and notes shared across devices.",
-      "es": "El índice del libro, sus conceptos en chino, inglés y español, con práctica aplicada, tinta, destacados y notas compartidas entre dispositivos."
-    },
-    "repo": {
-      "owner": "Fzflz-Sun",
-      "name": "game-programming-patterns-study",
-      "branch": "main"
-    },
-    "annotations": {
-      "branch": "annotations",
-      "path": "annotations.json"
-    },
-    "siteUrl": "https://fzflz-sun.github.io/game-programming-patterns-study/"
-  },
+  "book": { "en": "Game Programming Patterns", "zh": "游戏编程模式", "author": "Robert Nystrom" },
   "parts": [
-    {
-      "id": "intro",
-      "num": 1,
-      "title": {
-        "zh": "概述",
-        "en": "Introduction",
-        "es": "Introducción"
-      },
+    { "id": "intro", "num": 1, "en": "Introduction", "zh": "概述",
       "chapters": [
-        {
-          "id": "intro",
-          "num": 0,
-          "title": {
-            "zh": "前言",
-            "en": "Introduction",
-            "es": "Introducción"
-          }
-        },
-        {
-          "id": "architecture",
-          "num": 1,
-          "title": {
-            "zh": "架构、性能与游戏",
-            "en": "Architecture, Performance, and Games",
-            "es": "Arquitectura, rendimiento y juegos"
-          }
-        }
-      ]
-    },
-    {
-      "id": "revisited",
-      "num": 2,
-      "title": {
-        "zh": "重访设计模式",
-        "en": "Design Patterns Revisited",
-        "es": "Patrones de diseño revisitados"
-      },
+        { "id": "intro", "num": 0, "en": "Introduction", "zh": "前言" },
+        { "id": "architecture", "num": 1, "en": "Architecture, Performance, and Games", "zh": "架构、性能与游戏" }
+      ] },
+    { "id": "revisited", "num": 2, "en": "Design Patterns Revisited", "zh": "重访设计模式",
       "chapters": [
-        {
-          "id": "command",
-          "num": 2,
-          "title": {
-            "zh": "命令模式",
-            "en": "Command",
-            "es": "Comando"
-          }
-        },
-        {
-          "id": "flyweight",
-          "num": 3,
-          "title": {
-            "zh": "享元模式",
-            "en": "Flyweight",
-            "es": "Peso ligero"
-          }
-        },
-        {
-          "id": "observer",
-          "num": 4,
-          "title": {
-            "zh": "观察者模式",
-            "en": "Observer",
-            "es": "Observador"
-          }
-        },
-        {
-          "id": "prototype",
-          "num": 5,
-          "title": {
-            "zh": "原型模式",
-            "en": "Prototype",
-            "es": "Prototipo"
-          }
-        },
-        {
-          "id": "singleton",
-          "num": 6,
-          "title": {
-            "zh": "单例模式",
-            "en": "Singleton",
-            "es": "Singleton"
-          }
-        },
-        {
-          "id": "state",
-          "num": 7,
-          "title": {
-            "zh": "状态模式",
-            "en": "State",
-            "es": "Estado"
-          }
-        }
-      ]
-    },
-    {
-      "id": "sequencing",
-      "num": 3,
-      "title": {
-        "zh": "序列模式",
-        "en": "Sequencing Patterns",
-        "es": "Patrones de secuenciación"
-      },
+        { "id": "command", "num": 2, "en": "Command", "zh": "命令模式" },
+        { "id": "flyweight", "num": 3, "en": "Flyweight", "zh": "享元模式" },
+        { "id": "observer", "num": 4, "en": "Observer", "zh": "观察者模式" },
+        { "id": "prototype", "num": 5, "en": "Prototype", "zh": "原型模式" },
+        { "id": "singleton", "num": 6, "en": "Singleton", "zh": "单例模式" },
+        { "id": "state", "num": 7, "en": "State", "zh": "状态模式" }
+      ] },
+    { "id": "sequencing", "num": 3, "en": "Sequencing Patterns", "zh": "序列模式",
       "chapters": [
-        {
-          "id": "double-buffer",
-          "num": 8,
-          "title": {
-            "zh": "双缓冲",
-            "en": "Double Buffer",
-            "es": "Doble búfer"
-          }
-        },
-        {
-          "id": "game-loop",
-          "num": 9,
-          "title": {
-            "zh": "游戏循环",
-            "en": "Game Loop",
-            "es": "Bucle de juego"
-          }
-        },
-        {
-          "id": "update-method",
-          "num": 10,
-          "title": {
-            "zh": "更新方法",
-            "en": "Update Method",
-            "es": "Método de actualización"
-          }
-        }
-      ]
-    },
-    {
-      "id": "behavioral",
-      "num": 4,
-      "title": {
-        "zh": "行为模式",
-        "en": "Behavioral Patterns",
-        "es": "Patrones de comportamiento"
-      },
+        { "id": "double-buffer", "num": 8, "en": "Double Buffer", "zh": "双缓冲" },
+        { "id": "game-loop", "num": 9, "en": "Game Loop", "zh": "游戏循环" },
+        { "id": "update-method", "num": 10, "en": "Update Method", "zh": "更新方法" }
+      ] },
+    { "id": "behavioral", "num": 4, "en": "Behavioral Patterns", "zh": "行为模式",
       "chapters": [
-        {
-          "id": "bytecode",
-          "num": 11,
-          "title": {
-            "zh": "字节码",
-            "en": "Bytecode",
-            "es": "Bytecode"
-          }
-        },
-        {
-          "id": "subclass-sandbox",
-          "num": 12,
-          "title": {
-            "zh": "子类沙盒",
-            "en": "Subclass Sandbox",
-            "es": "Sandbox de subclases"
-          }
-        },
-        {
-          "id": "type-object",
-          "num": 13,
-          "title": {
-            "zh": "类型对象",
-            "en": "Type Object",
-            "es": "Objeto de tipo"
-          }
-        }
-      ]
-    },
-    {
-      "id": "decoupling",
-      "num": 5,
-      "title": {
-        "zh": "解耦模式",
-        "en": "Decoupling Patterns",
-        "es": "Patrones de desacoplamiento"
-      },
+        { "id": "bytecode", "num": 11, "en": "Bytecode", "zh": "字节码" },
+        { "id": "subclass-sandbox", "num": 12, "en": "Subclass Sandbox", "zh": "子类沙盒" },
+        { "id": "type-object", "num": 13, "en": "Type Object", "zh": "类型对象" }
+      ] },
+    { "id": "decoupling", "num": 5, "en": "Decoupling Patterns", "zh": "解耦模式",
       "chapters": [
-        {
-          "id": "component",
-          "num": 14,
-          "title": {
-            "zh": "组件",
-            "en": "Component",
-            "es": "Componente"
-          }
-        },
-        {
-          "id": "event-queue",
-          "num": 15,
-          "title": {
-            "zh": "事件队列",
-            "en": "Event Queue",
-            "es": "Cola de eventos"
-          }
-        },
-        {
-          "id": "service-locator",
-          "num": 16,
-          "title": {
-            "zh": "服务定位器",
-            "en": "Service Locator",
-            "es": "Localizador de servicios"
-          }
-        }
-      ]
-    },
-    {
-      "id": "optimization",
-      "num": 6,
-      "title": {
-        "zh": "优化模式",
-        "en": "Optimization Patterns",
-        "es": "Patrones de optimización"
-      },
+        { "id": "component", "num": 14, "en": "Component", "zh": "组件" },
+        { "id": "event-queue", "num": 15, "en": "Event Queue", "zh": "事件队列" },
+        { "id": "service-locator", "num": 16, "en": "Service Locator", "zh": "服务定位器" }
+      ] },
+    { "id": "optimization", "num": 6, "en": "Optimization Patterns", "zh": "优化模式",
       "chapters": [
-        {
-          "id": "data-locality",
-          "num": 17,
-          "title": {
-            "zh": "数据局部性",
-            "en": "Data Locality",
-            "es": "Localidad de datos"
-          }
-        },
-        {
-          "id": "dirty-flag",
-          "num": 18,
-          "title": {
-            "zh": "脏标记模式",
-            "en": "Dirty Flag",
-            "es": "Marca de suciedad"
-          }
-        },
-        {
-          "id": "object-pool",
-          "num": 19,
-          "title": {
-            "zh": "对象池模式",
-            "en": "Object Pool",
-            "es": "Grupo de objetos"
-          }
-        },
-        {
-          "id": "spatial-partition",
-          "num": 20,
-          "title": {
-            "zh": "空间分区模式",
-            "en": "Spatial Partition",
-            "es": "Partición espacial"
-          }
-        }
-      ]
-    }
+        { "id": "data-locality", "num": 17, "en": "Data Locality", "zh": "数据局部性" },
+        { "id": "dirty-flag", "num": 18, "en": "Dirty Flag", "zh": "脏标记" },
+        { "id": "object-pool", "num": 19, "en": "Object Pool", "zh": "对象池" },
+        { "id": "spatial-partition", "num": 20, "en": "Spatial Partition", "zh": "空间分区" }
+      ] }
   ]
 }

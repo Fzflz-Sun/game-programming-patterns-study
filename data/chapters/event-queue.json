@@ -1,34 +1,29 @@
 {
   "id": "event-queue",
   "title": {
-    "zh": "事件队列",
     "en": "Event Queue",
-    "es": "Cola de eventos"
+    "zh": "事件队列"
   },
   "summary": {
-    "zh": "事件队列把消息或事件的发送时机与处理时机解耦。发送方把请求放进先进先出的队列后立即返回；接收方在方便的时候再取出处理，因此可以推迟处理、合并请求，或者把处理转移到另一个线程——代价是发送方失去控制权，也得不到响应。",
     "en": "An event queue decouples when a message or event is sent from when it is processed. Senders push requests into a FIFO queue and return immediately; the receiver pulls them at a convenient time, so it can defer, aggregate, or move processing to another thread — at the cost of the sender losing control and getting no response.",
-    "es": "Una cola de eventos desacopla el momento en que se envía un mensaje o evento del momento en que se procesa. Los emisores empujan las solicitudes a una cola FIFO y regresan de inmediato; el receptor las extrae en un momento conveniente, de modo que puede diferir el procesamiento, agregar solicitudes o trasladarlo a otro hilo, a costa de que el emisor pierda el control y no obtenga ninguna respuesta."
+    "zh": "事件队列把消息或事件的发送时机与处理时机解耦。发送方把请求放进先进先出的队列后立即返回；接收方在方便的时候再取出处理，因此可以推迟处理、合并请求，或者把处理转移到另一个线程——代价是发送方失去控制权，也得不到响应。"
   },
   "sections": [
     {
       "num": "15.1",
       "title": {
-        "zh": "意图",
         "en": "Intent",
-        "es": "Intención"
+        "zh": "意图"
       },
       "points": [
         {
           "title": {
-            "zh": "把发送与处理解耦",
             "en": "Decouple sending from processing",
-            "es": "Desacoplar el envío del procesamiento"
+            "zh": "把发送与处理解耦"
           },
           "body": {
-            "zh": "事件队列模式的意图是：将消息或事件的发送时机与处理时机解耦。",
             "en": "The intent of Event Queue is to decouple when a message or event is sent from when it is processed.",
-            "es": "La intención del patrón Cola de eventos es desacoplar el momento en que se envía un mensaje o evento del momento en que se procesa."
+            "zh": "事件队列模式的意图是：将消息或事件的发送时机与处理时机解耦。"
           }
         }
       ]
@@ -36,79 +31,66 @@
     {
       "num": "15.2",
       "title": {
-        "zh": "动机",
         "en": "Motivation",
-        "es": "Motivación"
+        "zh": "动机"
       },
       "points": [
         {
           "title": {
-            "zh": "GUI 事件循环",
             "en": "GUI event loops",
-            "es": "Bucles de eventos de GUI"
-          },
-          "body": {
-            "zh": "在事件驱动的 UI 编程中，用户每次点击或按键，操作系统都会生成一个事件，程序中的事件循环调用 getNextEvent() 把它取进来。与中断不同，应用程序是在自己需要时才拉取事件，所以在此之前输入必须暂存在某处——也就是一个未处理事件的队列，每次取出最旧的那个。",
-            "en": "In event-driven UI programming, the OS generates an event for every click or key press, and an event loop calls getNextEvent() to pull them in. Unlike interrupts, the app pulls events when it wants them, so input must wait somewhere in the meantime — a queue of unprocessed events from which the oldest is taken first.",
-            "es": "En la programación de interfaces de usuario dirigida por eventos, el sistema operativo genera un evento por cada clic o pulsación de tecla, y un bucle de eventos llama a getNextEvent() para extraerlos. A diferencia de las interrupciones, la aplicación extrae los eventos cuando los quiere, así que mientras tanto la entrada debe esperar en algún lugar: una cola de eventos sin procesar de la que se toma primero el más antiguo."
+            "zh": "GUI 事件循环"
           },
           "subsection": {
-            "zh": "GUI 事件循环",
             "en": "GUI event loops",
-            "es": "Bucle de eventos de GUI"
+            "zh": "GUI 事件循环"
+          },
+          "body": {
+            "en": "In event-driven UI programming, the OS generates an event for every click or key press, and an event loop calls getNextEvent() to pull them in. Unlike interrupts, the app pulls events when it wants them, so input must wait somewhere in the meantime — a queue of unprocessed events from which the oldest is taken first.",
+            "zh": "在事件驱动的 UI 编程中，用户每次点击或按键，操作系统都会生成一个事件，程序中的事件循环调用 getNextEvent() 把它取进来。与中断不同，应用程序是在自己需要时才拉取事件，所以在此之前输入必须暂存在某处——也就是一个未处理事件的队列，每次取出最旧的那个。"
           },
           "code": "while (running) {\n  Event event = getNextEvent();\n  // Handle event...\n}"
         },
         {
           "title": {
-            "zh": "中央事件总线",
             "en": "A central event bus",
-            "es": "Un bus de eventos central"
-          },
-          "body": {
-            "zh": "很多游戏都有一个中央事件队列，作为“神经系统”的主干，用于互相解耦的系统之间的高层通信。例如，战斗代码发出一个“敌人死亡”事件，注册了该事件的教程系统就弹出“按 X 拾取战利品！”，而两者彼此并不知道对方的存在。这类似于 AI 领域的黑板系统。",
-            "en": "Many games have a central event queue as the backbone of their nervous system for high-level communication between decoupled systems. For example, combat code posts an \"enemy died\" event and the tutorial engine, registered for that event, shows \"Press X to grab the loot!\" without the two knowing about each other. This resembles AI blackboard systems.",
-            "es": "Muchos juegos tienen una cola de eventos central que hace de columna vertebral de su sistema nervioso para la comunicación de alto nivel entre sistemas desacoplados. Por ejemplo, el código de combate publica un evento de «el enemigo murió» y el motor de tutoriales, registrado para ese evento, muestra «¡Presiona X para recoger el botín!» sin que ninguno de los dos conozca la existencia del otro. Esto se parece a los sistemas de pizarra (blackboard) de la IA."
+            "zh": "中央事件总线"
           },
           "subsection": {
-            "zh": "中央事件总线",
             "en": "Central event bus",
-            "es": "Bus de eventos central"
+            "zh": "中央事件总线"
+          },
+          "body": {
+            "en": "Many games have a central event queue as the backbone of their nervous system for high-level communication between decoupled systems. For example, combat code posts an \"enemy died\" event and the tutorial engine, registered for that event, shows \"Press X to grab the loot!\" without the two knowing about each other. This resembles AI blackboard systems.",
+            "zh": "很多游戏都有一个中央事件队列，作为“神经系统”的主干，用于互相解耦的系统之间的高层通信。例如，战斗代码发出一个“敌人死亡”事件，注册了该事件的教程系统就弹出“按 X 拾取战利品！”，而两者彼此并不知道对方的存在。这类似于 AI 领域的黑板系统。"
           }
         },
         {
           "title": {
-            "zh": "同步音频 API 的问题",
             "en": "Problems with a synchronous audio API",
-            "es": "Problemas de una API de audio síncrona"
-          },
-          "body": {
-            "zh": "作者倾向于用一个局部的例子：静态函数 Audio::playSound(id, volume) 会立即加载声音、寻找空闲声道并播放。随之出现三个问题：（1）调用会阻塞调用者，直到请求处理完毕，加载声音时游戏会卡住；（2）无法整体处理请求，同一帧里两声相同的惨叫叠加后音量刺耳，同时发声数也会超出硬件上限；（3）请求在调用者的线程上执行且没有任何同步，而专门的音频线程却闲着。",
-            "en": "The author prefers a local example: a static Audio::playSound(id, volume) that loads the sound, finds a channel, and plays it immediately. Three problems emerge: (1) the call blocks the caller until the request is fully processed, freezing the game while sounds load; (2) requests can't be processed in aggregate, so two identical wails in one frame are jarringly loud and hardware channel limits get exceeded; (3) requests run on the caller's thread with no synchronization while the audio thread sits idle.",
-            "es": "El autor prefiere un ejemplo local: una función estática Audio::playSound(id, volume) que carga el sonido, busca un canal libre y lo reproduce de inmediato. Aparecen tres problemas: (1) la llamada bloquea al llamador hasta que la solicitud se procesa por completo, y el juego se congela mientras se cargan los sonidos; (2) las solicitudes no se pueden procesar de forma agregada, así que dos alaridos idénticos en el mismo fotograma suenan estridentemente fuertes y se superan los límites de canales del hardware; (3) las solicitudes se ejecutan en el hilo del llamador sin ninguna sincronización, mientras el hilo de audio dedicado permanece inactivo."
+            "zh": "同步音频 API 的问题"
           },
           "subsection": {
-            "zh": "你说什么？",
             "en": "Say what?",
-            "es": "¿Cómo dices?"
+            "zh": "你说什么？"
+          },
+          "body": {
+            "en": "The author prefers a local example: a static Audio::playSound(id, volume) that loads the sound, finds a channel, and plays it immediately. Three problems emerge: (1) the call blocks the caller until the request is fully processed, freezing the game while sounds load; (2) requests can't be processed in aggregate, so two identical wails in one frame are jarringly loud and hardware channel limits get exceeded; (3) requests run on the caller's thread with no synchronization while the audio thread sits idle.",
+            "zh": "作者倾向于用一个局部的例子：静态函数 Audio::playSound(id, volume) 会立即加载声音、寻找空闲声道并播放。随之出现三个问题：（1）调用会阻塞调用者，直到请求处理完毕，加载声音时游戏会卡住；（2）无法整体处理请求，同一帧里两声相同的惨叫叠加后音量刺耳，同时发声数也会超出硬件上限；（3）请求在调用者的线程上执行且没有任何同步，而专门的音频线程却闲着。"
           },
           "code": "void Audio::playSound(SoundId id, int volume) {\n  ResourceId resource = loadSound(id);\n  int channel = findOpenChannel();\n  if (channel == -1) return;\n  startSound(resource, channel, volume);\n}"
         },
         {
           "title": {
-            "zh": "问题在于“立即执行”",
             "en": "Immediacy is the problem",
-            "es": "El problema es la inmediatez"
-          },
-          "body": {
-            "zh": "这些问题的共同点在于：音频引擎把 playSound() 理解为“放下一切，立刻播放！”调用者在自己方便的时候发出请求，但那未必是音频引擎方便处理的时候。解决办法就是把接收请求与处理请求解耦。",
-            "en": "The common theme: the audio engine treats playSound() as \"drop everything and play right now!\" Callers request at their convenience, which isn't necessarily convenient for the audio engine. The fix is to decouple receiving a request from processing it.",
-            "es": "El tema común: el motor de audio interpreta playSound() como «¡deja todo y reproduce ahora mismo!». Los llamadores envían solicitudes cuando les conviene, lo que no necesariamente le conviene al motor de audio. La solución es desacoplar la recepción de una solicitud de su procesamiento."
+            "zh": "问题在于“立即执行”"
           },
           "subsection": {
-            "zh": "你说什么？",
             "en": "Say what?",
-            "es": "¿Cómo dices?"
+            "zh": "你说什么？"
+          },
+          "body": {
+            "en": "The common theme: the audio engine treats playSound() as \"drop everything and play right now!\" Callers request at their convenience, which isn't necessarily convenient for the audio engine. The fix is to decouple receiving a request from processing it.",
+            "zh": "这些问题的共同点在于：音频引擎把 playSound() 理解为“放下一切，立刻播放！”调用者在自己方便的时候发出请求，但那未必是音频引擎方便处理的时候。解决办法就是把接收请求与处理请求解耦。"
           }
         }
       ]
@@ -116,21 +98,18 @@
     {
       "num": "15.3",
       "title": {
-        "zh": "模式",
         "en": "The Pattern",
-        "es": "El patrón"
+        "zh": "模式"
       },
       "points": [
         {
           "title": {
-            "zh": "发送者与处理者之间的先进先出队列",
             "en": "FIFO queue between sender and processor",
-            "es": "Una cola FIFO entre emisor y procesador"
+            "zh": "发送者与处理者之间的先进先出队列"
           },
           "body": {
-            "zh": "队列按先进先出（FIFO）的顺序存储一系列通知或请求。发送通知只是把请求入队然后返回；请求处理者稍后再处理队列中的条目，可以直接处理，也可以转发给感兴趣的各方。这使发送者与接收者在静态结构上和时间上都实现了解耦。",
             "en": "A queue stores notifications or requests in first-in, first-out order. Sending enqueues the request and returns; the request processor handles items later, either directly or by routing them to interested parties. This decouples sender from receiver both statically and in time.",
-            "es": "Una cola almacena notificaciones o solicitudes en orden de primero en entrar, primero en salir. Enviar una notificación solo encola la solicitud y regresa; el procesador de solicitudes atiende los elementos más tarde, ya sea directamente o reenviándolos a las partes interesadas. Esto desacopla al emisor del receptor tanto de forma estática como en el tiempo."
+            "zh": "队列按先进先出（FIFO）的顺序存储一系列通知或请求。发送通知只是把请求入队然后返回；请求处理者稍后再处理队列中的条目，可以直接处理，也可以转发给感兴趣的各方。这使发送者与接收者在静态结构上和时间上都实现了解耦。"
           }
         }
       ]
@@ -138,45 +117,38 @@
     {
       "num": "15.4",
       "title": {
-        "zh": "何时使用",
         "en": "When to Use It",
-        "es": "Cuándo usarlo"
+        "zh": "何时使用"
       },
       "points": [
         {
           "title": {
-            "zh": "只在需要时间上的解耦时使用",
             "en": "Only when you need to decouple in time",
-            "es": "Solo cuando necesites desacoplar en el tiempo"
+            "zh": "只在需要时间上的解耦时使用"
           },
           "body": {
-            "zh": "如果只是想把消息的接收者与发送者解耦，观察者或命令模式就能以更低的复杂度做到。只有在需要时间上的解耦时才需要队列。要把简单性当作宝贵的资源。",
             "en": "If you only want to decouple who receives a message from its sender, Observer or Command do it with less complexity. You need a queue only to decouple something in time. Treat simplicity as a precious resource.",
-            "es": "Si solo quieres desacoplar quién recibe un mensaje de su emisor, Observador o Comando lo consiguen con menos complejidad. Solo necesitas una cola para desacoplar algo en el tiempo. Trata la simplicidad como un recurso valioso."
+            "zh": "如果只是想把消息的接收者与发送者解耦，观察者或命令模式就能以更低的复杂度做到。只有在需要时间上的解耦时才需要队列。要把简单性当作宝贵的资源。"
           }
         },
         {
           "title": {
-            "zh": "一端推，一端拉",
             "en": "Push on one end, pull on the other",
-            "es": "Empujar por un extremo, extraer por el otro"
+            "zh": "一端推，一端拉"
           },
           "body": {
-            "zh": "代码 A 自然地把请求“推”给 B，而 B 自然地在自己运行周期中方便的时刻把请求“拉”进来。一端是推模型、另一端是拉模型时，两者之间就需要一个缓冲区——这正是队列所提供的。",
             "en": "Code A naturally pushes a request to B, while B naturally pulls requests at a convenient point in its run cycle. A push model on one end and a pull model on the other needs a buffer between them — that's what a queue provides.",
-            "es": "El código A empuja de forma natural una solicitud hacia B, mientras que B extrae de forma natural las solicitudes en un punto conveniente de su ciclo de ejecución. Un modelo de empuje en un extremo y un modelo de extracción en el otro necesitan un búfer entre ambos: eso es precisamente lo que proporciona una cola."
+            "zh": "代码 A 自然地把请求“推”给 B，而 B 自然地在自己运行周期中方便的时刻把请求“拉”进来。一端是推模型、另一端是拉模型时，两者之间就需要一个缓冲区——这正是队列所提供的。"
           }
         },
         {
           "title": {
-            "zh": "控制权转移给接收者",
             "en": "Control moves to the receiver",
-            "es": "El control pasa al receptor"
+            "zh": "控制权转移给接收者"
           },
           "body": {
-            "zh": "队列把控制权交给读取方，它可以推迟、合并甚至丢弃请求；但这同时剥夺了发送方的控制权，发送方只能把请求扔进队列，然后听天由命。因此当发送方需要得到响应时，队列并不合适。",
             "en": "Queues give control to the reader, which can delay, aggregate, or discard requests, but they take control away from the sender, which can only throw a request on the queue and hope for the best. That makes queues a poor fit when the sender needs a response.",
-            "es": "Las colas le dan el control al lector, que puede retrasar, agregar o descartar solicitudes, pero le quitan el control al emisor, que solo puede lanzar una solicitud a la cola y esperar que salga bien. Por eso las colas encajan mal cuando el emisor necesita una respuesta."
+            "zh": "队列把控制权交给读取方，它可以推迟、合并甚至丢弃请求；但这同时剥夺了发送方的控制权，发送方只能把请求扔进队列，然后听天由命。因此当发送方需要得到响应时，队列并不合适。"
           }
         }
       ]
@@ -184,60 +156,50 @@
     {
       "num": "15.5",
       "title": {
-        "zh": "注意事项",
         "en": "Keep in Mind",
-        "es": "Ten en cuenta"
+        "zh": "注意事项"
       },
       "points": [
         {
           "title": {
-            "zh": "中央队列就是全局变量",
             "en": "A central queue is a global variable",
-            "es": "Una cola central es una variable global"
-          },
-          "body": {
-            "zh": "事件队列很复杂，对游戏架构的影响也很广泛。让游戏所有部分都通过它转发消息的“中央车站”式队列虽然强大，但它本质上仍是包装在一套协议里的全局状态，带有全局变量引起的种种微妙的相互依赖。",
-            "en": "Event queues are complex and have wide-reaching architectural effects. A \"Grand Central Station\" queue that all parts of the game route through is powerful, but it's still global state wrapped in a nice protocol, with all the subtle interdependencies globals bring.",
-            "es": "Las colas de eventos son complejas y tienen efectos arquitectónicos de amplio alcance. Una cola tipo «Grand Central Station» por la que se enruta todo el juego es poderosa, pero sigue siendo estado global envuelto en un bonito protocolo, con todas las sutiles interdependencias que traen las variables globales."
+            "zh": "中央队列就是全局变量"
           },
           "subsection": {
-            "zh": "中央事件队列是一个全局变量",
             "en": "A central event queue is a global variable",
-            "es": "Una cola de eventos central es una variable global"
+            "zh": "中央事件队列是一个全局变量"
+          },
+          "body": {
+            "en": "Event queues are complex and have wide-reaching architectural effects. A \"Grand Central Station\" queue that all parts of the game route through is powerful, but it's still global state wrapped in a nice protocol, with all the subtle interdependencies globals bring.",
+            "zh": "事件队列很复杂，对游戏架构的影响也很广泛。让游戏所有部分都通过它转发消息的“中央车站”式队列虽然强大，但它本质上仍是包装在一套协议里的全局状态，带有全局变量引起的种种微妙的相互依赖。"
           }
         },
         {
           "title": {
-            "zh": "事件被处理前世界可能已经改变",
             "en": "The world may change before the event is handled",
-            "es": "El mundo puede cambiar antes de que se maneje el evento"
-          },
-          "body": {
-            "zh": "一个“实体死亡”事件可能在队列中等待好几帧；到被处理时，该实体也许已被释放，附近的敌人也早已走开。接收者不能假定当前的世界状态就是事件发出时的状态，因此排队的事件往往携带更多数据，要在发送时就记录下那些转瞬即逝的细节，而不仅仅是说“发生了某件事”。",
-            "en": "An \"entity died\" event may wait several frames; by then the entity may be deallocated and nearby foes gone. Receivers must not assume the current world reflects the moment the event was raised, so queued events tend to be more data-heavy, capturing ephemeral details when sent rather than saying \"something happened\".",
-            "es": "Un evento de «la entidad murió» puede esperar varios fotogramas; para entonces la entidad puede haberse liberado y los enemigos cercanos pueden haberse ido. Los receptores no deben suponer que el mundo actual refleja el momento en que se generó el evento, así que los eventos encolados tienden a cargar más datos, capturando detalles efímeros al enviarse en lugar de limitarse a decir «algo pasó»."
+            "zh": "事件被处理前世界可能已经改变"
           },
           "subsection": {
-            "zh": "世界状态可能在你不知情时改变",
             "en": "The state of the world can change under you",
-            "es": "El estado del mundo puede cambiar bajo tus pies"
+            "zh": "世界状态可能在你不知情时改变"
+          },
+          "body": {
+            "en": "An \"entity died\" event may wait several frames; by then the entity may be deallocated and nearby foes gone. Receivers must not assume the current world reflects the moment the event was raised, so queued events tend to be more data-heavy, capturing ephemeral details when sent rather than saying \"something happened\".",
+            "zh": "一个“实体死亡”事件可能在队列中等待好几帧；到被处理时，该实体也许已被释放，附近的敌人也早已走开。接收者不能假定当前的世界状态就是事件发出时的状态，因此排队的事件往往携带更多数据，要在发送时就记录下那些转瞬即逝的细节，而不仅仅是说“发生了某件事”。"
           }
         },
         {
           "title": {
-            "zh": "反馈循环",
             "en": "Feedback loops",
-            "es": "Bucles de retroalimentación"
-          },
-          "body": {
-            "zh": "A 发出一个事件，B 收到后发出一个 A 关心的事件，A 收到后又发出事件，如此往复。同步系统中这种循环会很快导致栈溢出而暴露出来；但队列的异步性会让调用栈展开，游戏可能照常运行，而无用的事件在队列里来回激荡。常见的规则是：不要在处理事件的代码中再发送事件；加一些调试日志也很有帮助。",
-            "en": "A sends an event, B responds with an event A cares about, A responds again, and so on. Synchronous systems find such cycles quickly by overflowing the stack, but a queue's asynchrony unwinds the stack so spurious events may slosh around unnoticed. A common rule: avoid sending events from within code that's handling one; debug logging helps too.",
-            "es": "A envía un evento, B responde con un evento que le importa a A, A vuelve a responder, y así sucesivamente. Los sistemas síncronos descubren rápido esos ciclos al desbordar la pila, pero la asincronía de una cola desenrolla la pila, de modo que los eventos espurios pueden circular de un lado a otro sin que nadie lo note. Una regla habitual: evita enviar eventos desde el código que está manejando uno; el registro de depuración también ayuda."
+            "zh": "反馈循环"
           },
           "subsection": {
-            "zh": "可能陷入反馈循环",
             "en": "You can get stuck in feedback loops",
-            "es": "Puedes quedarte atascado en bucles de retroalimentación"
+            "zh": "可能陷入反馈循环"
+          },
+          "body": {
+            "en": "A sends an event, B responds with an event A cares about, A responds again, and so on. Synchronous systems find such cycles quickly by overflowing the stack, but a queue's asynchrony unwinds the stack so spurious events may slosh around unnoticed. A common rule: avoid sending events from within code that's handling one; debug logging helps too.",
+            "zh": "A 发出一个事件，B 收到后发出一个 A 关心的事件，A 收到后又发出事件，如此往复。同步系统中这种循环会很快导致栈溢出而暴露出来；但队列的异步性会让调用栈展开，游戏可能照常运行，而无用的事件在队列里来回激荡。常见的规则是：不要在处理事件的代码中再发送事件；加一些调试日志也很有帮助。"
           }
         }
       ]
@@ -245,92 +207,77 @@
     {
       "num": "15.6",
       "title": {
-        "zh": "示例代码",
         "en": "Sample Code",
-        "es": "Código de ejemplo"
+        "zh": "示例代码"
       },
       "points": [
         {
           "title": {
-            "zh": "把请求实体化并推迟执行",
             "en": "Reify the request and defer the work",
-            "es": "Reificar la solicitud y diferir el trabajo"
+            "zh": "把请求实体化并推迟执行"
           },
           "body": {
-            "zh": "为了让 playSound() 快速返回，把请求实体化为 PlayMessage 结构体，存放在一个普通数组中——没有动态分配，没有额外的簿记开销，内存连续、缓存友好。playSound() 只负责追加一条消息；再由一个 update() 方法（即更新方法模式），在游戏循环或专门的音频线程中被调用，来播放待处理的声音。",
             "en": "To make playSound() return quickly, reify the request into a PlayMessage struct stored in a plain array — no dynamic allocation, no bookkeeping overhead, cache-friendly contiguous memory. playSound() just appends a message; an update() method (the Update Method pattern), called from the game loop or an audio thread, plays the pending sounds.",
-            "es": "Para que playSound() regrese rápido, reifica la solicitud en una estructura PlayMessage guardada en un arreglo común: sin asignación dinámica, sin sobrecarga de contabilidad y con memoria contigua amigable para la caché. playSound() solo agrega un mensaje; un método update() (el patrón Método de actualización), llamado desde el bucle de juego o desde un hilo de audio, reproduce los sonidos pendientes."
+            "zh": "为了让 playSound() 快速返回，把请求实体化为 PlayMessage 结构体，存放在一个普通数组中——没有动态分配，没有额外的簿记开销，内存连续、缓存友好。playSound() 只负责追加一条消息；再由一个 update() 方法（即更新方法模式），在游戏循环或专门的音频线程中被调用，来播放待处理的声音。"
           },
           "code": "struct PlayMessage {\n  SoundId id;\n  int volume;\n};\n\nvoid Audio::playSound(SoundId id, int volume) {\n  assert(numPending_ < MAX_PENDING);\n\n  pending_[numPending_].id = id;\n  pending_[numPending_].volume = volume;\n  numPending_++;\n}"
         },
         {
           "title": {
-            "zh": "环形缓冲区：头与尾",
             "en": "Ring buffer: head and tail",
-            "es": "Búfer circular: cabeza y cola"
-          },
-          "body": {
-            "zh": "要一次只处理一个请求，就需要真正的队列。环形缓冲区保留了数组的所有优点，又无需移动元素。头（head）指向最旧的待处理请求，是读取的位置；尾（tail）是队列末尾的下一个槽位，下一个请求将写到这里，因此当 head == tail 时队列为空。",
-            "en": "To process one request at a time, we need a real queue. A ring buffer keeps the benefits of arrays without shifting elements. The head is the oldest pending request (where we read); the tail is the slot just past the end where the next request is written, so the queue is empty when head == tail.",
-            "es": "Para procesar una solicitud a la vez necesitamos una cola de verdad. Un búfer circular conserva las ventajas de los arreglos sin desplazar elementos. La cabeza es la solicitud pendiente más antigua (de donde leemos); la cola es la ranura justo después del final, donde se escribe la siguiente solicitud, de modo que la cola está vacía cuando head == tail."
+            "zh": "环形缓冲区：头与尾"
           },
           "subsection": {
-            "zh": "环形缓冲区",
             "en": "A ring buffer",
-            "es": "Un búfer circular"
+            "zh": "环形缓冲区"
+          },
+          "body": {
+            "en": "To process one request at a time, we need a real queue. A ring buffer keeps the benefits of arrays without shifting elements. The head is the oldest pending request (where we read); the tail is the slot just past the end where the next request is written, so the queue is empty when head == tail.",
+            "zh": "要一次只处理一个请求，就需要真正的队列。环形缓冲区保留了数组的所有优点，又无需移动元素。头（head）指向最旧的待处理请求，是读取的位置；尾（tail）是队列末尾的下一个槽位，下一个请求将写到这里，因此当 head == tail 时队列为空。"
           }
         },
         {
           "title": {
-            "zh": "用取模实现回绕",
             "en": "Wrapping around with modulo",
-            "es": "Dar la vuelta con el módulo"
-          },
-          "body": {
-            "zh": "随着头和尾不断右移，数组开头的单元会空出来，所以两个索引都对数组大小取模实现回绕——形成一个环形数组。一条断言保证尾部永远不会追上头部并覆盖它。如果介意容量固定，可以使用可增长数组，满了就扩大一倍，入队操作的均摊复杂度仍是常数。",
-            "en": "As head and tail crawl right, cells at the beginning become free, so both indices wrap around using modulo the array size — a circular array. An assertion ensures the tail never catches up to the head and overwrites it. If a fixed capacity bothers you, a growable array that doubles in size keeps enqueuing at constant amortized cost.",
-            "es": "A medida que la cabeza y la cola avanzan hacia la derecha, las celdas del inicio quedan libres, así que ambos índices dan la vuelta usando el módulo del tamaño del arreglo: un arreglo circular. Una aserción garantiza que la cola nunca alcance a la cabeza ni la sobrescriba. Si te incomoda una capacidad fija, un arreglo que crece duplicando su tamaño mantiene la operación de encolar con un costo amortizado constante."
+            "zh": "用取模实现回绕"
           },
           "subsection": {
-            "zh": "环形缓冲区",
             "en": "A ring buffer",
-            "es": "Un búfer circular"
+            "zh": "环形缓冲区"
+          },
+          "body": {
+            "en": "As head and tail crawl right, cells at the beginning become free, so both indices wrap around using modulo the array size — a circular array. An assertion ensures the tail never catches up to the head and overwrites it. If a fixed capacity bothers you, a growable array that doubles in size keeps enqueuing at constant amortized cost.",
+            "zh": "随着头和尾不断右移，数组开头的单元会空出来，所以两个索引都对数组大小取模实现回绕——形成一个环形数组。一条断言保证尾部永远不会追上头部并覆盖它。如果介意容量固定，可以使用可增长数组，满了就扩大一倍，入队操作的均摊复杂度仍是常数。"
           },
           "code": "void Audio::playSound(SoundId id, int volume) {\n  assert((tail_ + 1) % MAX_PENDING != head_);\n\n  // Add to the end of the list.\n  pending_[tail_].id = id;\n  pending_[tail_].volume = volume;\n  tail_ = (tail_ + 1) % MAX_PENDING;\n}"
         },
         {
           "title": {
-            "zh": "合并重复的请求",
             "en": "Aggregating duplicate requests",
-            "es": "Agregar solicitudes duplicadas"
-          },
-          "body": {
-            "zh": "既然能看到待处理的请求，playSound() 就可以把与已入队声音相同的请求合并，并保留较大的音量。在入队时合并能节省槽位且实现简单，但调用者需要遍历整个队列（O(n)）；也可以改在 update() 中合并，或使用哈希表。注意：能合并的“同时”请求的窗口只有队列那么大，因此处理延迟可能会明显影响行为。",
-            "en": "Now that pending requests are visible, playSound() can merge a request matching an already-queued sound, keeping the louder volume. Merging at enqueue time saves slots and is simple, but makes the caller walk the queue (O(n)); you could aggregate in update() or use a hash table instead. Note the aggregation window is only as big as the queue, so processing lag can visibly change behavior.",
-            "es": "Ahora que las solicitudes pendientes son visibles, playSound() puede fusionar una solicitud que coincida con un sonido ya encolado, conservando el volumen más alto. Fusionar en el momento de encolar ahorra ranuras y es simple, pero obliga al llamador a recorrer la cola (O(n)); en su lugar podrías agregar en update() o usar una tabla hash. Ten en cuenta que la ventana de agregación es tan grande como la cola, así que el retraso del procesamiento puede cambiar la conducta de forma visible."
+            "zh": "合并重复的请求"
           },
           "subsection": {
-            "zh": "合并请求",
             "en": "Aggregating requests",
-            "es": "Agregar solicitudes"
+            "zh": "合并请求"
+          },
+          "body": {
+            "en": "Now that pending requests are visible, playSound() can merge a request matching an already-queued sound, keeping the louder volume. Merging at enqueue time saves slots and is simple, but makes the caller walk the queue (O(n)); you could aggregate in update() or use a hash table instead. Note the aggregation window is only as big as the queue, so processing lag can visibly change behavior.",
+            "zh": "既然能看到待处理的请求，playSound() 就可以把与已入队声音相同的请求合并，并保留较大的音量。在入队时合并能节省槽位且实现简单，但调用者需要遍历整个队列（O(n)）；也可以改在 update() 中合并，或使用哈希表。注意：能合并的“同时”请求的窗口只有队列那么大，因此处理延迟可能会明显影响行为。"
           },
           "code": "for (int i = head_; i != tail_; i = (i + 1) % MAX_PENDING) {\n  if (pending_[i].id == id) {\n    // Use the larger of the two volumes.\n    pending_[i].volume = max(volume, pending_[i].volume);\n    // Don't need to enqueue.\n    return;\n  }\n}"
         },
         {
           "title": {
-            "zh": "跨越线程",
             "en": "Spanning threads",
-            "es": "Abarcar hilos"
-          },
-          "body": {
-            "zh": "游戏通常只有一个进程，因此要利用多核就需要多线程（比如每个领域一个线程）。现在我们已经具备三个关键条件：请求声音的代码与播放代码解耦；有一个在两者之间传递数据的队列；队列对程序其他部分是封装的。剩下的只是让 playSound() 和 update() 线程安全：playSound() 只需短暂加锁，update() 则等待条件变量之类的东西，而不是空耗 CPU。",
-            "en": "Games are usually a single process, so threads (e.g. one per domain) are needed to use multiple cores. We now have the three key pieces: requesting is decoupled from playing, a queue marshals between them, and the queue is encapsulated. We just make playSound() and update() thread-safe: playSound() locks briefly, and update() waits on something like a condition variable instead of burning CPU.",
-            "es": "Los juegos suelen ser un solo proceso, así que se necesitan hilos (por ejemplo, uno por dominio) para usar varios núcleos. Ahora tenemos las tres piezas clave: pedir está desacoplado de reproducir, una cola hace de intermediaria entre ambos y la cola está encapsulada. Solo queda hacer que playSound() y update() sean seguros para hilos: playSound() bloquea brevemente, y update() espera en algo como una variable de condición en lugar de consumir CPU en vano."
+            "zh": "跨越线程"
           },
           "subsection": {
-            "zh": "跨线程",
             "en": "Spanning threads",
-            "es": "Abarcar hilos"
+            "zh": "跨线程"
+          },
+          "body": {
+            "en": "Games are usually a single process, so threads (e.g. one per domain) are needed to use multiple cores. We now have the three key pieces: requesting is decoupled from playing, a queue marshals between them, and the queue is encapsulated. We just make playSound() and update() thread-safe: playSound() locks briefly, and update() waits on something like a condition variable instead of burning CPU.",
+            "zh": "游戏通常只有一个进程，因此要利用多核就需要多线程（比如每个领域一个线程）。现在我们已经具备三个关键条件：请求声音的代码与播放代码解耦；有一个在两者之间传递数据的队列；队列对程序其他部分是封装的。剩下的只是让 playSound() 和 update() 线程安全：playSound() 只需短暂加锁，update() 则等待条件变量之类的东西，而不是空耗 CPU。"
           }
         }
       ]
@@ -338,77 +285,64 @@
     {
       "num": "15.7",
       "title": {
-        "zh": "设计决策",
         "en": "Design Decisions",
-        "es": "Decisiones de diseño"
+        "zh": "设计决策"
       },
       "points": [
         {
           "title": {
-            "zh": "事件与消息",
             "en": "Events vs. messages",
-            "es": "Eventos frente a mensajes"
-          },
-          "body": {
-            "zh": "事件描述已经发生的事（“怪物死了”）：类似异步的观察者模式，通常有多个监听者，发送者不关心谁接收，队列的可见范围也往往更广。消息描述我们希望将来发生的动作（“播放声音”）：类似对某个服务的异步 API，或排队的命令（Command），通常只有一个监听者。",
-            "en": "An event describes something that already happened (\"monster died\"): like an asynchronous Observer, it usually has multiple listeners, the sender doesn't care who receives it, and the queue tends to be globally visible. A message describes an action we want in the future (\"play sound\"): like an asynchronous API to a service or a queued Command, it more likely has a single listener.",
-            "es": "Un evento describe algo que ya ocurrió («el monstruo murió»): como un Observador asíncrono, por lo general tiene varios oyentes, al emisor no le importa quién lo reciba y la cola suele ser visible de forma global. Un mensaje describe una acción que queremos en el futuro («reproduce el sonido»): como una API asíncrona hacia un servicio o un Comando encolado, es más probable que tenga un solo oyente."
+            "zh": "事件与消息"
           },
           "subsection": {
-            "zh": "队列中放什么？",
             "en": "What goes in the queue?",
-            "es": "¿Qué se pone en la cola?"
+            "zh": "队列中放什么？"
+          },
+          "body": {
+            "en": "An event describes something that already happened (\"monster died\"): like an asynchronous Observer, it usually has multiple listeners, the sender doesn't care who receives it, and the queue tends to be globally visible. A message describes an action we want in the future (\"play sound\"): like an asynchronous API to a service or a queued Command, it more likely has a single listener.",
+            "zh": "事件描述已经发生的事（“怪物死了”）：类似异步的观察者模式，通常有多个监听者，发送者不关心谁接收，队列的可见范围也往往更广。消息描述我们希望将来发生的动作（“播放声音”）：类似对某个服务的异步 API，或排队的命令（Command），通常只有一个监听者。"
           }
         },
         {
           "title": {
-            "zh": "单播、广播还是工作队列",
             "en": "Single-cast, broadcast, or work queue",
-            "es": "Unidifusión, difusión o cola de trabajo"
-          },
-          "body": {
-            "zh": "当队列是某个类 API 的一部分时，适合使用单播队列：封装性更好，也不必担心监听者之间的竞争。广播队列把每个事件发给所有监听者；没有监听者时事件会被丢弃，而且可能需要过滤事件。工作队列则把每个条目只交给多个监听者中的一个（例如线程池），因此需要调度策略，比如轮询（round robin）。",
-            "en": "A single-cast queue fits when the queue is part of a class's API: it's more encapsulated and avoids contention between listeners. A broadcast queue delivers each event to every listener; events with zero listeners are dropped, and filtering may be needed. A work queue gives each item to only one of several listeners (e.g. a thread pool), so it needs scheduling such as round robin.",
-            "es": "Una cola de unidifusión encaja cuando la cola forma parte de la API de una clase: está más encapsulada y evita la contención entre oyentes. Una cola de difusión entrega cada evento a todos los oyentes; los eventos sin oyentes se descartan, y puede hacer falta filtrarlos. Una cola de trabajo entrega cada elemento a solo uno de varios oyentes (por ejemplo, un grupo de hilos), así que necesita una política de planificación, como el turno rotatorio (round robin)."
+            "zh": "单播、广播还是工作队列"
           },
           "subsection": {
-            "zh": "谁可以读取队列？",
             "en": "Who can read from the queue?",
-            "es": "¿Quién puede leer la cola?"
+            "zh": "谁可以读取队列？"
+          },
+          "body": {
+            "en": "A single-cast queue fits when the queue is part of a class's API: it's more encapsulated and avoids contention between listeners. A broadcast queue delivers each event to every listener; events with zero listeners are dropped, and filtering may be needed. A work queue gives each item to only one of several listeners (e.g. a thread pool), so it needs scheduling such as round robin.",
+            "zh": "当队列是某个类 API 的一部分时，适合使用单播队列：封装性更好，也不必担心监听者之间的竞争。广播队列把每个事件发给所有监听者；没有监听者时事件会被丢弃，而且可能需要过滤事件。工作队列则把每个条目只交给多个监听者中的一个（例如线程池），因此需要调度策略，比如轮询（round robin）。"
           }
         },
         {
           "title": {
-            "zh": "一个写入者还是多个",
             "en": "One writer or many",
-            "es": "Un solo escritor o varios"
-          },
-          "body": {
-            "zh": "只有一个写入者时，它最像同步的观察者模式：监听者隐式地知道事件来自谁，通常允许多个读取者。有多个写入者时（如公开的 playSound() 或全局事件总线），要更加小心循环，而且很可能需要在事件中附带发送者的引用。",
-            "en": "With one writer, it resembles the synchronous Observer pattern: listeners implicitly know the sender, and there are usually multiple readers. With multiple writers (like playSound() or a global event bus), you must be more careful of cycles, and you'll likely want a reference to the sender in the event itself.",
-            "es": "Con un solo escritor, se parece más al patrón Observador síncrono: los oyentes saben de forma implícita quién es el emisor, y por lo general hay varios lectores. Con varios escritores (como playSound() o un bus de eventos global), debes tener más cuidado con los ciclos, y probablemente quieras una referencia al emisor dentro del propio evento."
+            "zh": "一个写入者还是多个"
           },
           "subsection": {
-            "zh": "谁可以写入队列？",
             "en": "Who can write to the queue?",
-            "es": "¿Quién puede escribir en la cola?"
+            "zh": "谁可以写入队列？"
+          },
+          "body": {
+            "en": "With one writer, it resembles the synchronous Observer pattern: listeners implicitly know the sender, and there are usually multiple readers. With multiple writers (like playSound() or a global event bus), you must be more careful of cycles, and you'll likely want a reference to the sender in the event itself.",
+            "zh": "只有一个写入者时，它最像同步的观察者模式：监听者隐式地知道事件来自谁，通常允许多个读取者。有多个写入者时（如公开的 playSound() 或全局事件总线），要更加小心循环，而且很可能需要在事件中附带发送者的引用。"
           }
         },
         {
           "title": {
-            "zh": "队列中对象的生命周期",
             "en": "Lifetime of queued objects",
-            "es": "Tiempo de vida de los objetos encolados"
-          },
-          "body": {
-            "zh": "入队的消息比入队调用活得更久，所以不能放在栈上。在 C++ 中，可以转移所有权（发送者 → 队列 → 接收者，对应 unique_ptr<T>），可以共享所有权（shared_ptr<T>），也可以让队列拥有它：发送者向队列申请一条位于队列内部的“新”消息并填写内容，这样队列的底层存储就是一个对象池。",
-            "en": "A queued message outlives the call that enqueued it, so it can't live on the stack. In C++, you can pass ownership (sender → queue → receiver, like unique_ptr<T>), share ownership (shared_ptr<T>), or let the queue own it: the sender requests a fresh message living in the queue and fills it in, making the queue's backing store an object pool.",
-            "es": "Un mensaje encolado vive más que la llamada que lo encoló, así que no puede residir en la pila. En C++, puedes transferir la propiedad (emisor → cola → receptor, como unique_ptr<T>), compartir la propiedad (shared_ptr<T>) o dejar que la cola lo posea: el emisor pide un mensaje nuevo que vive en la cola y lo rellena, con lo que el almacenamiento subyacente de la cola es un grupo de objetos."
+            "zh": "队列中对象的生命周期"
           },
           "subsection": {
-            "zh": "队列中对象的生命周期是怎样的？",
             "en": "What is the lifetime of the objects in the queue?",
-            "es": "¿Cuál es el tiempo de vida de los objetos de la cola?"
+            "zh": "队列中对象的生命周期是怎样的？"
+          },
+          "body": {
+            "en": "A queued message outlives the call that enqueued it, so it can't live on the stack. In C++, you can pass ownership (sender → queue → receiver, like unique_ptr<T>), share ownership (shared_ptr<T>), or let the queue own it: the sender requests a fresh message living in the queue and fills it in, making the queue's backing store an object pool.",
+            "zh": "入队的消息比入队调用活得更久，所以不能放在栈上。在 C++ 中，可以转移所有权（发送者 → 队列 → 接收者，对应 unique_ptr<T>），可以共享所有权（shared_ptr<T>），也可以让队列拥有它：发送者向队列申请一条位于队列内部的“新”消息并填写内容，这样队列的底层存储就是一个对象池。"
           }
         }
       ]
@@ -416,21 +350,18 @@
     {
       "num": "15.8",
       "title": {
-        "zh": "参考",
         "en": "See Also",
-        "es": "Véase también"
+        "zh": "参考"
       },
       "points": [
         {
           "title": {
-            "zh": "观察者的异步近亲及其别名",
             "en": "Observer's asynchronous cousin and aliases",
-            "es": "El primo asíncrono del Observador y sus alias"
+            "zh": "观察者的异步近亲及其别名"
           },
           "body": {
-            "zh": "事件队列在很多方面都是观察者模式的异步近亲。“消息队列”和“发布/订阅”（pubsub）通常指应用程序之间通信的更大规模系统。如果一组状态机彼此发送消息，每个都有一个存放待处理输入的“邮箱”，那就等于重新发明了 Actor 计算模型；Go 语言内置的 channel 本质上就是一个事件或消息队列。",
             "en": "Event Queue is in many ways the asynchronous cousin of Observer. \"Message queue\" and \"publish/subscribe\" (pubsub) usually refer to larger-scale systems communicating between applications. State machines that message each other, each with a mailbox of pending inputs, reinvent the actor model; Go's built-in channel is essentially an event or message queue.",
-            "es": "La Cola de eventos es, en muchos sentidos, el primo asíncrono del Observador. «Cola de mensajes» y «publicación/suscripción» (pubsub) suelen referirse a sistemas de mayor escala que se comunican entre aplicaciones. Las máquinas de estado que se envían mensajes entre sí, cada una con un buzón de entradas pendientes, reinventan el modelo de actores; el canal (channel) incorporado de Go es esencialmente una cola de eventos o de mensajes."
+            "zh": "事件队列在很多方面都是观察者模式的异步近亲。“消息队列”和“发布/订阅”（pubsub）通常指应用程序之间通信的更大规模系统。如果一组状态机彼此发送消息，每个都有一个存放待处理输入的“邮箱”，那就等于重新发明了 Actor 计算模型；Go 语言内置的 channel 本质上就是一个事件或消息队列。"
           }
         }
       ]
@@ -438,134 +369,68 @@
   ],
   "terms": [
     {
-      "term": {
-        "zh": "事件队列 / 消息队列",
-        "en": "event queue / message queue",
-        "es": "cola de eventos / cola de mensajes"
-      }
+      "en": "event queue / message queue",
+      "zh": "事件队列 / 消息队列"
     },
     {
-      "term": {
-        "zh": "事件循环",
-        "en": "event loop",
-        "es": "bucle de eventos"
-      }
+      "en": "event loop",
+      "zh": "事件循环"
     },
     {
-      "term": {
-        "zh": "先进先出",
-        "en": "FIFO (first-in, first-out)",
-        "es": "FIFO (primero en entrar, primero en salir)"
-      }
+      "en": "FIFO (first-in, first-out)",
+      "zh": "先进先出"
     },
     {
-      "term": {
-        "zh": "环形缓冲区",
-        "en": "ring buffer",
-        "es": "búfer circular (ring buffer)"
-      }
+      "en": "ring buffer",
+      "zh": "环形缓冲区"
     },
     {
-      "term": {
-        "zh": "队头 / 队尾",
-        "en": "head / tail",
-        "es": "cabeza / cola (head / tail)"
-      }
+      "en": "head / tail",
+      "zh": "队头 / 队尾"
     },
     {
-      "term": {
-        "zh": "合并（聚合）",
-        "en": "aggregation",
-        "es": "agregación (fusión de solicitudes)"
-      }
+      "en": "aggregation",
+      "zh": "合并（聚合）"
     },
     {
-      "term": {
-        "zh": "反馈循环",
-        "en": "feedback loop",
-        "es": "bucle de retroalimentación"
-      }
+      "en": "feedback loop",
+      "zh": "反馈循环"
     },
     {
-      "term": {
-        "zh": "广播 / 单播",
-        "en": "broadcast / single-cast",
-        "es": "difusión / unidifusión (broadcast / single-cast)"
-      }
+      "en": "broadcast / single-cast",
+      "zh": "广播 / 单播"
     },
     {
-      "term": {
-        "zh": "工作队列",
-        "en": "work queue",
-        "es": "cola de trabajo"
-      }
+      "en": "work queue",
+      "zh": "工作队列"
     },
     {
-      "term": {
-        "zh": "发布/订阅",
-        "en": "publish/subscribe",
-        "es": "publicación/suscripción"
-      }
+      "en": "publish/subscribe",
+      "zh": "发布/订阅"
     },
     {
-      "term": {
-        "zh": "Actor 模型",
-        "en": "actor model",
-        "es": "modelo de actores"
-      }
+      "en": "actor model",
+      "zh": "Actor 模型"
     }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "15.2",
-      "q": {
-        "zh": "以下哪项不是同步 playSound() 音频 API 的三个问题之一？",
-        "en": "Which is NOT one of the three problems with the synchronous playSound() API?",
-        "es": "¿Cuál NO es uno de los tres problemas de la API síncrona playSound()?"
-      },
-      "explain": {
-        "zh": "三个问题是：阻塞调用者、无法整体处理请求、在错误的线程上处理。共同根源是“立即执行”（immediacy）。",
-        "en": "The three problems are: blocking the caller, being unable to process requests in aggregate, and processing requests on the wrong thread. Their common root is immediacy.",
-        "es": "Los tres problemas son: bloquear al llamador, no poder procesar las solicitudes de forma agregada y procesarlas en el hilo equivocado. Su raíz común es la inmediatez."
-      },
+      "q": "Which is NOT one of the three problems with the synchronous playSound() API? 以下哪项不是同步音频 API 的问题？",
       "options": [
-        {
-          "zh": "它会阻塞调用者，直到声音处理完毕",
-          "en": "It blocks the caller until the sound is processed",
-          "es": "Bloquea al llamador hasta que el sonido se procesa"
-        },
-        {
-          "zh": "无法把请求合并起来统一处理",
-          "en": "Requests can't be processed in aggregate",
-          "es": "Las solicitudes no se pueden procesar de forma agregada"
-        },
-        {
-          "zh": "请求在错误的线程上处理",
-          "en": "Requests are processed on the wrong thread",
-          "es": "Las solicitudes se procesan en el hilo equivocado"
-        },
-        {
-          "zh": "声音文件无法从磁盘加载",
-          "en": "Sound files can't be loaded from disc",
-          "es": "Los archivos de sonido no se pueden cargar desde el disco"
-        }
+        "It blocks the caller until the sound is processed",
+        "Requests can't be processed in aggregate",
+        "Requests are processed on the wrong thread",
+        "Sound files can't be loaded from disc"
       ],
-      "answer": 3
+      "answer": 3,
+      "explain": "三个问题是：阻塞调用者、无法整体处理请求、在错误的线程上处理。共同根源是“立即执行”（immediacy）。"
     },
     {
       "type": "fill",
       "ref": "15.3",
-      "q": {
-        "zh": "事件队列按 ___ 顺序（先进先出）存储请求，从而在静态结构上和时间上都把发送者与接收者解耦。",
-        "en": "An event queue stores requests in ___ order (first-in, first-out), decoupling sender and receiver both statically and in time.",
-        "es": "Una cola de eventos almacena las solicitudes en orden ___ (primero en entrar, primero en salir), lo que desacopla al emisor y al receptor tanto de forma estática como en el tiempo."
-      },
-      "explain": {
-        "zh": "发送只是入队并返回，处理者稍后按先进先出顺序处理。",
-        "en": "Sending only enqueues the request and returns; the processor handles it later in first-in, first-out order.",
-        "es": "Enviar solo encola la solicitud y retorna; el procesador la atiende después, en orden de primero en entrar, primero en salir."
-      },
+      "q": "An event queue stores requests in ___ order（先进先出）, decoupling sender and receiver both statically and in time.",
       "answer": [
         "FIFO",
         "first-in, first-out",
@@ -573,521 +438,184 @@
         "first in first out",
         "先进先出"
       ],
-      "answerText": {
-        "zh": "FIFO（先进先出）",
-        "en": "FIFO (first-in, first-out)",
-        "es": "FIFO (primero en entrar, primero en salir)"
-      }
+      "explain": "发送只是入队并返回，处理者稍后按先进先出顺序处理。"
     },
     {
       "type": "truefalse",
       "ref": "15.4",
-      "q": {
-        "zh": "如果只是想解耦消息的接收者与发送者，就应该使用事件队列。",
-        "en": "If you only want to decouple who receives a message from its sender, you should use an event queue.",
-        "es": "Si solo quieres desacoplar quién recibe un mensaje de su emisor, deberías usar una cola de eventos."
-      },
-      "explain": {
-        "zh": "错误。只做“谁接收消息”的解耦时，用 Observer 或 Command 更简单；只有需要时间上的解耦（decouple in time）时才需要队列。",
-        "en": "False. To decouple only who receives a message, Observer or Command is simpler; you need a queue only when you need to decouple something in time.",
-        "es": "Falso. Para desacoplar solo quién recibe un mensaje, Observador o Comando son más simples; solo necesitas una cola cuando quieres desacoplar algo en el tiempo."
-      },
-      "answer": false
+      "q": "如果只是想 decouple who receives a message from its sender，就应该使用 event queue。",
+      "answer": false,
+      "explain": "False. 只做“谁接收”的解耦，用 Observer 或 Command 更简单；只有需要时间上的解耦（decouple in time）才需要队列。"
     },
     {
       "type": "choice",
       "ref": "15.4",
-      "q": {
-        "zh": "什么情况下不适合使用队列？",
-        "en": "When is a queue a poor fit?",
-        "es": "¿Cuándo encaja mal una cola?"
-      },
-      "explain": {
-        "zh": "队列把控制权交给接收者、从发送者手中拿走，发送者只能把请求扔进去“听天由命”，拿不到响应。",
-        "en": "A queue gives control to the receiver and takes it away from the sender, who can only throw the request in and hope for the best, with no response.",
-        "es": "Una cola le da el control al receptor y se lo quita al emisor, que solo puede arrojar la solicitud y esperar lo mejor, sin recibir respuesta."
-      },
+      "q": "When is a queue a poor fit? 什么情况下不适合使用队列？",
       "options": [
-        {
-          "zh": "接收方想合并请求时",
-          "en": "When the receiver wants to aggregate requests",
-          "es": "Cuando el receptor quiere agregar solicitudes"
-        },
-        {
-          "zh": "发送方需要得到响应时",
-          "en": "When the sender needs a response",
-          "es": "Cuando el emisor necesita una respuesta"
-        },
-        {
-          "zh": "接收方运行在另一个线程上时",
-          "en": "When the receiver runs on another thread",
-          "es": "Cuando el receptor se ejecuta en otro hilo"
-        },
-        {
-          "zh": "请求成批集中到达时",
-          "en": "When requests arrive in bursts",
-          "es": "Cuando las solicitudes llegan en ráfagas"
-        }
+        "When the receiver wants to aggregate requests",
+        "When the sender needs a response",
+        "When the receiver runs on another thread",
+        "When requests arrive in bursts"
       ],
-      "answer": 1
+      "answer": 1,
+      "explain": "队列把控制权交给接收者、从发送者手中拿走，发送者只能把请求扔进去“听天由命”，拿不到响应。"
     },
     {
       "type": "open",
       "ref": "15.5",
-      "q": {
-        "zh": "为什么入队的事件往往比同步事件携带更多数据？",
-        "en": "Why do queued events tend to be more data-heavy than synchronous ones?",
-        "es": "¿Por qué los eventos encolados suelen llevar más datos que los síncronos?"
-      },
-      "explain": {
-        "zh": "同步事件只需说“发生了某事”；入队的事件则必须携带那些转瞬即逝的细节。",
-        "en": "Synchronous events can just say \"something happened\"; queued events must carry the ephemeral details.",
-        "es": "Los eventos síncronos pueden limitarse a decir «ocurrió algo»; los eventos encolados deben llevar los detalles efímeros."
-      },
-      "answer": {
-        "zh": "因为事件可能在若干帧之后才被处理，那时世界已经变化（实体可能已被释放、附近的敌人已经离开），所以必须在发送时就把细节记录在事件里，而不能让接收者事后再去查。",
-        "en": "Because the event may be processed frames later, when the world has changed (the entity may be deallocated and nearby foes gone), so the details must be captured at send time rather than looked up by the receiver.",
-        "es": "Porque el evento puede procesarse varios fotogramas después, cuando el mundo ya cambió (la entidad puede haberse liberado y los enemigos cercanos pueden haberse ido), así que los detalles deben capturarse al momento de enviar y no consultarse después por el receptor."
-      }
+      "q": "Why do queued events tend to be more data-heavy than synchronous ones? 请中英文作答。",
+      "answer": "EN: Because the event may be processed frames later, when the world has changed (the entity may be deallocated, nearby foes gone), so the details must be captured at send time rather than looked up by the receiver. 中：因为事件可能在若干帧之后才被处理，那时世界已经变化（实体可能已被释放、附近敌人已离开），所以必须在发送时就把细节记录在事件里，而不能让接收者事后再去查。",
+      "explain": "Synchronous events can just say \"something happened\"; queued events must carry ephemeral details. 同步事件只需说“发生了某事”。"
     },
     {
       "type": "truefalse",
       "ref": "15.5",
-      "q": {
-        "zh": "使用队列时，反馈循环会通过栈溢出迅速让游戏崩溃。",
-        "en": "With a queue, feedback loops crash the game quickly by overflowing the stack.",
-        "es": "Con una cola, los ciclos de retroalimentación hacen que el juego se caiga rápidamente por desbordamiento de pila."
-      },
-      "explain": {
-        "zh": "错误。那是同步系统的情况；队列的异步性会展开调用栈，游戏可能照常运行，而无用的事件在队列中来回循环，反而更难发现。",
-        "en": "False. That is what happens in synchronous systems; a queue's asynchrony unwinds the stack, so the game may keep running while spurious events circulate in the queue, making the problem harder to spot.",
-        "es": "Falso. Eso es lo que ocurre en los sistemas síncronos; la asincronía de una cola desenrolla la pila, así que el juego puede seguir funcionando mientras los eventos espurios circulan por la cola, lo que hace el problema más difícil de detectar."
-      },
-      "answer": false
+      "q": "With a queue, feedback loops crash the game quickly by overflowing the stack. 使用队列时，反馈循环会迅速导致栈溢出。",
+      "answer": false,
+      "explain": "False. 这是同步系统的情况；队列的异步性会展开调用栈，游戏可能照常运行而无用事件在队列中来回循环，更难发现。"
     },
     {
       "type": "fill",
       "ref": "15.6",
-      "q": {
-        "zh": "在环形缓冲区中，当 head == ___（队尾）时队列为空。",
-        "en": "In a ring buffer, the queue is empty when head == ___ (the tail).",
-        "es": "En un búfer circular, la cola está vacía cuando head == ___ (el final de la cola, tail)."
-      },
-      "explain": {
-        "zh": "尾指向最后一项的下一个位置（半开区间），所以头尾相等时队列为空。",
-        "en": "The tail points just past the last item (a half-open range), so when head and tail are equal the queue is empty.",
-        "es": "El tail apunta a la posición siguiente al último elemento (un rango semiabierto), así que cuando head y tail son iguales la cola está vacía."
-      },
+      "q": "In a ring buffer, the queue is empty when head == ___（队尾）.",
       "answer": [
         "tail",
         "tail_",
         "队尾",
         "尾"
       ],
-      "answerText": {
-        "zh": "tail（队尾）",
-        "en": "tail",
-        "es": "tail (el final de la cola)"
-      }
+      "explain": "尾指向最后一项的下一个位置（半开区间），所以头尾相等时队列为空。"
     },
     {
       "type": "choice",
       "ref": "15.6",
-      "q": {
-        "zh": "环形缓冲区在从队头移除元素时如何避免移动其他元素？",
-        "en": "How does the ring buffer avoid shifting elements when removing from the front?",
-        "es": "¿Cómo evita el búfer circular desplazar elementos al quitar del frente?"
-      },
-      "explain": {
-        "zh": "head_ = (head_ + 1) % MAX_PENDING；数组开头空出的单元被回绕后的尾部重新利用。",
-        "en": "head_ = (head_ + 1) % MAX_PENDING; the cells freed at the start of the array are reused once the tail wraps around.",
-        "es": "head_ = (head_ + 1) % MAX_PENDING; las celdas que quedan libres al inicio del arreglo se reutilizan cuando el tail da la vuelta."
-      },
+      "q": "How does the ring buffer avoid shifting elements when removing from the front? 环形缓冲区如何避免移动元素？",
       "options": [
-        {
-          "zh": "内部使用链表",
-          "en": "It uses a linked list internally",
-          "es": "Usa internamente una lista enlazada"
-        },
-        {
-          "zh": "每帧分配一个新数组",
-          "en": "It allocates a new array each frame",
-          "es": "Asigna un arreglo nuevo en cada fotograma"
-        },
-        {
-          "zh": "每次移除后对数组排序",
-          "en": "It sorts the array after each removal",
-          "es": "Ordena el arreglo después de cada eliminación"
-        },
-        {
-          "zh": "它移动 head，并对两个索引按数组大小取模实现回绕",
-          "en": "It advances head and wraps both indices around using modulo the array size",
-          "es": "Avanza head y hace que ambos índices den la vuelta usando el módulo del tamaño del arreglo"
-        }
+        "It uses a linked list internally",
+        "It allocates a new array each frame",
+        "It sorts the array after each removal",
+        "It advances head and wraps both indices around using modulo the array size"
       ],
-      "answer": 3
+      "answer": 3,
+      "explain": "head_ = (head_ + 1) % MAX_PENDING；数组开头空出的单元被回绕后的尾部重新利用。"
     },
     {
       "type": "choice",
       "ref": "15.6",
-      "q": {
-        "zh": "合并重复的声音请求时，作者让合并后的请求使用哪个音量？",
-        "en": "When merging duplicate sound requests, which volume does the author keep for the merged request?",
-        "es": "Al fusionar solicitudes de sonido duplicadas, ¿qué volumen deja el autor en la solicitud fusionada?"
-      },
-      "explain": {
-        "zh": "两次相同的声音叠加会过响，所以合并为一个请求，取 max(volume, pending_[i].volume)。",
-        "en": "Playing the same sound twice at once is too loud, so the requests are merged into one and it keeps max(volume, pending_[i].volume).",
-        "es": "Reproducir el mismo sonido dos veces a la vez suena demasiado fuerte, así que las solicitudes se fusionan en una y se conserva max(volume, pending_[i].volume)."
-      },
+      "q": "合并重复声音请求时，作者让合并后的请求使用什么音量？ Which volume is kept?",
       "options": [
-        {
-          "zh": "两者中较大的（更响的）音量",
-          "en": "The larger (louder) of the two",
-          "es": "El mayor (más fuerte) de los dos"
-        },
-        {
-          "zh": "两个音量之和",
-          "en": "The sum of both volumes",
-          "es": "La suma de ambos volúmenes"
-        },
-        {
-          "zh": "平均值",
-          "en": "The average",
-          "es": "El promedio"
-        },
-        {
-          "zh": "总是 VOL_MAX",
-          "en": "Always VOL_MAX",
-          "es": "Siempre VOL_MAX"
-        }
+        "The larger (louder) of the two",
+        "The sum of both volumes",
+        "The average",
+        "Always VOL_MAX"
       ],
-      "answer": 0
+      "answer": 0,
+      "explain": "两次相同的声音叠加会过响，所以合并为一个请求，取 max(volume, pending_[i].volume)。"
     },
     {
       "type": "choice",
       "ref": "15.7",
-      "q": {
-        "zh": "每个条目只交给多个监听者中的一个（例如线程池）的队列叫什么？",
-        "en": "A queue where each item goes to only ONE of several listeners (such as a thread pool) is called a ___.",
-        "es": "Una cola en la que cada elemento va a solo UNO de varios oyentes (por ejemplo, un grupo de hilos) se llama ___."
-      },
-      "explain": {
-        "zh": "工作队列有多个监听者但每项只给一个，需要调度逻辑，如轮询或随机选择。",
-        "en": "A work queue has several listeners but gives each item to only one, so it needs scheduling logic such as round robin or random selection.",
-        "es": "Una cola de trabajo tiene varios oyentes pero entrega cada elemento a uno solo, así que necesita lógica de planificación, como round robin o selección aleatoria."
-      },
+      "q": "A queue where each item goes to only ONE of several listeners (e.g. a thread pool) is called a ___. 每个条目只交给一个监听者的队列叫什么？",
       "options": [
-        {
-          "zh": "广播队列（Broadcast queue）",
-          "en": "Broadcast queue",
-          "es": "Cola de difusión (broadcast queue)"
-        },
-        {
-          "zh": "工作队列（Work queue）",
-          "en": "Work queue",
-          "es": "Cola de trabajo (work queue)"
-        },
-        {
-          "zh": "单播队列（Single-cast queue）",
-          "en": "Single-cast queue",
-          "es": "Cola de un solo destino (single-cast queue)"
-        },
-        {
-          "zh": "邮箱（Mailbox）",
-          "en": "Mailbox",
-          "es": "Buzón (mailbox)"
-        }
+        "Broadcast queue（广播队列）",
+        "Work queue（工作队列）",
+        "Single-cast queue（单播队列）",
+        "Mailbox（邮箱）"
       ],
-      "answer": 1
+      "answer": 1,
+      "explain": "工作队列有多个监听者但每项只给一个，需要调度逻辑，如轮询或随机选择。"
     },
     {
       "type": "open",
       "ref": "15.7",
-      "q": {
-        "zh": "列出 C++ 中管理队列中消息对象生命周期的三种方式。",
-        "en": "List three options for managing object lifetime in the queue in C++.",
-        "es": "Enumera tres formas de gestionar el tiempo de vida de los objetos de la cola en C++."
-      },
-      "explain": {
-        "zh": "消息比入队调用活得久，不能放在栈上；有 GC 的语言则无需太担心。",
-        "en": "A message outlives the call that enqueued it, so it cannot live on the stack; languages with garbage collection need not worry as much.",
-        "es": "Un mensaje sobrevive a la llamada que lo encoló, así que no puede vivir en la pila; los lenguajes con recolección de basura no tienen tanto de qué preocuparse."
-      },
-      "answer": {
-        "zh": "（1）转移所有权：发送者 → 队列 → 接收者，由接收者释放（unique_ptr<T>）；（2）共享所有权：没有引用时自动释放（shared_ptr<T>）；（3）队列拥有：发送者向队列申请一条现成的消息并填写，队列的底层存储就是对象池。",
-        "en": "(1) Pass ownership: sender → queue → receiver, and the receiver frees it (unique_ptr<T>); (2) share ownership: it is freed when nothing references it (shared_ptr<T>); (3) the queue owns it: the sender requests a fresh message in the queue and fills it in, so the queue's backing store is an object pool.",
-        "es": "(1) Transferir la propiedad: emisor → cola → receptor, y el receptor la libera (unique_ptr<T>); (2) compartir la propiedad: se libera cuando nada la referencia (shared_ptr<T>); (3) que la cola sea la dueña: el emisor solicita un mensaje nuevo dentro de la cola y lo rellena, de modo que el almacenamiento de la cola es un grupo de objetos."
-      }
+      "q": "列出 C++ 中管理队列消息生命周期的三种方式。 List three options for object lifetime in the queue.",
+      "answer": "EN: (1) Pass ownership: sender → queue → receiver, who frees it (unique_ptr<T>); (2) Share ownership: freed when nothing references it (shared_ptr<T>); (3) The queue owns it: the sender requests a fresh message in the queue and fills it in, so the queue's storage is an object pool. 中：（1）转移所有权：发送者 → 队列 → 接收者，由接收者释放（unique_ptr<T>）；（2）共享所有权：没有引用时自动释放（shared_ptr<T>）；（3）队列拥有：发送者向队列申请一条现成的消息并填写，队列的底层存储就是对象池。",
+      "explain": "消息比入队调用活得久，不能放在栈上；有 GC 的语言则无需太担心。"
     },
     {
       "type": "truefalse",
       "ref": "15.8",
-      "q": {
-        "zh": "作者把事件队列称为观察者模式的异步近亲。",
-        "en": "The author calls Event Queue the asynchronous cousin of the Observer pattern.",
-        "es": "El autor llama a la Cola de eventos la prima asíncrona del patrón Observador."
-      },
-      "explain": {
-        "zh": "正确。另外，Go 的 channel 本质上也是事件或消息队列。",
-        "en": "Correct. Go's built-in channel is also essentially an event or message queue.",
-        "es": "Correcto. Además, el channel integrado de Go es esencialmente una cola de eventos o de mensajes."
-      },
-      "answer": true
+      "q": "The author calls Event Queue the asynchronous cousin of the Observer pattern. 事件队列是观察者模式的异步近亲。",
+      "answer": true,
+      "explain": "True. 另外 Go 的 channel 本质上也是事件/消息队列。"
     },
     {
       "type": "scenario",
       "ref": "15.2",
-      "q": {
-        "zh": "一款动作 RPG 要加入 Achievement 系统（“击杀 100 只史莱姆”“首次打开宝箱”）和 Tutorial 弹窗（第一次击败敌人时提示 Press X to loot）。目前战斗代码 CombatSystem::onEnemyKilled() 里已经直接调用了 achievements.track(...)、tutorial.check(...)、questLog.update(...)，越来越乱。请设计一个让战斗代码不再知道这些系统的方案：需要 queue 吗？还是 Observer 就够了？事件对象里要放哪些数据？",
-        "en": "An action RPG wants to add an Achievement system (\"kill 100 slimes\", \"open a treasure chest for the first time\") and Tutorial popups (on the first enemy kill, show \"Press X to loot\"). Right now the combat code in CombatSystem::onEnemyKilled() calls achievements.track(...), tutorial.check(...) and questLog.update(...) directly, and it is getting messy. Design an approach in which the combat code no longer knows about these systems: do you need a queue, or is an Observer enough? What data should the event object carry?",
-        "es": "Un RPG de acción quiere añadir un sistema de logros («matar 100 slimes», «abrir un cofre por primera vez») y ventanas de tutorial (al derrotar al primer enemigo, mostrar «Press X to loot»). Ahora mismo el código de combate, en CombatSystem::onEnemyKilled(), llama directamente a achievements.track(...), tutorial.check(...) y questLog.update(...), y se está volviendo un desastre. Diseña una solución en la que el código de combate ya no conozca esos sistemas: ¿hace falta una cola o basta con un Observador? ¿Qué datos debe llevar el objeto de evento?"
-      },
-      "explain": {
-        "zh": "对应 §15.2 Central event bus 的教程例子，以及 §15.4：“You only need a queue when you want to decouple something in time.” 事件要携带数据呼应 §15.5 “The state of the world can change under you”。",
-        "en": "Corresponds to the tutorial example in §15.2 Central event bus and to §15.4: \"You only need a queue when you want to decouple something in time.\" Carrying data in the event echoes §15.5, \"The state of the world can change under you\".",
-        "es": "Corresponde al ejemplo del tutorial de la sección 15.2, «Central event bus», y a la sección 15.4: «You only need a queue when you want to decouple something in time». Que el evento lleve datos se relaciona con la sección 15.5, «The state of the world can change under you»."
-      },
+      "title": "成就与教程系统 · Achievements and tutorial popups",
+      "q": "一款动作 RPG 要加入 Achievement 系统（“击杀 100 只史莱姆”“首次打开宝箱”）和 Tutorial 弹窗（第一次击败敌人时提示 Press X to loot）。目前战斗代码 CombatSystem::onEnemyKilled() 里已经直接调用了 achievements.track(...)、tutorial.check(...)、questLog.update(...)，越来越乱。请设计一个让战斗代码不再知道这些系统的方案：需要 queue 吗？还是 Observer 就够了？事件对象里要放哪些数据？",
+      "answer": "先判断是否需要“在时间上解耦”。如果成就/教程只需在击杀时立即响应，Observer 就足以把 sender 和 receiver 解耦，且更简单。适合用 event queue 的理由是：希望战斗代码 post 事件后立即返回，由 UI/成就系统在本帧末尾或自己的 update 中统一处理（例如教程弹窗要等战斗动画结束才弹，或成就系统要合并同一帧内的多次击杀）。设计：一个 EventQueue（ring buffer），CombatSystem 只调用 queue.post(EnemyDiedEvent{...})；AchievementSystem、TutorialSystem、QuestLog 通过 subscribe(EVENT_ENEMY_DIED, handler) 注册，每帧在固定位置 dispatch。因为处理时敌人可能已经被销毁，事件必须携带当时所需的数据：敌人的 breedId、等级、击杀者 id、位置、使用的武器类型，而不是只给一个 Enemy* 指针。注意：全局事件总线本质上是 global variable，订阅者不宜过多，最好限定在 gameplay 这个 domain 内。",
       "code": "struct EnemyDiedEvent {\n  BreedId breed;      // captured at send time\n  int level;\n  EntityId killer;\n  Vec2 position;\n  WeaponType weapon;\n};\n\nvoid CombatSystem::onEnemyKilled(const Enemy& e, const Actor& killer) {\n  gameplayEvents.post(EnemyDiedEvent{\n    e.breed(), e.level(), killer.id(), e.position(), killer.weaponType()});\n  // No knowledge of achievements, tutorial or quests here\n}\n\n// Once per frame, at a well-defined point in the game loop\ngameplayEvents.dispatch();",
-      "title": {
-        "zh": "成就与教程系统",
-        "en": "Achievements and tutorial popups",
-        "es": "Logros y ventanas de tutorial"
-      },
-      "answer": {
-        "zh": "先判断是否需要“在时间上解耦”。如果成就/教程只需在击杀时立即响应，Observer 就足以把 sender 和 receiver 解耦，且更简单。适合用 event queue 的理由是：希望战斗代码 post 事件后立即返回，由 UI/成就系统在本帧末尾或自己的 update 中统一处理（例如教程弹窗要等战斗动画结束才弹，或成就系统要合并同一帧内的多次击杀）。设计：一个 EventQueue（ring buffer），CombatSystem 只调用 queue.post(EnemyDiedEvent{...})；AchievementSystem、TutorialSystem、QuestLog 通过 subscribe(EVENT_ENEMY_DIED, handler) 注册，每帧在固定位置 dispatch。因为处理时敌人可能已经被销毁，事件必须携带当时所需的数据：敌人的 breedId、等级、击杀者 id、位置、使用的武器类型，而不是只给一个 Enemy* 指针。注意：全局事件总线本质上是 global variable，订阅者不宜过多，最好限定在 gameplay 这个 domain 内。",
-        "en": "First decide whether you actually need decoupling in time. If achievements and tutorials only need to react at the moment of the kill, an Observer is enough to decouple sender and receiver, and it is simpler. An event queue is justified if you want the combat code to post the event and return immediately, leaving the UI and achievement systems to handle it at the end of the frame or in their own update (for example, the tutorial popup must wait for the combat animation to finish, or the achievement system must merge several kills from the same frame). Design: an EventQueue (ring buffer); CombatSystem only calls queue.post(EnemyDiedEvent{...}); AchievementSystem, TutorialSystem and QuestLog register with subscribe(EVENT_ENEMY_DIED, handler) and dispatch at a fixed point each frame. Because the enemy may already be destroyed by the time the event is handled, the event must carry the data needed at send time: the enemy's breedId, level, killer id, position and weapon type, not just an Enemy* pointer. Note: a global event bus is essentially a global variable, so there should not be too many subscribers; better to limit it to the gameplay domain.",
-        "es": "Primero decide si de verdad necesitas desacoplar en el tiempo. Si los logros y el tutorial solo deben reaccionar en el momento de la muerte, un Observador basta para desacoplar emisor y receptor, y es más simple. Una cola de eventos se justifica si quieres que el código de combate publique el evento y retorne de inmediato, y que la interfaz y el sistema de logros lo atiendan al final del fotograma o en su propio update (por ejemplo, la ventana del tutorial debe esperar a que termine la animación de combate, o el sistema de logros debe fusionar varias muertes del mismo fotograma). Diseño: una EventQueue (búfer circular); CombatSystem solo llama a queue.post(EnemyDiedEvent{...}); AchievementSystem, TutorialSystem y QuestLog se registran con subscribe(EVENT_ENEMY_DIED, handler) y el despacho ocurre en un punto fijo de cada fotograma. Como el enemigo ya puede estar destruido cuando se atiende el evento, el evento debe llevar los datos necesarios capturados al enviarlo: el breedId, el nivel, el id del asesino, la posición y el tipo de arma del enemigo, no solo un puntero Enemy*. Ojo: un bus de eventos global es esencialmente una variable global, así que no conviene tener demasiados suscriptores; mejor limitarlo al dominio de gameplay."
-      },
       "checklist": [
-        {
-          "zh": "先判断是否真的需要时间解耦；只需解耦收发双方时 Observer 更简单",
-          "en": "First decide whether decoupling in time is really needed; when you only need to decouple sender and receiver, Observer is simpler",
-          "es": "Primero decidir si de verdad hace falta desacoplar en el tiempo; si solo hay que desacoplar emisor y receptor, el Observador es más simple"
-        },
-        {
-          "zh": "战斗代码只 post 事件，不知道接收者",
-          "en": "The combat code only posts the event and does not know the receivers",
-          "es": "El código de combate solo publica el evento y no conoce a los receptores"
-        },
-        {
-          "zh": "事件携带足够的数据（而非仅指针），因为处理时世界可能已改变",
-          "en": "The event carries enough data (not just a pointer), because the world may have changed by the time it is handled",
-          "es": "El evento lleva datos suficientes (no solo un puntero), porque el mundo puede haber cambiado cuando se atienda"
-        },
-        {
-          "zh": "在固定时机统一 dispatch",
-          "en": "Dispatch happens at a single, fixed point in the frame",
-          "es": "El despacho se hace en un punto fijo y unificado"
-        },
-        {
-          "zh": "意识到中央事件总线是全局变量的风险",
-          "en": "Recognize the risk that a central event bus is a global variable",
-          "es": "Reconocer el riesgo de que un bus de eventos central sea una variable global"
-        }
-      ]
+        "先判断是否真的需要时间解耦；只需解耦收发双方时 Observer 更简单",
+        "战斗代码只 post 事件，不知道接收者",
+        "事件携带足够的数据（而非仅指针），因为处理时世界可能已改变",
+        "在固定时机统一 dispatch",
+        "意识到中央事件总线是全局变量的风险"
+      ],
+      "explain": "对应 §15.2 Central event bus 的教程例子，以及 §15.4：“You only need a queue when you want to decouple something in time.” 事件要携带数据呼应 §15.5 “The state of the world can change under you”。"
     },
     {
       "type": "scenario",
       "ref": "15.6",
-      "q": {
-        "zh": "在一款塔防游戏的高潮波次中，一帧里可能有 30 个敌人同时被溅射伤害炸死，每个都调用 Audio::playSound(SFX_EXPLODE, vol)。结果：相同波形叠加导致爆音、超过硬件 32 个声道的上限后关键音效（Boss 出场）被挤掉，而且 playSound() 同步加载资源时画面会卡顿。请基于 event queue 设计音频系统：数据结构、请求合并（aggregation）策略、在哪里合并，以及优先级如何处理。",
-        "en": "In the climactic waves of a tower defense game, 30 enemies may die at once to splash damage in a single frame, each calling Audio::playSound(SFX_EXPLODE, vol). The result: stacked identical waveforms clip, the hardware limit of 32 channels is exceeded and key sounds (the boss entrance) get crowded out, and the frame hitches because playSound() loads resources synchronously. Design an audio system based on the event queue: the data structure, the request aggregation strategy, where aggregation happens, and how to handle priority.",
-        "es": "En las oleadas culminantes de un juego tower defense, en un solo fotograma pueden morir 30 enemigos a la vez por daño en área, y cada uno llama a Audio::playSound(SFX_EXPLODE, vol). El resultado: las formas de onda idénticas se superponen y saturan, se supera el límite de 32 canales del hardware y los sonidos clave (la entrada del jefe) quedan desplazados, y además la imagen se traba porque playSound() carga los recursos de forma síncrona. Diseña un sistema de audio basado en la cola de eventos: la estructura de datos, la estrategia de agregación de solicitudes, dónde se agregan y cómo se manejan las prioridades."
-      },
-      "explain": {
-        "zh": "对应 §15.6 Sample Code 的 ring buffer 与 Aggregating requests。书中提醒：“The window of ‘simultaneous’ requests that we can aggregate is only as big as the queue.” 按优先级丢弃请求是书外的常见扩展。",
-        "en": "Corresponds to the ring buffer and Aggregating requests in §15.6 Sample Code. The book warns: \"The window of 'simultaneous' requests that we can aggregate is only as big as the queue.\" Dropping requests by priority is a common extension beyond the book.",
-        "es": "Corresponde al búfer circular y a «Aggregating requests» de la sección 15.6 (Sample Code). El libro advierte: «The window of 'simultaneous' requests that we can aggregate is only as big as the queue». Descartar solicitudes según su prioridad es una extensión práctica habitual fuera del libro."
-      },
+      "title": "爆炸音效合并 · Merging explosion sounds",
+      "q": "在一款塔防游戏的高潮波次中，一帧里可能有 30 个敌人同时被溅射伤害炸死，每个都调用 Audio::playSound(SFX_EXPLODE, vol)。结果：相同波形叠加导致爆音、超过硬件 32 个声道的上限后关键音效（Boss 出场）被挤掉，而且 playSound() 同步加载资源时画面会卡顿。请基于 event queue 设计音频系统：数据结构、请求合并（aggregation）策略、在哪里合并，以及优先级如何处理。",
+      "answer": "playSound() 只把 PlayMessage{id, volume, priority} 写进一个固定大小的 ring buffer（head/tail 下标，tail = (tail+1) % MAX），立即返回，彻底解决同步加载卡顿；Audio::update() 在主循环或音频线程里从 head 依次取出处理。合并：同一 SoundId 的待处理请求只保留一个，volume 取 max——相同音效同时播放没有意义，只会更响。合并位置有取舍：在 playSound() 入队时合并实现简单、不浪费队列槽位，但调用方要 O(n) 扫描整个队列；也可以用以 SoundId 为 key 的 hash table 做 O(1) 查重，或者在 update() 中统一合并。优先级：update() 处理时若声道不够，按 priority 排序后丢弃低优先级请求，保证 Boss 音效。注意：可合并的“同时”窗口与队列中积压的长度有关——处理越慢，合并越多，这种延迟会影响可见行为，要确认能接受。",
       "code": "void Audio::playSound(SoundId id, int volume) {\n  // Aggregate: merge with a pending request for the same sound\n  for (int i = head_; i != tail_; i = (i + 1) % MAX_PENDING) {\n    if (pending_[i].id == id) {\n      pending_[i].volume = std::max(volume, pending_[i].volume);\n      return;\n    }\n  }\n  assert((tail_ + 1) % MAX_PENDING != head_);\n  pending_[tail_].id = id;\n  pending_[tail_].volume = volume;\n  tail_ = (tail_ + 1) % MAX_PENDING;\n}",
-      "title": {
-        "zh": "爆炸音效合并",
-        "en": "Merging explosion sounds",
-        "es": "Fusión de sonidos de explosión"
-      },
-      "answer": {
-        "zh": "playSound() 只把 PlayMessage{id, volume, priority} 写进一个固定大小的 ring buffer（head/tail 下标，tail = (tail+1) % MAX），立即返回，彻底解决同步加载卡顿；Audio::update() 在主循环或音频线程里从 head 依次取出处理。合并：同一 SoundId 的待处理请求只保留一个，volume 取 max——相同音效同时播放没有意义，只会更响。合并位置有取舍：在 playSound() 入队时合并实现简单、不浪费队列槽位，但调用方要 O(n) 扫描整个队列；也可以用以 SoundId 为 key 的 hash table 做 O(1) 查重，或者在 update() 中统一合并。优先级：update() 处理时若声道不够，按 priority 排序后丢弃低优先级请求，保证 Boss 音效。注意：可合并的“同时”窗口与队列中积压的长度有关——处理越慢，合并越多，这种延迟会影响可见行为，要确认能接受。",
-        "en": "playSound() only writes a PlayMessage{id, volume, priority} into a fixed-size ring buffer (head/tail indices, tail = (tail+1) % MAX) and returns immediately, which completely removes the synchronous loading hitch; Audio::update() consumes from head in order on the main loop or the audio thread. Aggregation: keep only one pending request per SoundId and take the max volume — playing the same sound simultaneously is pointless, it only makes it louder. Where to aggregate is a trade-off: merging in playSound() at enqueue time is simple and wastes no queue slots, but the caller has to scan the whole queue (O(n)); you could instead use a hash table keyed by SoundId for O(1) deduplication, or aggregate later in update(). Priority: when there are not enough channels during update(), sort by priority and drop low-priority requests so the boss sound survives. Note: the window of \"simultaneous\" requests you can merge depends on how long the queue is backed up — the slower the processing, the more you merge, and that lag can visibly change behavior, so make sure it is acceptable.",
-        "es": "playSound() solo escribe un PlayMessage{id, volume, priority} en un búfer circular de tamaño fijo (índices head/tail, tail = (tail+1) % MAX) y retorna de inmediato, lo que elimina por completo el bloqueo por carga síncrona; Audio::update() consume desde head en orden, en el bucle principal o en el hilo de audio. Agregación: se conserva una sola solicitud pendiente por SoundId y se toma el volumen máximo: reproducir el mismo sonido al mismo tiempo no aporta nada, solo lo hace más fuerte. Dónde agregar es un compromiso: fusionar en playSound() al encolar es simple y no desperdicia espacios de la cola, pero obliga al llamador a recorrer toda la cola (O(n)); también se puede usar una tabla hash indexada por SoundId para desduplicar en O(1), o agregar más tarde en update(). Prioridad: si durante update() no alcanzan los canales, se ordena por prioridad y se descartan las solicitudes de menor prioridad para garantizar el sonido del jefe. Ojo: la ventana de solicitudes «simultáneas» que se pueden fusionar depende de cuánto se haya acumulado la cola; cuanto más lento el procesamiento, más se fusiona, y ese retraso puede cambiar el comportamiento de forma visible, así que hay que confirmar que sea aceptable."
-      },
       "checklist": [
-        {
-          "zh": "playSound() 只入队并立即返回，解决阻塞问题",
-          "en": "playSound() only enqueues and returns immediately, fixing the blocking problem",
-          "es": "playSound() solo encola y retorna de inmediato, lo que resuelve el problema de bloqueo"
-        },
-        {
-          "zh": "使用 ring buffer（head/tail 取模回绕），无需动态分配",
-          "en": "Use a ring buffer (head/tail with modulo wrap-around) with no dynamic allocation",
-          "es": "Usar un búfer circular (head/tail con módulo para dar la vuelta) sin asignación dinámica"
-        },
-        {
-          "zh": "合并相同 SoundId 的请求，音量取最大值",
-          "en": "Merge requests with the same SoundId and keep the maximum volume",
-          "es": "Fusionar las solicitudes con el mismo SoundId y conservar el volumen máximo"
-        },
-        {
-          "zh": "讨论在入队时还是在 update() 中合并（或 hash table）的取舍",
-          "en": "Discuss the trade-off between merging at enqueue time and in update() (or with a hash table)",
-          "es": "Discutir el compromiso entre fusionar al encolar o en update() (o con una tabla hash)"
-        },
-        {
-          "zh": "提到合并窗口取决于队列长度/处理延迟",
-          "en": "Mention that the aggregation window depends on queue length / processing lag",
-          "es": "Mencionar que la ventana de agregación depende de la longitud de la cola o del retraso de procesamiento"
-        }
-      ]
+        "playSound() 只入队并立即返回，解决阻塞问题",
+        "使用 ring buffer（head/tail 取模回绕），无需动态分配",
+        "合并相同 SoundId 的请求，音量取最大值",
+        "讨论在入队时还是在 update() 中合并（或 hash table）的取舍",
+        "提到合并窗口取决于队列长度/处理延迟"
+      ],
+      "explain": "对应 §15.6 Sample Code 的 ring buffer 与 Aggregating requests。书中提醒：“The window of ‘simultaneous’ requests that we can aggregate is only as big as the queue.” 按优先级丢弃请求是书外的常见扩展。"
     },
     {
       "type": "scenario",
       "ref": "15.5",
-      "q": {
-        "zh": "一款 MMO 服务器中，AI 系统在怪物死亡时 post(EntityDiedEvent{ Monster* monster })。经验系统在下一帧处理该事件时读取 monster->level 和 monster->nearbyAllies() 计算奖励，结果偶发崩溃或奖励错乱。另外，有人在 QuestSystem 处理 EntityDied 时 post 了 QuestUpdated，而 AchievementSystem 收到 QuestUpdated 会再 post 一个 EntityDied 的统计事件……服务器 CPU 被打满却没有崩溃。请分析两个 bug 的根因并给出修正方案。",
-        "en": "On an MMO server, the AI system posts EntityDiedEvent{ Monster* monster } when a monster dies. The next frame, the experience system handles the event and reads monster->level and monster->nearbyAllies() to compute the reward, which occasionally crashes or awards the wrong amount. Separately, someone in QuestSystem posts QuestUpdated while handling EntityDied, and AchievementSystem, on receiving QuestUpdated, posts another EntityDied statistics event... The server maxes out its CPU without crashing. Analyze the root cause of both bugs and propose fixes.",
-        "es": "En un servidor de MMO, el sistema de IA publica EntityDiedEvent{ Monster* monster } cuando muere un monstruo. En el fotograma siguiente, el sistema de experiencia atiende el evento y lee monster->level y monster->nearbyAllies() para calcular la recompensa, lo que a veces provoca caídas o recompensas incorrectas. Por otro lado, alguien en QuestSystem publica QuestUpdated mientras atiende EntityDied, y AchievementSystem, al recibir QuestUpdated, publica otro evento de estadísticas EntityDied... El servidor satura la CPU sin llegar a caerse. Analiza la causa raíz de ambos bugs y propón una corrección."
-      },
-      "explain": {
-        "zh": "对应 §15.5 Keep in Mind 的两点：“The state of the world can change under you”与“You can get stuck in feedback loops”——“With a queue, the asynchrony unwinds the stack, so the game may keep running”。ID 查表和每帧上限是书外的工程手段。",
-        "en": "Corresponds to the two points in §15.5 Keep in Mind: \"The state of the world can change under you\" and \"You can get stuck in feedback loops\" — \"With a queue, the asynchrony unwinds the stack, so the game may keep running\". ID lookups and a per-frame cap are engineering measures beyond the book.",
-        "es": "Corresponde a los dos puntos de la sección 15.5, «Keep in Mind»: «The state of the world can change under you» y «You can get stuck in feedback loops»: «With a queue, the asynchrony unwinds the stack, so the game may keep running». La búsqueda por ID y el límite por fotograma son medidas de ingeniería ajenas al libro."
-      },
+      "title": "失效的死亡事件 · Stale death events",
+      "q": "一款 MMO 服务器中，AI 系统在怪物死亡时 post(EntityDiedEvent{ Monster* monster })。经验系统在下一帧处理该事件时读取 monster->level 和 monster->nearbyAllies() 计算奖励，结果偶发崩溃或奖励错乱。另外，有人在 QuestSystem 处理 EntityDied 时 post 了 QuestUpdated，而 AchievementSystem 收到 QuestUpdated 会再 post 一个 EntityDied 的统计事件……服务器 CPU 被打满却没有崩溃。请分析两个 bug 的根因并给出修正方案。",
+      "answer": "Bug 1：事件被延迟处理，期间怪物可能已经被 deallocate，或周围的怪已经走开——Monster* 成了悬空指针，nearbyAllies() 也反映的是“现在”而非死亡时的世界。修正：queued event 要“data heavy”，在发送时捕获处理所需的一切：monsterId、breed、level、killerId、死亡时周围敌人数量/难度系数。若确实需要访问实体，用 EntityId + 查表（handle），查不到就视为已消失，而不是裸指针。Bug 2：事件之间形成 feedback loop。同步系统中这种循环会栈溢出并立刻崩溃，而 queue 的异步性把栈展开了，事件就在队列里来回“晃荡”，表现为 CPU 飙高而非崩溃。修正：遵守“处理事件时不要再发送事件”的规则（或把处理中产生的事件推迟到下一帧并设上限）；梳理事件依赖，打破 QuestUpdated → EntityDied 的环；在事件系统中加入 debug logging 和每帧事件数量的告警阈值。",
       "code": "struct EntityDiedEvent {\n  EntityId id;          // handle, not a raw pointer\n  BreedId breed;\n  int level;\n  EntityId killer;\n  int alliesNearby;     // snapshot taken when the event is sent\n};\n\nvoid EventBus::dispatch() {\n  int processed = 0;\n  while (!queue_.empty()) {\n    if (++processed > MAX_EVENTS_PER_FRAME) {\n      log(\"possible event feedback loop\");\n      break;\n    }\n    Event e = queue_.pop();\n    deliver(e);\n  }\n}",
-      "title": {
-        "zh": "失效的死亡事件",
-        "en": "Stale death events",
-        "es": "Eventos de muerte obsoletos"
-      },
-      "answer": {
-        "zh": "Bug 1：事件被延迟处理，期间怪物可能已经被 deallocate，或周围的怪已经走开——Monster* 成了悬空指针，nearbyAllies() 也反映的是“现在”而非死亡时的世界。修正：queued event 要“data heavy”，在发送时捕获处理所需的一切：monsterId、breed、level、killerId、死亡时周围敌人数量/难度系数。若确实需要访问实体，用 EntityId + 查表（handle），查不到就视为已消失，而不是裸指针。Bug 2：事件之间形成 feedback loop。同步系统中这种循环会栈溢出并立刻崩溃，而 queue 的异步性把栈展开了，事件就在队列里来回“晃荡”，表现为 CPU 飙高而非崩溃。修正：遵守“处理事件时不要再发送事件”的规则（或把处理中产生的事件推迟到下一帧并设上限）；梳理事件依赖，打破 QuestUpdated → EntityDied 的环；在事件系统中加入 debug logging 和每帧事件数量的告警阈值。",
-        "en": "Bug 1: the event is handled late, and by then the monster may have been deallocated or the nearby monsters may have wandered off — Monster* has become a dangling pointer, and nearbyAllies() also reflects the world \"now\" rather than the moment of death. Fix: a queued event must be data-heavy and capture everything the handler needs at send time: monsterId, breed, level, killerId, and the number/difficulty of nearby enemies at the moment of death. If you really need to access an entity, use an EntityId plus a lookup (a handle) and treat a failed lookup as \"gone\", rather than using a raw pointer. Bug 2: the events form a feedback loop. In a synchronous system such a cycle would overflow the stack and crash immediately, but the queue's asynchrony unwinds the stack, so events slosh back and forth in the queue and the symptom is high CPU instead of a crash. Fix: follow the rule \"don't send events from within code that's handling one\" (or defer events produced during handling to the next frame with a cap); map the event dependencies and break the QuestUpdated → EntityDied cycle; add debug logging and a per-frame event-count alarm threshold to the event system.",
-        "es": "Bug 1: el evento se atiende tarde y para entonces el monstruo ya puede haberse liberado o los monstruos cercanos pueden haberse ido: Monster* se convirtió en un puntero colgante, y nearbyAllies() también refleja el mundo «actual» y no el momento de la muerte. Corrección: un evento encolado debe ser rico en datos y capturar al enviarse todo lo que el manejador necesita: monsterId, breed, level, killerId y la cantidad o dificultad de enemigos cercanos en el momento de la muerte. Si de verdad hace falta acceder a una entidad, usa un EntityId más una búsqueda en tabla (un handle) y trata una búsqueda fallida como «ya no existe», en lugar de un puntero crudo. Bug 2: los eventos forman un ciclo de retroalimentación. En un sistema síncrono ese ciclo desbordaría la pila y se caería de inmediato, pero la asincronía de la cola desenrolla la pila, así que los eventos van y vienen por la cola y el síntoma es un uso alto de CPU en lugar de una caída. Corrección: seguir la regla de «no enviar eventos desde el código que está atendiendo uno» (o posponer al siguiente fotograma los eventos generados durante el manejo, con un límite); mapear las dependencias entre eventos y romper el ciclo QuestUpdated → EntityDied; añadir registro de depuración y un umbral de alerta por cantidad de eventos por fotograma."
-      },
       "checklist": [
-        {
-          "zh": "指出处理时世界状态已改变，指针可能悬空",
-          "en": "Point out that the world state has changed by handling time and the pointer may be dangling",
-          "es": "Señalar que el estado del mundo ya cambió al atender el evento y que el puntero puede quedar colgante"
-        },
-        {
-          "zh": "事件在发送时捕获所需数据（data heavy），或用 ID/handle 代替裸指针",
-          "en": "The event captures the needed data when sent (data-heavy), or uses an ID/handle instead of a raw pointer",
-          "es": "El evento captura los datos necesarios al enviarse (rico en datos), o usa un ID/handle en lugar de un puntero crudo"
-        },
-        {
-          "zh": "识别出事件循环（feedback loop），并解释 queue 为什么不会栈溢出而是持续运转",
-          "en": "Identify the feedback loop and explain why, with a queue, it does not overflow the stack but keeps running",
-          "es": "Identificar el ciclo de retroalimentación y explicar por qué, con una cola, no desborda la pila sino que sigue funcionando"
-        },
-        {
-          "zh": "提出规则：处理事件时避免再发送事件；加 debug logging / 阈值",
-          "en": "Propose the rule: avoid sending events while handling one; add debug logging / thresholds",
-          "es": "Proponer la regla de evitar enviar eventos mientras se atiende uno; añadir registro de depuración y umbrales"
-        }
-      ]
+        "指出处理时世界状态已改变，指针可能悬空",
+        "事件在发送时捕获所需数据（data heavy），或用 ID/handle 代替裸指针",
+        "识别出事件循环（feedback loop），并解释 queue 为什么不会栈溢出而是持续运转",
+        "提出规则：处理事件时避免再发送事件；加 debug logging / 阈值"
+      ],
+      "explain": "对应 §15.5 Keep in Mind 的两点：“The state of the world can change under you”与“You can get stuck in feedback loops”——“With a queue, the asynchrony unwinds the stack, so the game may keep running”。ID 查表和每帧上限是书外的工程手段。"
     },
     {
       "type": "scenario",
       "ref": "15.7",
-      "q": {
-        "zh": "一款 RTS 中，玩家框选 200 个单位右键下达移动命令，每个单位都要做 A* pathfinding，在主线程同步计算会卡顿 0.5 秒。你决定把寻路请求放进队列，由 4 个 worker thread 处理，结果再交还给单位。请设计：队列里放的是 event 还是 message？是 single-cast、broadcast 还是 work queue？谁能写？请求和结果对象的生命周期由谁管理？",
-        "en": "In an RTS, the player drag-selects 200 units and right-clicks to order a move; every unit needs an A* pathfinding query, and computing them synchronously on the main thread causes a 0.5-second hitch. You decide to put the pathfinding requests into a queue, process them on 4 worker threads, and hand the results back to the units. Design it: does the queue hold events or messages? Is it single-cast, broadcast, or a work queue? Who can write to it? Who manages the lifetime of the request and result objects?",
-        "es": "En un RTS, el jugador selecciona 200 unidades con el cuadro de selección y hace clic derecho para ordenar un movimiento; cada unidad necesita una consulta de pathfinding A*, y calcularlas de forma síncrona en el hilo principal provoca una pausa de 0,5 segundos. Decides poner las solicitudes de pathfinding en una cola, procesarlas en 4 hilos de trabajo y devolver los resultados a las unidades. Diseña la solución: ¿la cola contiene eventos o mensajes? ¿Es de destino único, de difusión o una cola de trabajo? ¿Quién puede escribir en ella? ¿Quién gestiona el tiempo de vida de los objetos de solicitud y de resultado?"
-      },
-      "explain": {
-        "zh": "对应 §15.7 Design Decisions：“What goes in the queue?”“Who can read from the queue?”（work queue “is a common pattern for parceling out jobs to a pool of concurrently running threads”）以及 lifetime 的三种选择。requestSerial 是书外的实践细节。",
-        "en": "Corresponds to §15.7 Design Decisions: \"What goes in the queue?\" and \"Who can read from the queue?\" (a work queue \"is a common pattern for parceling out jobs to a pool of concurrently running threads\"), plus the three lifetime options. requestSerial is a practical detail beyond the book.",
-        "es": "Corresponde a las decisiones de diseño de la sección 15.7: «What goes in the queue?» y «Who can read from the queue?» (una cola de trabajo «is a common pattern for parceling out jobs to a pool of concurrently running threads»), además de las tres opciones de tiempo de vida. requestSerial es un detalle práctico ajeno al libro."
-      },
+      "title": "寻路任务队列 · Pathfinding job queue",
+      "q": "一款 RTS 中，玩家框选 200 个单位右键下达移动命令，每个单位都要做 A* pathfinding，在主线程同步计算会卡顿 0.5 秒。你决定把寻路请求放进队列，由 4 个 worker thread 处理，结果再交还给单位。请设计：队列里放的是 event 还是 message？是 single-cast、broadcast 还是 work queue？谁能写？请求和结果对象的生命周期由谁管理？",
+      "answer": "放的是 message/request（“请为单位 X 计算从 A 到 B 的路径”），描述的是希望将来发生的动作，而不是已发生的事件——每条请求只应被处理一次。读取方式选 work queue：多个 worker 线程共同读同一队列，每个请求只分给其中一个 worker，需要调度策略（最简单就是谁空闲谁取）。写入方：多个写者（玩家命令、AI 指挥官都会发请求）；因此请求里要带 sender 信息（unitId），worker 才知道结果给谁。线程安全：入队只赋值几个字段，加锁开销小；worker 在 condition variable 上等待，避免空转。生命周期：C++ 中请求在队列里活得比 post() 调用更久，不能放在栈上。可选：(a) pass ownership——用 unique_ptr<PathRequest> 交给队列，再移交给 worker；(b) 队列拥有消息——队列的底层存储是对象池，发送方向队列要一个 fresh 槽位并填写。结果通过另一个 single-cast 队列回到主线程，在主线程的 update 中应用。合并：同一单位新的移动命令可以覆盖其尚未处理的旧请求。",
       "code": "struct PathRequest {\n  EntityId unit;    // who asked (multiple writers)\n  Vec2 from, to;\n  uint32_t requestSerial;  // lets the unit ignore stale results\n};\n\nclass PathJobQueue {\npublic:\n  void post(std::unique_ptr<PathRequest> req) {\n    std::lock_guard<std::mutex> lock(mutex_);\n    jobs_.push_back(std::move(req));\n    cv_.notify_one();  // wake exactly one worker\n  }\n  std::unique_ptr<PathRequest> take() {\n    std::unique_lock<std::mutex> lock(mutex_);\n    cv_.wait(lock, [this] { return !jobs_.empty(); });\n    auto req = std::move(jobs_.front());\n    jobs_.pop_front();\n    return req;\n  }\nprivate:\n  std::deque<std::unique_ptr<PathRequest>> jobs_;\n  std::mutex mutex_;\n  std::condition_variable cv_;\n};",
-      "title": {
-        "zh": "寻路任务队列",
-        "en": "Pathfinding job queue",
-        "es": "Cola de trabajos de pathfinding"
-      },
-      "answer": {
-        "zh": "放的是 message/request（“请为单位 X 计算从 A 到 B 的路径”），描述的是希望将来发生的动作，而不是已发生的事件——每条请求只应被处理一次。读取方式选 work queue：多个 worker 线程共同读同一队列，每个请求只分给其中一个 worker，需要调度策略（最简单就是谁空闲谁取）。写入方：多个写者（玩家命令、AI 指挥官都会发请求）；因此请求里要带 sender 信息（unitId），worker 才知道结果给谁。线程安全：入队只赋值几个字段，加锁开销小；worker 在 condition variable 上等待，避免空转。生命周期：C++ 中请求在队列里活得比 post() 调用更久，不能放在栈上。可选：(a) pass ownership——用 unique_ptr<PathRequest> 交给队列，再移交给 worker；(b) 队列拥有消息——队列的底层存储是对象池，发送方向队列要一个 fresh 槽位并填写。结果通过另一个 single-cast 队列回到主线程，在主线程的 update 中应用。合并：同一单位新的移动命令可以覆盖其尚未处理的旧请求。",
-        "en": "What goes in the queue is a message/request (\"please compute a path from A to B for unit X\"), describing an action we want in the future rather than something that already happened — and each request should be processed exactly once. For reading, choose a work queue: several worker threads read the same queue and each request goes to only one of them, so you need a scheduling policy (the simplest being that whichever worker is free takes the next job). Writers: multiple writers (the player's commands and the AI commander both send requests), so the request must carry sender information (unitId) for the worker to know where the result goes. Thread safety: enqueuing assigns a few fields under a lock, a cheap critical section; workers wait on a condition variable instead of spinning. Lifetime: in C++, a request lives longer than the post() call, so it cannot go on the stack. Options: (a) pass ownership — hand a unique_ptr<PathRequest> to the queue and then move it to a worker; (b) let the queue own the message — the queue's backing store is an object pool, and the sender asks the queue for a fresh slot and fills it in. Results come back to the main thread through another single-cast queue and are applied in the main thread's update. Aggregation: a new move command for the same unit can overwrite its old, still-pending request.",
-        "es": "En la cola va un mensaje o solicitud («por favor, calcula una ruta de A a B para la unidad X»), que describe una acción que queremos en el futuro y no algo que ya ocurrió; además, cada solicitud debe procesarse exactamente una vez. Para la lectura conviene una cola de trabajo: varios hilos de trabajo leen la misma cola y cada solicitud llega solo a uno de ellos, así que hace falta una política de planificación (la más simple: el trabajador que esté libre toma el siguiente trabajo). Escritores: varios (los comandos del jugador y el comandante de la IA envían solicitudes), por lo que la solicitud debe llevar información del emisor (unitId) para que el trabajador sepa a quién devolver el resultado. Seguridad entre hilos: encolar solo asigna unos pocos campos bajo un candado, una sección crítica barata; los trabajadores esperan en una variable de condición en lugar de girar en vacío. Tiempo de vida: en C++, una solicitud vive más que la llamada a post(), así que no puede ir en la pila. Opciones: (a) transferir la propiedad: entregar un unique_ptr<PathRequest> a la cola y luego moverlo a un trabajador; (b) que la cola sea la dueña del mensaje: el almacenamiento de la cola es un grupo de objetos y el emisor le pide un espacio nuevo y lo rellena. Los resultados vuelven al hilo principal por otra cola de un solo destino y se aplican en el update del hilo principal. Agregación: un nuevo comando de movimiento para la misma unidad puede sobrescribir su solicitud anterior que aún esté pendiente."
-      },
       "checklist": [
-        {
-          "zh": "判断队列内容是 message/request 而非 event",
-          "en": "Decide that the queue holds messages/requests rather than events",
-          "es": "Determinar que la cola contiene mensajes o solicitudes, no eventos"
-        },
-        {
-          "zh": "选择 work queue：每个请求只交给一个 worker，并提到调度",
-          "en": "Choose a work queue: each request goes to only one worker, and mention scheduling",
-          "es": "Elegir una cola de trabajo: cada solicitud llega a un solo trabajador, y mencionar la planificación"
-        },
-        {
-          "zh": "多写者：请求中携带 sender（unitId）",
-          "en": "Multiple writers: the request carries the sender (unitId)",
-          "es": "Varios escritores: la solicitud lleva al emisor (unitId)"
-        },
-        {
-          "zh": "说明对象生命周期策略（unique_ptr 转移所有权 / 对象池）",
-          "en": "Explain the object lifetime policy (unique_ptr transfer of ownership / object pool)",
-          "es": "Explicar la política de tiempo de vida de los objetos (transferencia con unique_ptr o grupo de objetos)"
-        },
-        {
-          "zh": "提到线程安全：锁 + condition variable",
-          "en": "Mention thread safety: a lock plus a condition variable",
-          "es": "Mencionar la seguridad entre hilos: candado y variable de condición"
-        }
-      ]
+        "判断队列内容是 message/request 而非 event",
+        "选择 work queue：每个请求只交给一个 worker，并提到调度",
+        "多写者：请求中携带 sender（unitId）",
+        "说明对象生命周期策略（unique_ptr 转移所有权 / 对象池）",
+        "提到线程安全：锁 + condition variable"
+      ],
+      "explain": "对应 §15.7 Design Decisions：“What goes in the queue?”“Who can read from the queue?”（work queue “is a common pattern for parceling out jobs to a pool of concurrently running threads”）以及 lifetime 的三种选择。requestSerial 是书外的实践细节。"
     },
     {
       "type": "scenario",
       "ref": "15.4",
-      "q": {
-        "zh": "团队刚在一款卡牌对战手游中引入了全局 MessageQueue，有人热情地提议把一切都改成消息：包括 UI 点“出牌”按钮时询问 RulesEngine “这张牌现在能不能出？”，以及 Inventory 询问 “金币够不够买这张卡？”。请评估：这些交互适合走 event queue 吗？什么时候应该保持同步调用，什么时候用队列？",
-        "en": "The team has just introduced a global MessageQueue into a card-battler mobile game, and someone enthusiastically proposes turning everything into messages: including the UI asking RulesEngine \"can this card be played right now?\" when the player taps the \"Play card\" button, and Inventory asking \"is there enough gold to buy this card?\". Evaluate: are these interactions a good fit for an event queue? When should you keep synchronous calls, and when should you use a queue?",
-        "es": "El equipo acaba de introducir una MessageQueue global en un juego móvil de batallas de cartas, y alguien propone con entusiasmo convertir todo en mensajes: incluido que la interfaz le pregunte a RulesEngine «¿esta carta se puede jugar ahora?» cuando el jugador toca el botón de jugar carta, y que Inventory pregunte «¿alcanza el oro para comprar esta carta?». Evalúa: ¿estas interacciones encajan bien en una cola de eventos? ¿Cuándo conviene mantener llamadas síncronas y cuándo usar una cola?"
-      },
-      "explain": {
-        "zh": "对应 §15.4 When to Use It：“queues do this by taking control away from the sender… This makes queues a poor fit when the sender needs a response.” 书中用 push/pull 模型解释何时需要 buffer。",
-        "en": "Corresponds to §15.4 When to Use It: \"queues do this by taking control away from the sender... This makes queues a poor fit when the sender needs a response.\" The book uses the push/pull model to explain when a buffer is needed.",
-        "es": "Corresponde a la sección 15.4, «When to Use It»: «queues do this by taking control away from the sender... This makes queues a poor fit when the sender needs a response». El libro usa el modelo push/pull para explicar cuándo hace falta un búfer."
-      },
-      "title": {
-        "zh": "需要返回值的请求",
-        "en": "Requests that need an answer",
-        "es": "Solicitudes que necesitan una respuesta"
-      },
-      "answer": {
-        "zh": "不适合。队列把控制权交给接收方（可以延迟、合并甚至丢弃请求），代价是夺走了发送方的控制——发送方只能把请求扔进队列然后“hope for the best”，拿不到即时结果。canPlay(card)、hasEnoughGold(price) 都是发送方需要立刻得到答案的 query，若走队列就得引入回调或下一帧轮询结果，UI 会出现一帧不一致，逻辑也更复杂。这类交互应该保持同步函数调用（RulesEngine 直接作为依赖传给 UI 或通过接口访问）。队列适合的情况是 push 端和 pull 端节奏不同、需要在时间上解耦：例如出牌后的“卡牌已打出”event 交给动画/音效/成就系统慢慢消费；或网络消息在接收线程入队、在主循环中拉取处理。若只是想解耦收发双方而不需时间解耦，用 Observer 或 Command 更简单。Complexity slows you down，不要把所有通信都塞进一个全局队列。",
-        "en": "Not a good fit. A queue gives control to the receiver (which can delay, merge, or even discard requests) at the cost of taking control away from the sender, who can only throw the request into the queue and hope for the best, with no immediate result. canPlay(card) and hasEnoughGold(price) are both queries whose sender needs an answer right away; going through a queue would require callbacks or polling for the result next frame, the UI would be out of sync for a frame, and the logic would get more complicated. These interactions should stay ordinary synchronous function calls (with the UI depending on RulesEngine directly, or accessing it through an interface). Queues fit when the push side and the pull side run at different rates and need decoupling in time: for example, sending a \"card played\" event after a card is played so the animation, sound and achievement systems can consume it at their leisure; or incoming network messages being enqueued on the receive thread and pulled in the main loop. If you only want to decouple the sender from the receiver without decoupling in time, Observer or Command is simpler. Complexity slows you down: don't funnel every communication into one global queue.",
-        "es": "No encajan bien. Una cola le da el control al receptor (que puede aplazar, fusionar o incluso descartar solicitudes) a costa de quitárselo al emisor, que solo puede arrojar la solicitud a la cola y esperar lo mejor, sin resultado inmediato. canPlay(card) y hasEnoughGold(price) son consultas en las que el emisor necesita una respuesta de inmediato; si pasaran por una cola habría que usar callbacks o consultar el resultado en el siguiente fotograma, la interfaz quedaría desincronizada durante un fotograma y la lógica se volvería más complicada. Estas interacciones deben seguir siendo llamadas a función síncronas normales (con la interfaz dependiendo de RulesEngine directamente o accediendo a través de una interfaz). Una cola encaja cuando el lado que empuja y el lado que extrae trabajan a ritmos distintos y necesitan desacoplarse en el tiempo: por ejemplo, enviar un evento de «carta jugada» después de jugar una carta para que los sistemas de animación, sonido y logros lo consuman a su ritmo; o cuando los mensajes de red se encolan en el hilo de recepción y se extraen en el bucle principal. Si solo quieres desacoplar al emisor del receptor sin desacoplar en el tiempo, un Observador o un Comando son más simples. Complexity slows you down: no metas toda la comunicación en una sola cola global."
-      },
+      "title": "需要返回值的请求 · Requests that need an answer",
+      "q": "团队刚在一款卡牌对战手游中引入了全局 MessageQueue，有人热情地提议把一切都改成消息：包括 UI 点“出牌”按钮时询问 RulesEngine “这张牌现在能不能出？”，以及 Inventory 询问 “金币够不够买这张卡？”。请评估：这些交互适合走 event queue 吗？什么时候应该保持同步调用，什么时候用队列？",
+      "answer": "不适合。队列把控制权交给接收方（可以延迟、合并甚至丢弃请求），代价是夺走了发送方的控制——发送方只能把请求扔进队列然后“hope for the best”，拿不到即时结果。canPlay(card)、hasEnoughGold(price) 都是发送方需要立刻得到答案的 query，若走队列就得引入回调或下一帧轮询结果，UI 会出现一帧不一致，逻辑也更复杂。这类交互应该保持同步函数调用（RulesEngine 直接作为依赖传给 UI 或通过接口访问）。队列适合的情况是 push 端和 pull 端节奏不同、需要在时间上解耦：例如出牌后的“卡牌已打出”event 交给动画/音效/成就系统慢慢消费；或网络消息在接收线程入队、在主循环中拉取处理。若只是想解耦收发双方而不需时间解耦，用 Observer 或 Command 更简单。Complexity slows you down，不要把所有通信都塞进一个全局队列。",
       "checklist": [
-        {
-          "zh": "指出队列让发送方失去控制、无法获得即时返回值",
-          "en": "Point out that a queue takes control away from the sender and gives no immediate return value",
-          "es": "Señalar que una cola le quita el control al emisor y no le da un valor de retorno inmediato"
-        },
-        {
-          "zh": "需要 response 的 query 应保持同步调用",
-          "en": "Queries that need a response should stay synchronous calls",
-          "es": "Las consultas que necesitan una respuesta deben seguir siendo llamadas síncronas"
-        },
-        {
-          "zh": "队列适用于 push/pull 节奏不同、需要时间解耦的场景，并给出合适例子",
-          "en": "Queues fit when the push/pull rates differ and you need decoupling in time, with suitable examples",
-          "es": "La cola encaja cuando el ritmo de empuje y de extracción difieren y se necesita desacoplar en el tiempo, con ejemplos adecuados"
-        },
-        {
-          "zh": "只需解耦收发双方时用 Observer / Command 更简单",
-          "en": "When you only need to decouple sender and receiver, Observer / Command is simpler",
-          "es": "Cuando solo hay que desacoplar emisor y receptor, Observador / Comando son más simples"
-        },
-        {
-          "zh": "警惕全局队列带来的复杂度",
-          "en": "Be wary of the complexity a global queue brings",
-          "es": "Desconfiar de la complejidad que trae una cola global"
-        }
-      ]
+        "指出队列让发送方失去控制、无法获得即时返回值",
+        "需要 response 的 query 应保持同步调用",
+        "队列适用于 push/pull 节奏不同、需要时间解耦的场景，并给出合适例子",
+        "只需解耦收发双方时用 Observer / Command 更简单",
+        "警惕全局队列带来的复杂度"
+      ],
+      "explain": "对应 §15.4 When to Use It：“queues do this by taking control away from the sender… This makes queues a poor fit when the sender needs a response.” 书中用 push/pull 模型解释何时需要 buffer。"
     }
   ]
 }
