@@ -1,16 +1,14 @@
 # 游戏编程模式 · Game Programming Patterns 学习站
 
-**在线访问：** https://fzflz-sun.github.io/game-programming-patterns-study/
+以 Robert Nystrom《Game Programming Patterns》的原书目录为骨架制作的三语学习站。
 
-基于 Robert Nystrom《Game Programming Patterns》整理的中英双语学习网站：
+**在线阅读：** https://fzflz-sun.github.io/game-programming-patterns-study/
 
-- 以原书目录为骨架，逐章逐节梳理知识点，每个知识点注明出处（第几章 › 第几节）
-- 每个知识点中英对照，可切换 双语 / 中文 / English 显示
-- 每章附中英混合练习（单选、判断、填空、简答），带即时反馈
-- 知识点星标（左侧目录显示每章/每节星标数）、选中任意文字标黄或改字体颜色、每个知识点最多 10000 字笔记（笔记内也可标注）
-- 星标、标注、笔记保存在本仓库 `annotations` 分支，所有设备共享；在页面右上角同步按钮中填入 GitHub 令牌即可写入
-- 夜间模式、移动端适配、本地学习进度记录
+- 中 / 英 / 西三语内容，可任意组合显示
+- 按篇、章、节、知识点展开的可收起目录；每章显示星标数与「只看星标」
+- 每个知识点可画荧光笔（黄/绿/蓝/粉）、红笔及其他颜色笔迹，添加星标和 10000 字以内笔记
+- 每章配有选择、判断、填空、简答和场景设计练习，附参考答案、自查要点与设计思路
+- 夜间模式、移动端适配
+- 星标、笔迹、笔记保存在本仓库的 `annotations` 分支，跨设备同步；写入需要 fine-grained token，阅读不需要
 
-纯静态站点，部署于 GitHub Pages。本地预览：`python3 -m http.server` 后访问 http://localhost:8000 。
-
-原书在线免费阅读：https://gameprogrammingpatterns.com/ 。本站内容仅供个人学习。
+本仓库由 [Bookleaf](https://github.com/Fzflz-Sun) 插件生成。原书文字版权归 Robert Nystrom 及中文版出版方；本站知识点梳理、译文与练习仅供个人学习。

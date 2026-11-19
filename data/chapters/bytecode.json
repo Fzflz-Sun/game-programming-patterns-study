@@ -1,29 +1,34 @@
 {
   "id": "bytecode",
   "title": {
+    "zh": "字节码",
     "en": "Bytecode",
-    "zh": "字节码"
+    "es": "Bytecode"
   },
   "summary": {
+    "zh": "字节码模式把行为编码为虚拟机的指令，从而让行为拥有数据般的灵活性。指令集定义底层操作，这些操作被编码为字节序列，由虚拟机借助栈逐条执行；这样就能在引擎代码之外，安全而高效地组合出复杂行为。",
     "en": "Bytecode gives behavior the flexibility of data by encoding it as instructions for a virtual machine. An instruction set defines low-level operations, encoded as a sequence of bytes that a VM executes one at a time using a stack, so complex behavior can be composed safely and efficiently outside the engine's code.",
-    "zh": "字节码模式把行为编码为虚拟机的指令，从而让行为拥有数据般的灵活性。指令集定义底层操作，这些操作被编码为字节序列，由虚拟机借助栈逐条执行；这样就能在引擎代码之外，安全而高效地组合出复杂行为。"
+    "es": "El Bytecode le da al comportamiento la flexibilidad de los datos al codificarlo como instrucciones para una máquina virtual. Un conjunto de instrucciones define operaciones de bajo nivel, codificadas como una secuencia de bytes que una VM ejecuta de a una, usando una pila, de modo que se puede componer un comportamiento complejo de forma segura y eficiente fuera del código del motor."
   },
   "sections": [
     {
       "num": "11.1",
       "title": {
+        "zh": "意图",
         "en": "Intent",
-        "zh": "意图"
+        "es": "Intención"
       },
       "points": [
         {
           "title": {
+            "zh": "让行为拥有数据的灵活性",
             "en": "Behavior with the flexibility of data",
-            "zh": "让行为拥有数据的灵活性"
+            "es": "Comportamiento con la flexibilidad de los datos"
           },
           "body": {
+            "zh": "字节码模式的意图是：将行为编码为虚拟机的指令，从而赋予行为数据般的灵活性。",
             "en": "The intent of Bytecode is to give behavior the flexibility of data by encoding it as instructions for a virtual machine.",
-            "zh": "字节码模式的意图是：将行为编码为虚拟机的指令，从而赋予行为数据般的灵活性。"
+            "es": "La intención del Bytecode es darle al comportamiento la flexibilidad de los datos al codificarlo como instrucciones para una máquina virtual."
           }
         }
       ]
@@ -31,89 +36,107 @@
     {
       "num": "11.2",
       "title": {
+        "zh": "动机",
         "en": "Motivation",
-        "zh": "动机"
+        "es": "Motivación"
       },
       "points": [
         {
           "title": {
+            "zh": "重量级语言拖慢迭代",
             "en": "Heavyweight languages slow iteration",
-            "zh": "重量级语言拖慢迭代"
+            "es": "Los lenguajes pesados ralentizan la iteración"
           },
           "body": {
+            "zh": "游戏对稳定性和性能要求极高，所以我们使用 C++ 这类重量级语言，它既有底层表达能力，又有丰富的类型系统。但代码库庞大、编译缓慢，而游戏还必须好玩，这需要不断迭代。如果每次微调都要找工程师并等待漫长的重新编译，创作的节奏就被扼杀了。",
             "en": "Games demand stability and performance, so we use heavyweight languages like C++ with low-level expressiveness and rich type systems. But codebases are huge, builds are slow, and games must also be fun, which needs constant iteration. If every tweak requires an engineer and a glacial recompile, creative flow dies.",
-            "zh": "游戏对稳定性和性能要求极高，所以我们使用 C++ 这类重量级语言，它既有底层表达能力，又有丰富的类型系统。但代码库庞大、编译缓慢，而游戏还必须好玩，这需要不断迭代。如果每次微调都要找工程师并等待漫长的重新编译，创作的节奏就被扼杀了。"
+            "es": "Los juegos exigen estabilidad y rendimiento, así que usamos lenguajes pesados como C++, con expresividad de bajo nivel y sistemas de tipos ricos. Pero las bases de código son enormes, las compilaciones son lentas, y los juegos además tienen que ser divertidos, lo cual requiere iteración constante. Si cada ajuste exige un ingeniero y una recompilación interminable, el flujo creativo muere."
           }
         },
         {
           "title": {
+            "zh": "用代码定义法术会带来问题",
             "en": "Spells in code are a problem",
-            "zh": "用代码定义法术会带来问题"
-          },
-          "subsection": {
-            "en": "Spell fight!",
-            "zh": "法术对决！"
+            "es": "Definir los hechizos en el código es un problema"
           },
           "body": {
+            "zh": "在一款巫师对战游戏中，如果把法术硬编码，每次修改都需要工程师参与，设计师调整数值也得重新编译、重启游戏。发布后的更新需要给可执行文件打补丁；而支持 mod 则意味着要给用户整套编译工具链并公开源码——更糟的是，有 bug 的 mod 法术可能让其他玩家的游戏崩溃。",
             "en": "In a wizard-dueling game, hard-coding spells means an engineer must be involved in every change and designers must recompile and reboot to tweak numbers. Post-launch updates would require patching the executable, and modding would require giving users a compiler toolchain and the sources — and a buggy mod spell could crash other players' games.",
-            "zh": "在一款巫师对战游戏中，如果把法术硬编码，每次修改都需要工程师参与，设计师调整数值也得重新编译、重启游戏。发布后的更新需要给可执行文件打补丁；而支持 mod 则意味着要给用户整套编译工具链并公开源码——更糟的是，有 bug 的 mod 法术可能让其他玩家的游戏崩溃。"
+            "es": "En un juego de duelos de magos, escribir los hechizos de forma rígida en el código significa que un ingeniero debe participar en cada cambio y que los diseñadores tienen que recompilar y reiniciar el juego para ajustar los valores. Las actualizaciones posteriores al lanzamiento requerirían parchear el ejecutable, y para admitir mods habría que entregar a los usuarios una cadena de herramientas de compilación y el código fuente; peor aún, un hechizo de mod con errores podría hacer que el juego de otros jugadores se caiga."
+          },
+          "subsection": {
+            "zh": "法术对决！",
+            "en": "Spell fight!",
+            "es": "¡Duelo de hechizos!"
           }
         },
         {
           "title": {
+            "zh": "把行为定义为数据",
             "en": "Define behavior as data",
-            "zh": "把行为定义为数据"
-          },
-          "subsection": {
-            "en": "Data > code",
-            "zh": "数据 > 代码"
+            "es": "Definir el comportamiento como datos"
           },
           "body": {
+            "zh": "法术应当与游戏核心安全隔离（沙盒化），易于修改和重新加载，并在物理上与可执行文件分离——这听起来很像数据。如果行为存放在数据文件里，由引擎加载并以某种方式“执行”，这些目标就都能实现；问题在于，对数据而言“执行”意味着什么。",
             "en": "Spells should be safely sandboxed from the core game, easy to modify and reload, and physically separate from the executable — which sounds a lot like data. If behavior lives in data files that the engine loads and \"executes\" somehow, all these goals are met; the question is what \"execute\" means for data.",
-            "zh": "法术应当与游戏核心安全隔离（沙盒化），易于修改和重新加载，并在物理上与可执行文件分离——这听起来很像数据。如果行为存放在数据文件里，由引擎加载并以某种方式“执行”，这些目标就都能实现；问题在于，对数据而言“执行”意味着什么。"
+            "es": "Los hechizos deberían estar aislados de forma segura en un sandbox respecto del núcleo del juego, ser fáciles de modificar y de volver a cargar, y estar físicamente separados del ejecutable, lo cual suena mucho a datos. Si el comportamiento reside en archivos de datos que el motor carga y «ejecuta» de algún modo, se alcanzan todos esos objetivos; la pregunta es qué significa «ejecutar» cuando se trata de datos."
+          },
+          "subsection": {
+            "zh": "数据 > 代码",
+            "en": "Data > code",
+            "es": "Datos > código"
           }
         },
         {
           "title": {
+            "zh": "解释器模式",
             "en": "The Interpreter pattern",
-            "zh": "解释器模式"
-          },
-          "subsection": {
-            "en": "The Interpreter pattern",
-            "zh": "解释器模式"
+            "es": "El patrón Intérprete"
           },
           "body": {
+            "zh": "在 GoF 的解释器模式中，解析器把文本转换为抽象语法树，树中每个节点都是一个能对自己求值的对象，会递归地先对子表达式求值。它简单而优雅，Ruby 就这样实现了大约 15 年，直到 1.9 版才改用字节码。",
             "en": "In the GoF Interpreter pattern, a parser turns text into an abstract syntax tree, and each node is an object that evaluates itself, recursively evaluating its subexpressions. It's simple and elegant, and Ruby worked this way for about 15 years before switching to bytecode in 1.9.",
-            "zh": "在 GoF 的解释器模式中，解析器把文本转换为抽象语法树，树中每个节点都是一个能对自己求值的对象，会递归地先对子表达式求值。它简单而优雅，Ruby 就这样实现了大约 15 年，直到 1.9 版才改用字节码。"
+            "es": "En el patrón Intérprete de GoF, un analizador sintáctico convierte el texto en un árbol de sintaxis abstracta, y cada nodo es un objeto que se evalúa a sí mismo y que evalúa de forma recursiva sus subexpresiones. Es simple y elegante, y Ruby funcionó así durante unos 15 años antes de cambiarse al Bytecode en la versión 1.9."
+          },
+          "subsection": {
+            "zh": "解释器模式",
+            "en": "The Interpreter pattern",
+            "es": "El patrón Intérprete"
           },
           "code": "class AdditionExpression : public Expression {\npublic:\n  AdditionExpression(Expression* left, Expression* right)\n  : left_(left), right_(right) {}\n\n  virtual double evaluate() {\n    double left = left_->evaluate();\n    double right = right_->evaluate();\n    return left + right;\n  }\n\nprivate:\n  Expression* left_;\n  Expression* right_;\n};"
         },
         {
           "title": {
+            "zh": "解释器模式为何缓慢",
             "en": "Why the Interpreter pattern is slow",
-            "zh": "解释器模式为何缓慢"
-          },
-          "subsection": {
-            "en": "The Interpreter pattern",
-            "zh": "解释器模式"
+            "es": "Por qué el patrón Intérprete es lento"
           },
           "body": {
+            "zh": "代码被表示成一棵由微小对象组成、不断分叉的树。加载时要实例化并连接大量对象；这些对象及其指针占用大量内存（在 32 位机器上，(1 + 2) * (3 - 4) 至少需要 68 字节）；追踪指针会破坏数据缓存，虚函数调用则会破坏指令缓存。合起来就是：慢。",
             "en": "Code becomes a sprawling fractal tree of tiny objects. Loading requires instantiating and wiring up many objects; the objects and pointers use lots of memory (at least 68 bytes for (1 + 2) * (3 - 4) on 32-bit); chasing pointers hurts the data cache and virtual calls hurt the instruction cache. Together: S-L-O-W.",
-            "zh": "代码被表示成一棵由微小对象组成、不断分叉的树。加载时要实例化并连接大量对象；这些对象及其指针占用大量内存（在 32 位机器上，(1 + 2) * (3 - 4) 至少需要 68 字节）；追踪指针会破坏数据缓存，虚函数调用则会破坏指令缓存。合起来就是：慢。"
+            "es": "El código se convierte en un árbol fractal y desmesurado de objetos diminutos. Cargarlo exige instanciar y conectar muchísimos objetos; los objetos y los punteros consumen mucha memoria (al menos 68 bytes para (1 + 2) * (3 - 4) en una máquina de 32 bits); perseguir punteros perjudica la caché de datos y las llamadas virtuales perjudican la caché de instrucciones. En conjunto: L-E-N-T-O."
+          },
+          "subsection": {
+            "zh": "解释器模式",
+            "en": "The Interpreter pattern",
+            "es": "El patrón Intérprete"
           }
         },
         {
           "title": {
+            "zh": "虚拟机器码",
             "en": "Virtual machine code",
-            "zh": "虚拟机器码"
-          },
-          "subsection": {
-            "en": "Machine code, virtually",
-            "zh": "虚拟的机器码"
+            "es": "Código de máquina virtual"
           },
           "body": {
+            "zh": "真正的机器码紧凑、线性、底层且快速，但让用户提供机器码无异于招惹安全问题。折中方案是：定义我们自己的虚拟机器码，并为它编写一个小型模拟器——也就是运行字节码的虚拟机（VM）。它保留了数据的灵活性，性能又优于解释器模式，并且完全由游戏掌控，因此可以安全地沙盒化。",
             "en": "Real machine code is dense, linear, low-level, and fast, but letting users supply machine code is a security nightmare. The compromise: define our own virtual machine code and write a small emulator for it — a virtual machine (VM) running bytecode. It keeps the flexibility of data with better performance than the Interpreter pattern, and our game fully controls it, so it can be sandboxed.",
-            "zh": "真正的机器码紧凑、线性、底层且快速，但让用户提供机器码无异于招惹安全问题。折中方案是：定义我们自己的虚拟机器码，并为它编写一个小型模拟器——也就是运行字节码的虚拟机（VM）。它保留了数据的灵活性，性能又优于解释器模式，并且完全由游戏掌控，因此可以安全地沙盒化。"
+            "es": "El código de máquina real es denso, lineal, de bajo nivel y rápido, pero permitir que los usuarios aporten código de máquina es un problema de seguridad enorme. El compromiso: definir nuestro propio código de máquina virtual y escribir para él un pequeño emulador, es decir, una máquina virtual (VM) que ejecuta Bytecode. Conserva la flexibilidad de los datos con un rendimiento mejor que el del patrón Intérprete, y nuestro juego lo controla por completo, así que puede encerrarse en un sandbox."
+          },
+          "subsection": {
+            "zh": "虚拟的机器码",
+            "en": "Machine code, virtually",
+            "es": "Código de máquina, de forma virtual"
           }
         }
       ]
@@ -121,18 +144,21 @@
     {
       "num": "11.3",
       "title": {
+        "zh": "模式描述",
         "en": "The Pattern",
-        "zh": "模式描述"
+        "es": "El patrón"
       },
       "points": [
         {
           "title": {
+            "zh": "模式定义",
             "en": "Pattern definition",
-            "zh": "模式定义"
+            "es": "Definición del patrón"
           },
           "body": {
+            "zh": "指令集定义了可以执行的底层操作。一系列指令被编码为字节序列。虚拟机逐条执行这些指令，并用栈来存放中间值。通过组合指令，就能定义复杂的高层行为。",
             "en": "An instruction set defines the low-level operations that can be performed. A series of instructions is encoded as a sequence of bytes. A virtual machine executes these instructions one at a time, using a stack for intermediate values. By combining instructions, complex high-level behavior can be defined.",
-            "zh": "指令集定义了可以执行的底层操作。一系列指令被编码为字节序列。虚拟机逐条执行这些指令，并用栈来存放中间值。通过组合指令，就能定义复杂的高层行为。"
+            "es": "Un conjunto de instrucciones define las operaciones de bajo nivel que se pueden realizar. Una serie de instrucciones se codifica como una secuencia de bytes. Una máquina virtual ejecuta esas instrucciones de a una, usando una pila para los valores intermedios. Al combinar instrucciones, se puede definir un comportamiento complejo de alto nivel."
           }
         }
       ]
@@ -140,18 +166,21 @@
     {
       "num": "11.4",
       "title": {
+        "zh": "何时使用",
         "en": "When to Use It",
-        "zh": "何时使用"
+        "es": "Cuándo usarlo"
       },
       "points": [
         {
           "title": {
+            "zh": "当实现语言不合适时",
             "en": "When the implementation language is a poor fit",
-            "zh": "当实现语言不合适时"
+            "es": "Cuando el lenguaje de implementación no encaja"
           },
           "body": {
+            "zh": "这是本书最复杂的模式。当你需要定义大量行为，而游戏的实现语言过于底层（繁琐易错）、迭代太慢、或者权限过大（需要把行为沙盒化）时，就可以使用它。字节码比原生代码慢，所以不适合引擎中对性能要求苛刻的部分。",
             "en": "This is the book's most complex pattern. Use it when you have a lot of behavior to define and your implementation language is too low-level (tedious and error-prone), too slow to iterate on, or has too much trust (behavior must be sandboxed). Bytecode is slower than native code, so avoid it for performance-critical parts of the engine.",
-            "zh": "这是本书最复杂的模式。当你需要定义大量行为，而游戏的实现语言过于底层（繁琐易错）、迭代太慢、或者权限过大（需要把行为沙盒化）时，就可以使用它。字节码比原生代码慢，所以不适合引擎中对性能要求苛刻的部分。"
+            "es": "Este es el patrón más complejo del libro. Úsalo cuando tengas mucho comportamiento que definir y tu lenguaje de implementación sea demasiado de bajo nivel (tedioso y propenso a errores), demasiado lento para iterar, o tenga un nivel de confianza demasiado alto (el comportamiento debe ejecutarse en un sandbox). El Bytecode es más lento que el código nativo, así que evítalo en las partes del motor que son críticas para el rendimiento."
           }
         }
       ]
@@ -159,46 +188,55 @@
     {
       "num": "11.5",
       "title": {
+        "zh": "注意事项",
         "en": "Keep in Mind",
-        "zh": "注意事项"
+        "es": "A tener en cuenta"
       },
       "points": [
         {
           "title": {
+            "zh": "小语言会像藤蔓一样疯长",
             "en": "Little languages grow like vines",
-            "zh": "小语言会像藤蔓一样疯长"
+            "es": "Los lenguajes pequeños crecen como enredaderas"
           },
           "body": {
+            "zh": "人们总说“它会很小的”，然后不断添加功能，直到它变成一门东拼西凑长出来的完整语言，架构优雅程度堪比棚户区。有意识地构建完整语言并没有问题；否则就要严格控制字节码能表达的范围。",
             "en": "People say \"it will be tiny\", then keep adding features until it's a full-fledged language grown ad hoc, with the architectural elegance of a shanty town. Building a full language is fine if done deliberately; otherwise keep a short leash on what your bytecode can express.",
-            "zh": "人们总说“它会很小的”，然后不断添加功能，直到它变成一门东拼西凑长出来的完整语言，架构优雅程度堪比棚户区。有意识地构建完整语言并没有问题；否则就要严格控制字节码能表达的范围。"
+            "es": "La gente dice «va a ser mínimo» y luego sigue añadiendo funciones hasta que se convierte en un lenguaje completo que creció ad hoc, con la elegancia arquitectónica de un asentamiento informal. Construir un lenguaje completo está bien si se hace a propósito; de lo contrario, hay que mantener bien corta la correa de lo que tu Bytecode puede expresar."
           }
         },
         {
           "title": {
+            "zh": "你需要一个前端",
             "en": "You need a front-end",
-            "zh": "你需要一个前端"
-          },
-          "subsection": {
-            "en": "You'll need a front-end",
-            "zh": "你需要一个前端"
+            "es": "Necesitas un front-end"
           },
           "body": {
+            "zh": "用户不会去手写二进制字节码；让他们写汇编——即使是你自己设计的汇编——也不比 C++ 好。你需要一个工具，把更高层的格式翻译成字节码，换句话说，就是一个编译器。如果你没有资源去构建创作工具，字节码就不适合你。",
             "en": "Users won't author binary bytecode; making them write assembly, even of your own design, is no improvement over C++. You need a tool that translates a higher-level format into bytecode — in other words, a compiler. If you lack resources to build an authoring tool, bytecode isn't for you.",
-            "zh": "用户不会去手写二进制字节码；让他们写汇编——即使是你自己设计的汇编——也不比 C++ 好。你需要一个工具，把更高层的格式翻译成字节码，换句话说，就是一个编译器。如果你没有资源去构建创作工具，字节码就不适合你。"
+            "es": "Los usuarios no van a escribir Bytecode binario; hacer que escriban ensamblador, aunque sea de tu propio diseño, no es ninguna mejora sobre C++. Necesitas una herramienta que traduzca un formato de más alto nivel a Bytecode, en otras palabras, un compilador. Si no tienes recursos para construir una herramienta de autoría, el Bytecode no es para ti."
+          },
+          "subsection": {
+            "zh": "你需要一个前端",
+            "en": "You'll need a front-end",
+            "es": "Vas a necesitar un front-end"
           }
         },
         {
           "title": {
+            "zh": "你会怀念调试器",
             "en": "You'll miss your debugger",
-            "zh": "你会怀念调试器"
-          },
-          "subsection": {
-            "en": "You'll miss your debugger",
-            "zh": "你会怀念调试器"
+            "es": "Vas a extrañar tu depurador"
           },
           "body": {
+            "zh": "使用自己的虚拟机，就失去了调试器、静态分析器和反编译器等工具；单步调试虚拟机只能看到虚拟机在做什么，而不是字节码的含义。随着内容规模增长，要投入精力开发能让用户看清字节码行为的工具——如果游戏支持 mod，这些工具还要随游戏一起发布。",
             "en": "With your own VM you leave debuggers, static analyzers, and decompilers behind; stepping through the VM shows what the VM does, not what the bytecode means. As content grows, invest in tools that show users what their bytecode is doing — and if the game is moddable, you'll ship them.",
-            "zh": "使用自己的虚拟机，就失去了调试器、静态分析器和反编译器等工具；单步调试虚拟机只能看到虚拟机在做什么，而不是字节码的含义。随着内容规模增长，要投入精力开发能让用户看清字节码行为的工具——如果游戏支持 mod，这些工具还要随游戏一起发布。"
+            "es": "Con tu propia VM dejas atrás los depuradores, los analizadores estáticos y los descompiladores; recorrer la VM paso a paso muestra lo que hace la VM, no lo que significa el Bytecode. A medida que el contenido crece, invierte en herramientas que les muestren a los usuarios qué está haciendo su Bytecode; y si el juego admite mods, tendrás que distribuirlas con él."
+          },
+          "subsection": {
+            "zh": "你会怀念调试器",
+            "en": "You'll miss your debugger",
+            "es": "Vas a extrañar tu depurador"
           }
         }
       ]
@@ -206,110 +244,132 @@
     {
       "num": "11.6",
       "title": {
+        "zh": "示例代码",
         "en": "Sample Code",
-        "zh": "示例代码"
+        "es": "Código de ejemplo"
       },
       "points": [
         {
           "title": {
+            "zh": "先从 API 着手",
             "en": "Start with an API",
-            "zh": "先从 API 着手"
-          },
-          "subsection": {
-            "en": "A magical API",
-            "zh": "魔法 API"
+            "es": "Empieza por una API"
           },
           "body": {
+            "zh": "在考虑字节码之前，先设计法术在 C++ 中会调用的 API：setHealth/setWisdom/setAgility(wizard, amount) 用于修改属性（wizard 为 0 表示玩家，1 表示对手），再加上 playSound() 和 spawnParticles()，它们不影响玩法，但能增强游戏体验。",
             "en": "Before thinking about bytecode, design the API spells would call in C++: setHealth/setWisdom/setAgility(wizard, amount) to change stats (wizard 0 is the player, 1 the opponent), plus playSound() and spawnParticles() for effects that don't affect gameplay but make it exciting.",
-            "zh": "在考虑字节码之前，先设计法术在 C++ 中会调用的 API：setHealth/setWisdom/setAgility(wizard, amount) 用于修改属性（wizard 为 0 表示玩家，1 表示对手），再加上 playSound() 和 spawnParticles()，它们不影响玩法，但能增强游戏体验。"
+            "es": "Antes de pensar en el Bytecode, diseña la API que los hechizos llamarían en C++: setHealth/setWisdom/setAgility(wizard, amount) para cambiar los atributos (wizard 0 es el jugador y 1 el oponente), además de playSound() y spawnParticles() para los efectos que no afectan la jugabilidad pero la hacen emocionante."
+          },
+          "subsection": {
+            "zh": "魔法 API",
+            "en": "A magical API",
+            "es": "Una API mágica"
           }
         },
         {
           "title": {
+            "zh": "由字节构成的指令集",
             "en": "An instruction set of bytes",
-            "zh": "由字节构成的指令集"
-          },
-          "subsection": {
-            "en": "A magical instruction set",
-            "zh": "魔法指令集"
+            "es": "Un conjunto de instrucciones de bytes"
           },
           "body": {
+            "zh": "先忽略参数，每个 API 调用都对应一个能放进一个字节的枚举值，于是一个法术就只是一串字节——因此称为“字节码”。虚拟机遍历这些字节，用 switch 把每条指令分派到对应的 API 调用，从而在代码世界与数据世界之间架起桥梁。每条指令一个字节，对 JVM 和 .NET 的 CLR 来说也够用了。",
             "en": "Dropping parameters at first, each API call becomes an enum value that fits in a byte, so a spell is just a list of bytes — hence \"bytecode\". The VM loops over the bytes and a switch dispatches each to the right API call, bridging code world and data world. A single byte per instruction is good enough for the JVM and .NET's CLR too.",
-            "zh": "先忽略参数，每个 API 调用都对应一个能放进一个字节的枚举值，于是一个法术就只是一串字节——因此称为“字节码”。虚拟机遍历这些字节，用 switch 把每条指令分派到对应的 API 调用，从而在代码世界与数据世界之间架起桥梁。每条指令一个字节，对 JVM 和 .NET 的 CLR 来说也够用了。"
+            "es": "Si al principio dejamos de lado los parámetros, cada llamada a la API se convierte en un valor de enumeración que cabe en un byte, así que un hechizo no es más que una lista de bytes; de ahí el nombre «Bytecode». La VM recorre los bytes y un switch despacha cada uno a la llamada de API correspondiente, tendiendo un puente entre el mundo del código y el mundo de los datos. Un solo byte por instrucción también les basta a la JVM y al CLR de .NET."
+          },
+          "subsection": {
+            "zh": "魔法指令集",
+            "en": "A magical instruction set",
+            "es": "Un conjunto de instrucciones mágico"
           },
           "code": "class VM {\npublic:\n  void interpret(char bytecode[], int size) {\n    for (int i = 0; i < size; i++) {\n      char instruction = bytecode[i];\n      switch (instruction) {\n        // Cases for each instruction...\n      }\n    }\n  }\n};"
         },
         {
           "title": {
+            "zh": "用栈机传递参数",
             "en": "A stack machine for parameters",
-            "zh": "用栈机传递参数"
-          },
-          "subsection": {
-            "en": "A stack machine",
-            "zh": "栈机"
+            "es": "Una máquina de pila para los parámetros"
           },
           "body": {
+            "zh": "由于指令被展平成一个列表，必须靠指令的顺序把子表达式的结果传给使用它的指令，所以虚拟机像 CPU 一样使用栈——即栈机（Forth、PostScript、Factor 等语言直接暴露这种模型）。指令从栈中弹出参数；LITERAL 指令则直接读取字节码中的下一个字节并压栈，从而避免无限递归的问题。",
             "en": "With a flat instruction list, the order of instructions must route subexpression results to their consumers, so the VM uses a stack, like a CPU — a stack machine (as in Forth, PostScript, Factor). Instructions pop their parameters off the stack; a LITERAL instruction reads the next byte from the bytecode itself and pushes it, avoiding infinite regress.",
-            "zh": "由于指令被展平成一个列表，必须靠指令的顺序把子表达式的结果传给使用它的指令，所以虚拟机像 CPU 一样使用栈——即栈机（Forth、PostScript、Factor 等语言直接暴露这种模型）。指令从栈中弹出参数；LITERAL 指令则直接读取字节码中的下一个字节并压栈，从而避免无限递归的问题。"
+            "es": "Con una lista de instrucciones plana, el orden de las instrucciones debe encaminar los resultados de las subexpresiones hacia quienes los consumen, así que la VM usa una pila, igual que una CPU: una máquina de pila (como en Forth, PostScript o Factor). Las instrucciones sacan sus parámetros de la pila; una instrucción LITERAL lee el siguiente byte del propio Bytecode y lo apila, lo que evita una regresión al infinito."
+          },
+          "subsection": {
+            "zh": "栈机",
+            "en": "A stack machine",
+            "es": "Una máquina de pila"
           },
           "code": "case INST_SET_HEALTH: {\n  int amount = pop();\n  int wizard = pop();\n  setHealth(wizard, amount);\n  break;\n}\n\ncase INST_LITERAL: {\n  // Read the next byte from the bytecode.\n  int value = bytecode[++i];\n  push(value);\n  break;\n}"
         },
         {
           "title": {
+            "zh": "组合让数据变成行为",
             "en": "Composition turns data into behavior",
-            "zh": "组合让数据变成行为"
-          },
-          "subsection": {
-            "en": "Behavior = composition",
-            "zh": "行为 = 组合"
+            "es": "La composición convierte los datos en comportamiento"
           },
           "body": {
+            "zh": "只有字面量的话，它仍像一种数据格式；设计师想表达的是规则，而不仅是数值。加入 GET_ 系列指令（弹出巫师编号，压入属性值）和 ADD 等算术指令（弹出两个值，压入和）之后，就能进行组合：表达任意嵌套的表达式。每次“记住”就是一次压栈，每次“取回”就是一次出栈，所以括号不需要专门的指令——栈天然地处理了分组。",
             "en": "Literals alone still feel like a data format; designers want rules, not just values. Adding GET_ instructions (pop a wizard, push a stat) and arithmetic like ADD (pop two, push the sum) enables composition: arbitrarily nested expressions. Each \"remember\" is a push and each \"recall\" a pop, so parentheses need no special instructions — the stack handles grouping implicitly.",
-            "zh": "只有字面量的话，它仍像一种数据格式；设计师想表达的是规则，而不仅是数值。加入 GET_ 系列指令（弹出巫师编号，压入属性值）和 ADD 等算术指令（弹出两个值，压入和）之后，就能进行组合：表达任意嵌套的表达式。每次“记住”就是一次压栈，每次“取回”就是一次出栈，所以括号不需要专门的指令——栈天然地处理了分组。"
+            "es": "Los literales por sí solos todavía se sienten como un formato de datos; los diseñadores quieren reglas, no solo valores. Al añadir las instrucciones GET_ (sacan un mago y apilan un atributo) y operaciones aritméticas como ADD (sacan dos valores y apilan la suma), se habilita la composición: expresiones anidadas de forma arbitraria. Cada «recuerda» es un push y cada «recupera» es un pop, así que los paréntesis no necesitan instrucciones especiales: la pila se encarga de la agrupación de forma implícita."
+          },
+          "subsection": {
+            "zh": "行为 = 组合",
+            "en": "Behavior = composition",
+            "es": "Comportamiento = composición"
           },
           "code": "case INST_ADD: {\n  int b = pop();\n  int a = pop();\n  push(a + b);\n  break;\n}"
         },
         {
           "title": {
+            "zh": "逐步执行一个法术",
             "en": "Walking through a spell",
-            "zh": "逐步执行一个法术"
-          },
-          "subsection": {
-            "en": "Behavior = composition",
-            "zh": "行为 = 组合"
+            "es": "Recorrer un hechizo paso a paso"
           },
           "body": {
+            "zh": "setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) 会被编译成一串扁平的指令。假设生命值 45、敏捷 7、智慧 11，栈不断增长和收缩，直到 SET_HEALTH 弹出 54 和巫师编号 0——这个 0 最先被压入，一直待在栈底，直到最后才被用到。",
             "en": "setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) compiles to a flat instruction sequence. With 45 health, 7 agility, and 11 wisdom, the stack grows and shrinks until SET_HEALTH pops 54 and the wizard index 0, which was pushed first and waited at the bottom of the stack the whole time.",
-            "zh": "setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) 会被编译成一串扁平的指令。假设生命值 45、敏捷 7、智慧 11，栈不断增长和收缩，直到 SET_HEALTH 弹出 54 和巫师编号 0——这个 0 最先被压入，一直待在栈底，直到最后才被用到。"
+            "es": "setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) se compila a una secuencia plana de instrucciones. Con 45 de salud, 7 de agilidad y 11 de sabiduría, la pila crece y se reduce hasta que SET_HEALTH saca 54 y el índice de mago 0, que se apiló primero y esperó en el fondo de la pila todo el tiempo."
+          },
+          "subsection": {
+            "zh": "行为 = 组合",
+            "en": "Behavior = composition",
+            "es": "Comportamiento = composición"
           },
           "code": "LITERAL 0    [0]            # Wizard index\nLITERAL 0    [0, 0]         # Wizard index\nGET_HEALTH   [0, 45]        # getHealth()\nLITERAL 0    [0, 45, 0]     # Wizard index\nGET_AGILITY  [0, 45, 7]     # getAgility()\nLITERAL 0    [0, 45, 7, 0]  # Wizard index\nGET_WISDOM   [0, 45, 7, 11] # getWisdom()\nADD          [0, 45, 18]    # Add agility and wisdom\nLITERAL 2    [0, 45, 18, 2] # Divisor\nDIVIDE       [0, 45, 9]     # Average agility and wisdom\nADD          [0, 54]        # Add average to current health\nSET_HEALTH   []             # Set health to result"
         },
         {
           "title": {
+            "zh": "一个栈、一个循环、一个 switch——安全的沙盒",
             "en": "A stack, a loop, and a switch — safely sandboxed",
-            "zh": "一个栈、一个循环、一个 switch——安全的沙盒"
-          },
-          "subsection": {
-            "en": "A virtual machine",
-            "zh": "虚拟机"
+            "es": "Una pila, un bucle y un switch: aislados de forma segura en un sandbox"
           },
           "body": {
+            "zh": "虚拟机往往只是一个栈、一个循环加一个 switch 语句。它是沙盒化的：字节码只能通过我们定义的少数几条指令接触游戏，内存受栈大小限制，执行时间也可以通过计数已执行的指令来限制。由于没有循环指令，这种字节码甚至不是图灵完备的。",
             "en": "A VM is often just a stack, a loop, and a switch. It is sandboxed: bytecode can only touch the game through the few instructions we define, memory is bounded by the stack size, and execution time can be limited by counting instructions. With no loop instructions, this bytecode isn't even Turing-complete.",
-            "zh": "虚拟机往往只是一个栈、一个循环加一个 switch 语句。它是沙盒化的：字节码只能通过我们定义的少数几条指令接触游戏，内存受栈大小限制，执行时间也可以通过计数已执行的指令来限制。由于没有循环指令，这种字节码甚至不是图灵完备的。"
+            "es": "A menudo una VM no es más que una pila, un bucle y un switch. Está en un sandbox: el Bytecode solo puede tocar el juego a través de las pocas instrucciones que definimos, la memoria está acotada por el tamaño de la pila, y el tiempo de ejecución se puede limitar contando las instrucciones. Al no tener instrucciones de bucle, este Bytecode ni siquiera es Turing-completo."
+          },
+          "subsection": {
+            "zh": "虚拟机",
+            "en": "A virtual machine",
+            "es": "Una máquina virtual"
           }
         },
         {
           "title": {
+            "zh": "创作工具，最好是图形化的",
             "en": "Authoring tools, ideally graphical",
-            "zh": "创作工具，最好是图形化的"
-          },
-          "subsection": {
-            "en": "Spellcasting tools",
-            "zh": "施法工具"
+            "es": "Herramientas de autoría, idealmente gráficas"
           },
           "body": {
+            "zh": "我们造出了比 C++ 还底层的东西，所以用户需要一个工具，把高层行为生成为字节码。它不一定是文本编译器：点击拖拽式的图形界面更适合非技术用户，并且可以通过禁用按钮或提供默认值，让用户根本无法创建无效程序。要接纳人会犯错这一点——撤销等功能能帮助用户更有创造力。",
             "en": "We've built something lower-level than C++, so users need a tool that generates bytecode from high-level behavior. It needn't be a text compiler: a graphical click-and-drag interface suits non-technical users and can make invalid programs impossible by disabling buttons or providing defaults. Embrace human fallibility — features like undo help users be more creative.",
-            "zh": "我们造出了比 C++ 还底层的东西，所以用户需要一个工具，把高层行为生成为字节码。它不一定是文本编译器：点击拖拽式的图形界面更适合非技术用户，并且可以通过禁用按钮或提供默认值，让用户根本无法创建无效程序。要接纳人会犯错这一点——撤销等功能能帮助用户更有创造力。"
+            "es": "Hemos construido algo de más bajo nivel que C++, así que los usuarios necesitan una herramienta que genere Bytecode a partir de comportamiento de alto nivel. No tiene por qué ser un compilador de texto: una interfaz gráfica de hacer clic y arrastrar se adapta a los usuarios no técnicos y puede hacer imposible crear programas inválidos al deshabilitar botones o al ofrecer valores predeterminados. Acepta la falibilidad humana: funciones como deshacer ayudan a los usuarios a ser más creativos."
+          },
+          "subsection": {
+            "zh": "施法工具",
+            "en": "Spellcasting tools",
+            "es": "Herramientas para lanzar hechizos"
           }
         }
       ]
@@ -317,65 +377,78 @@
     {
       "num": "11.7",
       "title": {
+        "zh": "设计决策",
         "en": "Design Decisions",
-        "zh": "设计决策"
+        "es": "Decisiones de diseño"
       },
       "points": [
         {
           "title": {
+            "zh": "基于栈与基于寄存器的虚拟机",
             "en": "Stack-based vs. register-based VMs",
-            "zh": "基于栈与基于寄存器的虚拟机"
-          },
-          "subsection": {
-            "en": "How do instructions access the stack?",
-            "zh": "指令如何访问栈？"
+            "es": "VM basadas en pila frente a VM basadas en registros"
           },
           "body": {
+            "zh": "基于栈的指令只操作栈顶：指令很小（通常一个字节），代码生成也更简单，但需要更多指令。基于寄存器的指令会在字节码中编码操作数在栈中的偏移（Lua 5.1 使用 32 位指令）：指令更大但数量更少。作者推荐基于栈的虚拟机，因为它更容易实现，也更容易为其生成代码。",
             "en": "Stack-based instructions work only on the top of the stack: they're small (often one byte) and code generation is simpler, but you need more instructions. Register-based instructions encode stack offsets for operands (Lua 5.1 uses 32-bit instructions): they're larger but fewer. The author recommends stack-based VMs as simpler to implement and to generate code for.",
-            "zh": "基于栈的指令只操作栈顶：指令很小（通常一个字节），代码生成也更简单，但需要更多指令。基于寄存器的指令会在字节码中编码操作数在栈中的偏移（Lua 5.1 使用 32 位指令）：指令更大但数量更少。作者推荐基于栈的虚拟机，因为它更容易实现，也更容易为其生成代码。"
+            "es": "Las instrucciones basadas en pila solo operan sobre la cima de la pila: son pequeñas (a menudo un byte) y la generación de código es más simple, pero necesitas más instrucciones. Las instrucciones basadas en registros codifican desplazamientos en la pila para los operandos (Lua 5.1 usa instrucciones de 32 bits): son más grandes pero menos numerosas. El autor recomienda las VM basadas en pila por ser más simples de implementar y de generar código para ellas."
+          },
+          "subsection": {
+            "zh": "指令如何访问栈？",
+            "en": "How do instructions access the stack?",
+            "es": "¿Cómo acceden las instrucciones a la pila?"
           }
         },
         {
           "title": {
+            "zh": "指令的种类",
             "en": "Kinds of instructions",
-            "zh": "指令的种类"
-          },
-          "subsection": {
-            "en": "What instructions do you have?",
-            "zh": "需要哪些指令？"
+            "es": "Tipos de instrucciones"
           },
           "body": {
+            "zh": "外部原语伸出虚拟机，调用引擎做出用户可见的事情；内部原语操作虚拟机内部的值（字面量、算术、比较、栈操作）。控制流不过是修改指令索引的跳转——也就是 goto。通过可调用过程实现抽象则需要第二个返回栈：“call”压入当前索引并跳转，“return”弹出索引并跳回。",
             "en": "External primitives reach into the engine to do visible things; internal primitives manipulate values (literals, arithmetic, comparisons, stack juggling). Control flow is just jumps that modify the instruction index — a goto. Abstraction via callable procedures needs a second return stack: \"call\" pushes the current index and jumps; \"return\" pops it and jumps back.",
-            "zh": "外部原语伸出虚拟机，调用引擎做出用户可见的事情；内部原语操作虚拟机内部的值（字面量、算术、比较、栈操作）。控制流不过是修改指令索引的跳转——也就是 goto。通过可调用过程实现抽象则需要第二个返回栈：“call”压入当前索引并跳转，“return”弹出索引并跳回。"
+            "es": "Las primitivas externas se extienden hacia el motor para hacer cosas visibles; las primitivas internas manipulan valores (literales, aritmética, comparaciones, malabarismos con la pila). El flujo de control no es más que saltos que modifican el índice de instrucción: un goto. La abstracción mediante procedimientos invocables necesita una segunda pila de retorno: «call» apila el índice actual y salta; «return» lo saca y salta de vuelta."
+          },
+          "subsection": {
+            "zh": "需要哪些指令？",
+            "en": "What instructions do you have?",
+            "es": "¿Qué instrucciones tienes?"
           }
         },
         {
           "title": {
+            "zh": "值的表示方式",
             "en": "Representing values",
-            "zh": "值的表示方式"
-          },
-          "subsection": {
-            "en": "How are values represented?",
-            "zh": "值如何表示？"
+            "es": "Representación de los valores"
           },
           "body": {
+            "zh": "单一数据类型简单但受限。带标签的变体（tagged variant）保存一个类型枚举加一个 union；值在运行时知道自己的类型，但占用更多内存。无标签的 union 紧凑且快速，但不安全——恶意手写的字节码可能误读值，这也是 JVM 加载时要验证字节码的原因。多态接口开放且符合面向对象，但冗长且低效。建议：能用单一类型就用单一类型，否则用带标签的 union。",
             "en": "A single datatype is simple but limited. A tagged variant stores a type enum plus a union; values know their type at runtime but cost extra memory. An untagged union is compact and fast but unsafe — malicious hand-crafted bytecode could misinterpret values, which is why the JVM verifies bytecode. A polymorphic interface is open-ended and OO but verbose and inefficient. Recommendation: a single type if possible, otherwise a tagged union.",
-            "zh": "单一数据类型简单但受限。带标签的变体（tagged variant）保存一个类型枚举加一个 union；值在运行时知道自己的类型，但占用更多内存。无标签的 union 紧凑且快速，但不安全——恶意手写的字节码可能误读值，这也是 JVM 加载时要验证字节码的原因。多态接口开放且符合面向对象，但冗长且低效。建议：能用单一类型就用单一类型，否则用带标签的 union。"
+            "es": "Un único tipo de dato es simple pero limitado. Una variante etiquetada guarda una enumeración de tipo más una union; los valores conocen su tipo en tiempo de ejecución, pero cuestan memoria adicional. Una union sin etiquetar es compacta y rápida, pero insegura: Bytecode malicioso escrito a mano podría malinterpretar valores, y por eso la JVM verifica el Bytecode al cargarlo. Una interfaz polimórfica es abierta y orientada a objetos, pero verbosa e ineficiente. Recomendación: un solo tipo si es posible; de lo contrario, una union etiquetada."
+          },
+          "subsection": {
+            "zh": "值如何表示？",
+            "en": "How are values represented?",
+            "es": "¿Cómo se representan los valores?"
           },
           "code": "enum ValueType {\n  TYPE_INT,\n  TYPE_DOUBLE,\n  TYPE_STRING\n};\n\nstruct Value {\n  ValueType type;\n  union {\n    int    intValue;\n    double doubleValue;\n    char*  stringValue;\n  };\n};"
         },
         {
           "title": {
+            "zh": "生成字节码：文本语言还是图形工具",
             "en": "Generating bytecode: text vs. graphical",
-            "zh": "生成字节码：文本语言还是图形工具"
-          },
-          "subsection": {
-            "en": "How is the bytecode generated?",
-            "zh": "字节码如何生成？"
+            "es": "Generar Bytecode: texto frente a gráfico"
           },
           "body": {
+            "zh": "文本语言需要设计语法（语法设计就是用户界面设计，而它的难度常被低估）、编写解析器（借助 ANTLR、Bison 或手写递归下降解析器都相当容易），并妥善处理语法错误，而且可能会吓跑非技术用户。图形工具需要实现用户界面，但由于用户是一步步被引导的，出错情况更少；不过可移植性更差，因为很多 UI 框架只适用于特定操作系统。",
             "en": "A text-based language requires designing a syntax (syntax design is user interface design and is underestimated), writing a parser (fairly easy with ANTLR, Bison, or recursive descent), and handling syntax errors well, and it may turn off non-technical users. A graphical tool requires building a UI but has fewer error cases since users are guided step by step; portability is harder because UI frameworks are often OS-specific.",
-            "zh": "文本语言需要设计语法（语法设计就是用户界面设计，而它的难度常被低估）、编写解析器（借助 ANTLR、Bison 或手写递归下降解析器都相当容易），并妥善处理语法错误，而且可能会吓跑非技术用户。图形工具需要实现用户界面，但由于用户是一步步被引导的，出错情况更少；不过可移植性更差，因为很多 UI 框架只适用于特定操作系统。"
+            "es": "Un lenguaje basado en texto requiere diseñar una sintaxis (el diseño de sintaxis es diseño de interfaz de usuario y se subestima), escribir un analizador sintáctico (bastante fácil con ANTLR, Bison o descenso recursivo) y manejar bien los errores de sintaxis; además, puede espantar a los usuarios no técnicos. Una herramienta gráfica requiere construir una interfaz de usuario, pero tiene menos casos de error, ya que se guía al usuario paso a paso; la portabilidad es más difícil porque los marcos de interfaz suelen ser específicos de cada sistema operativo."
+          },
+          "subsection": {
+            "zh": "字节码如何生成？",
+            "en": "How is the bytecode generated?",
+            "es": "¿Cómo se genera el Bytecode?"
           }
         }
       ]
@@ -383,18 +456,21 @@
     {
       "num": "11.8",
       "title": {
+        "zh": "参见",
         "en": "See Also",
-        "zh": "参见"
+        "es": "Véase también"
       },
       "points": [
         {
           "title": {
+            "zh": "解释器模式的姊妹与实际案例",
             "en": "Interpreter's sister pattern and real examples",
-            "zh": "解释器模式的姊妹与实际案例"
+            "es": "El patrón hermano del Intérprete y ejemplos reales"
           },
           "body": {
+            "zh": "字节码模式的近亲是 GoF 的解释器模式，而且两者经常一起使用：生成字节码的工具内部持有一棵对象树，编译时像解释器模式那样递归遍历它，只不过不是立即执行，而是输出指令留待以后执行。Lua 是游戏中使用最广泛的脚本语言，内部是一个紧凑的基于寄存器的虚拟机；Kismet 是 Unreal 的图形化脚本工具；作者自己的 Wren 是一个基于栈的字节码解释器。",
             "en": "Bytecode's close sister is the GoF Interpreter pattern, and you often use both: the bytecode-generating tool holds a tree of objects and compiles it by walking it recursively, emitting instructions instead of executing them. Lua, the most widely used game scripting language, is a compact register-based VM; Kismet is Unreal's graphical scripting tool; the author's Wren is a stack-based bytecode interpreter.",
-            "zh": "字节码模式的近亲是 GoF 的解释器模式，而且两者经常一起使用：生成字节码的工具内部持有一棵对象树，编译时像解释器模式那样递归遍历它，只不过不是立即执行，而是输出指令留待以后执行。Lua 是游戏中使用最广泛的脚本语言，内部是一个紧凑的基于寄存器的虚拟机；Kismet 是 Unreal 的图形化脚本工具；作者自己的 Wren 是一个基于栈的字节码解释器。"
+            "es": "La hermana cercana del Bytecode es el patrón Intérprete de GoF, y a menudo se usan ambos: la herramienta que genera Bytecode mantiene un árbol de objetos y lo compila recorriéndolo de forma recursiva, emitiendo instrucciones en lugar de ejecutarlas. Lua, el lenguaje de scripting más usado en los juegos, es una VM compacta basada en registros; Kismet es la herramienta de scripting gráfico de Unreal; Wren, del autor, es un intérprete de Bytecode basado en pila."
           }
         }
       ]
@@ -402,255 +478,650 @@
   ],
   "terms": [
     {
-      "en": "bytecode",
-      "zh": "字节码"
+      "term": {
+        "zh": "字节码",
+        "en": "bytecode",
+        "es": "Bytecode"
+      }
     },
     {
-      "en": "virtual machine (VM)",
-      "zh": "虚拟机"
+      "term": {
+        "zh": "虚拟机",
+        "en": "virtual machine (VM)",
+        "es": "máquina virtual (VM)"
+      }
     },
     {
-      "en": "instruction set",
-      "zh": "指令集"
+      "term": {
+        "zh": "指令集",
+        "en": "instruction set",
+        "es": "conjunto de instrucciones"
+      }
     },
     {
-      "en": "Interpreter pattern",
-      "zh": "解释器模式"
+      "term": {
+        "zh": "解释器模式",
+        "en": "Interpreter pattern",
+        "es": "patrón Intérprete"
+      }
     },
     {
-      "en": "abstract syntax tree (AST)",
-      "zh": "抽象语法树"
+      "term": {
+        "zh": "抽象语法树",
+        "en": "abstract syntax tree (AST)",
+        "es": "árbol de sintaxis abstracta (AST)"
+      }
     },
     {
-      "en": "stack machine",
-      "zh": "栈机"
+      "term": {
+        "zh": "栈机",
+        "en": "stack machine",
+        "es": "máquina de pila"
+      }
     },
     {
-      "en": "register-based VM",
-      "zh": "基于寄存器的虚拟机"
+      "term": {
+        "zh": "基于寄存器的虚拟机",
+        "en": "register-based VM",
+        "es": "máquina virtual basada en registros"
+      }
     },
     {
-      "en": "sandbox",
-      "zh": "沙盒"
+      "term": {
+        "zh": "沙盒",
+        "en": "sandbox",
+        "es": "sandbox"
+      }
     },
     {
-      "en": "literal",
-      "zh": "字面量"
+      "term": {
+        "zh": "字面量",
+        "en": "literal",
+        "es": "literal"
+      }
     },
     {
-      "en": "tagged union / variant",
-      "zh": "带标签的联合体 / 变体"
+      "term": {
+        "zh": "带标签的联合体 / 变体",
+        "en": "tagged union / variant",
+        "es": "union etiquetada / variante"
+      }
     },
     {
-      "en": "Turing-complete",
-      "zh": "图灵完备"
+      "term": {
+        "zh": "图灵完备",
+        "en": "Turing-complete",
+        "es": "Turing-completo"
+      }
     },
     {
-      "en": "just-in-time compiler (JIT)",
-      "zh": "即时编译器"
+      "term": {
+        "zh": "即时编译器",
+        "en": "just-in-time compiler (JIT)",
+        "es": "compilador justo a tiempo (JIT)"
+      }
     }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "11.2",
-      "q": "Why is the GoF Interpreter pattern slow? 解释器模式慢的原因不包括下列哪一项？",
+      "q": {
+        "zh": "下列哪一项不是 GoF 解释器模式执行缓慢的原因？",
+        "en": "Which of the following is NOT a reason why the GoF Interpreter pattern is slow?",
+        "es": "¿Cuál de las siguientes NO es una razón por la que el patrón Intérprete de GoF es lento?"
+      },
+      "explain": {
+        "zh": "解释器模式直接对对象树求值，从不编译为机器码；它慢是因为对象多、内存占用大、缓存不友好。",
+        "en": "The Interpreter pattern evaluates an object tree directly and never compiles to machine code. Its slowness comes from the sheer number of objects, the heavy memory use, and the cache-unfriendly access patterns.",
+        "es": "El patrón Intérprete evalúa directamente un árbol de objetos y nunca se compila a código de máquina. Su lentitud se debe a la cantidad de objetos, al elevado uso de memoria y al mal comportamiento de la caché."
+      },
       "options": [
-        "大量小对象需要实例化和连接",
-        "Pointer chasing hurts the data cache",
-        "虚函数调用破坏指令缓存",
-        "It must compile to native machine code first（必须先编译为机器码）"
+        {
+          "zh": "大量小对象需要实例化和连接",
+          "en": "Many small objects must be instantiated and wired together",
+          "es": "Se deben instanciar y conectar muchísimos objetos pequeños"
+        },
+        {
+          "zh": "追踪指针破坏数据缓存",
+          "en": "Pointer chasing hurts the data cache",
+          "es": "Perseguir punteros perjudica la caché de datos"
+        },
+        {
+          "zh": "虚函数调用破坏指令缓存",
+          "en": "Virtual calls hurt the instruction cache",
+          "es": "Las llamadas virtuales perjudican la caché de instrucciones"
+        },
+        {
+          "zh": "它必须先编译为原生机器码",
+          "en": "It must be compiled to native machine code first",
+          "es": "Primero debe compilarse a código de máquina nativo"
+        }
       ],
-      "answer": 3,
-      "explain": "Interpreter evaluates an object tree directly; it never compiles to machine code. 它的慢来自对象多、内存大、缓存不友好。"
+      "answer": 3
     },
     {
       "type": "truefalse",
       "ref": "11.2",
-      "q": "作者建议让 mod 作者直接提供真实的机器码，因为这样性能最好。",
-      "answer": false,
-      "explain": "False. Letting users supply machine code is begging for security problems; a VM is the compromise between performance and safety."
+      "q": {
+        "zh": "作者建议让 mod 作者直接提供真实的机器码，因为这样性能最好。",
+        "en": "The author recommends letting mod authors supply real machine code directly, because that gives the best performance.",
+        "es": "El autor recomienda que los autores de mods entreguen directamente código de máquina real, porque así se obtiene el mejor rendimiento."
+      },
+      "explain": {
+        "zh": "错误。让用户提供机器码无异于主动招惹安全问题；虚拟机是性能与安全之间的折中方案。",
+        "en": "False. Letting users supply machine code is asking for security problems; a virtual machine is the compromise between performance and safety.",
+        "es": "Falso. Permitir que los usuarios aporten código de máquina es buscar problemas de seguridad; la máquina virtual es el compromiso entre rendimiento y seguridad."
+      },
+      "answer": false
     },
     {
       "type": "fill",
       "ref": "11.3",
-      "q": "A virtual machine executes instructions one at a time, using a ___ for intermediate values.",
+      "q": {
+        "zh": "虚拟机逐条执行指令，并用 ___ 存放中间值。",
+        "en": "A virtual machine executes instructions one at a time, using a ___ for intermediate values.",
+        "es": "Una máquina virtual ejecuta las instrucciones de a una, usando una ___ para los valores intermedios."
+      },
+      "explain": {
+        "zh": "中间值通过栈在指令之间传递。",
+        "en": "Intermediate values are passed between instructions on the stack.",
+        "es": "Los valores intermedios se pasan entre instrucciones mediante la pila."
+      },
       "answer": [
         "stack",
         "栈",
         "堆栈"
       ],
-      "explain": "中间值通过栈在指令之间传递。"
+      "answerText": {
+        "zh": "栈（堆栈）",
+        "en": "stack",
+        "es": "la pila"
+      }
     },
     {
       "type": "choice",
       "ref": "11.4",
-      "q": "Bytecode is NOT a good fit for which part of a game? 字节码不适合哪部分？",
+      "q": {
+        "zh": "字节码不适合游戏的哪个部分？",
+        "en": "For which part of a game is Bytecode NOT a good fit?",
+        "es": "¿Para qué parte de un juego NO es adecuado el Bytecode?"
+      },
+      "explain": {
+        "zh": "字节码比原生代码慢，因此不适合引擎中对性能要求苛刻的部分。",
+        "en": "Bytecode is slower than native code, so it does not suit the performance-critical parts of the engine.",
+        "es": "El Bytecode es más lento que el código nativo, así que no conviene para las partes del motor críticas para el rendimiento."
+      },
       "options": [
-        "由设计师频繁调整的行为",
-        "Performance-critical parts of the engine（性能关键的引擎部分）",
-        "需要沙盒隔离的 mod 内容",
-        "需要发布后更新的法术"
+        {
+          "zh": "由设计师频繁调整的行为",
+          "en": "Behavior that designers tune frequently",
+          "es": "Comportamiento que los diseñadores ajustan con frecuencia"
+        },
+        {
+          "zh": "性能关键的引擎部分",
+          "en": "Performance-critical parts of the engine",
+          "es": "Las partes del motor críticas para el rendimiento"
+        },
+        {
+          "zh": "需要沙盒隔离的 mod 内容",
+          "en": "Mod content that needs sandbox isolation",
+          "es": "Contenido de mods que necesita aislamiento en un sandbox"
+        },
+        {
+          "zh": "需要发布后更新的法术",
+          "en": "Spells that need post-launch updates",
+          "es": "Hechizos que necesitan actualizaciones después del lanzamiento"
+        }
       ],
-      "answer": 1,
-      "explain": "Bytecode is slower than native code. 字节码比原生代码慢。"
+      "answer": 1
     },
     {
       "type": "open",
       "ref": "11.5",
-      "q": "What two practical costs does the \"Keep in Mind\" section warn about (besides scope creep)? 用中英文回答。",
-      "answer": "EN: You need a front-end — an authoring tool/compiler that turns a higher-level format into bytecode — and you lose your debugger and other tools, so you must invest in tooling that shows what bytecode is doing. 中：需要一个前端（把高层格式翻译为字节码的创作工具或编译器）；并且会失去调试器等工具，需要自行开发查看字节码行为的工具。",
-      "explain": "若游戏支持 mod，这些调试工具还要随游戏发布。"
+      "q": {
+        "zh": "除了范围不断膨胀之外，“注意事项”一节还警告了哪两项实际代价？",
+        "en": "Besides scope creep, what two practical costs does the \"Keep in Mind\" section warn about?",
+        "es": "Aparte de la expansión descontrolada del alcance, ¿qué dos costos prácticos advierte la sección «A tener en cuenta»?"
+      },
+      "explain": {
+        "zh": "若游戏支持 mod，这些调试工具还要随游戏一起发布。",
+        "en": "If the game is moddable, those debugging tools must ship with the game.",
+        "es": "Si el juego admite mods, esas herramientas de depuración deben distribuirse con el juego."
+      },
+      "answer": {
+        "zh": "需要前端——一个把高层格式翻译成字节码的创作工具或编译器；以及会失去调试器和其他工具，因此必须自行投入开发工具，让用户看清字节码在做什么。",
+        "en": "You need a front-end — an authoring tool or compiler that translates a higher-level format into bytecode — and you lose your debugger and the other tools around it, so you must invest in tooling that shows what the bytecode is doing.",
+        "es": "Necesitas un front-end —una herramienta de autoría o un compilador que traduzca un formato de más alto nivel a Bytecode— y pierdes el depurador y las demás herramientas, así que debes invertir en herramienta propia que muestre qué está haciendo el Bytecode."
+      }
     },
     {
       "type": "choice",
       "ref": "11.6",
-      "q": "How does INST_LITERAL get its value? LITERAL 指令的值从哪里来？",
+      "q": {
+        "zh": "LITERAL 指令的值是从哪里来的？",
+        "en": "Where does the INST_LITERAL instruction get its value?",
+        "es": "¿De dónde obtiene su valor la instrucción INST_LITERAL?"
+      },
+      "explain": {
+        "zh": "数值直接嵌入字节数组（字节码）中，从而避免了无限递归读取的问题。",
+        "en": "The number is stuffed directly into the byte array, which avoids infinite regress.",
+        "es": "El número se inserta directamente en el arreglo de bytes, lo que evita una regresión al infinito."
+      },
       "options": [
-        "It reads the next byte from the bytecode stream and pushes it（读取字节码中的下一个字节并压栈）",
-        "它从栈顶弹出",
-        "它调用 getHealth()",
-        "它在编译时被替换为常量函数"
+        {
+          "zh": "它读取字节码中的下一个字节并将其压栈",
+          "en": "It reads the next byte from the bytecode stream and pushes it",
+          "es": "Lee el siguiente byte del flujo de Bytecode y lo apila"
+        },
+        {
+          "zh": "它从栈顶弹出",
+          "en": "It pops it from the top of the stack",
+          "es": "Lo saca de la cima de la pila"
+        },
+        {
+          "zh": "它调用 getHealth()",
+          "en": "It calls getHealth()",
+          "es": "Llama a getHealth()"
+        },
+        {
+          "zh": "它在编译时被替换为常量函数",
+          "en": "It is replaced at compile time by a constant function",
+          "es": "Se reemplaza en tiempo de compilación por una función constante"
+        }
       ],
-      "answer": 0,
-      "explain": "The number is stuffed directly into the byte array, avoiding infinite regress. 数值直接嵌入字节码中。"
+      "answer": 0
     },
     {
       "type": "fill",
       "ref": "11.6",
-      "q": "INST_SET_HEALTH pops amount first and then ___, because the wizard index was pushed earlier.",
+      "q": {
+        "zh": "INST_SET_HEALTH 先弹出 amount，然后弹出 ___，因为巫师编号压入得更早。",
+        "en": "INST_SET_HEALTH pops amount first and then ___, because the wizard index was pushed earlier.",
+        "es": "INST_SET_HEALTH saca primero amount y luego ___, porque el índice del mago se apiló antes."
+      },
+      "explain": {
+        "zh": "栈是后进先出：后压入的 amount 先被弹出。",
+        "en": "The stack is last-in, first-out: amount, pushed later, is popped first.",
+        "es": "La pila es LIFO (último en entrar, primero en salir): amount, apilado después, se saca primero."
+      },
       "answer": [
         "wizard",
         "巫师",
         "巫师编号",
         "the wizard index"
       ],
-      "explain": "栈是后进先出：后压入的 amount 先弹出。"
+      "answerText": {
+        "zh": "巫师编号（wizard）",
+        "en": "the wizard index (wizard)",
+        "es": "el índice del mago (wizard)"
+      }
     },
     {
       "type": "truefalse",
       "ref": "11.6",
-      "q": "To evaluate nested expressions with parentheses, the VM needs special grouping instructions.",
-      "answer": false,
-      "explain": "错误。栈天然处理分组：每次“记住”就是压栈，每次“取回”就是出栈。"
+      "q": {
+        "zh": "为了对带括号的嵌套表达式求值，虚拟机需要专门的分组指令。",
+        "en": "To evaluate nested expressions with parentheses, the VM needs special grouping instructions.",
+        "es": "Para evaluar expresiones anidadas con paréntesis, la VM necesita instrucciones especiales de agrupación."
+      },
+      "explain": {
+        "zh": "错误。栈天然处理分组：每次“记住”就是一次压栈，每次“取回”就是一次出栈。",
+        "en": "False. The stack handles grouping implicitly: every \"remember\" is a push and every \"recall\" is a pop.",
+        "es": "Falso. La pila se encarga de la agrupación de forma implícita: cada «recuerda» es un push y cada «recupera» es un pop."
+      },
+      "answer": false
     },
     {
       "type": "truefalse",
       "ref": "11.6",
-      "q": "示例中的虚拟机没有循环指令，因此它不是图灵完备的，执行时间也可以通过限制字节码长度来控制。",
-      "answer": true,
-      "explain": "Correct. Without jumps/loops, execution time is bounded by bytecode size."
+      "q": {
+        "zh": "示例中的虚拟机没有循环指令，因此它不是图灵完备的，执行时间也可以通过限制字节码长度来控制。",
+        "en": "The example VM has no loop instructions, so it is not Turing-complete, and its execution time can also be controlled by limiting the bytecode length.",
+        "es": "La VM del ejemplo no tiene instrucciones de bucle, así que no es Turing-completa, y su tiempo de ejecución también puede controlarse limitando la longitud del Bytecode."
+      },
+      "explain": {
+        "zh": "正确。没有跳转或循环指令时，执行时间受字节码大小约束。",
+        "en": "Correct. Without jumps or loops, execution time is bounded by the bytecode size.",
+        "es": "Correcto. Sin saltos ni bucles, el tiempo de ejecución está acotado por el tamaño del Bytecode."
+      },
+      "answer": true
     },
     {
       "type": "choice",
       "ref": "11.7",
-      "q": "Which value representation does the author recommend if you need multiple types? 需要多种类型时作者推荐哪种？",
+      "q": {
+        "zh": "需要支持多种类型时，作者推荐哪种值的表示方式？",
+        "en": "Which value representation does the author recommend when you need multiple types?",
+        "es": "¿Qué representación de valores recomienda el autor si necesitas varios tipos?"
+      },
+      "explain": {
+        "zh": "几乎所有语言解释器都用带标签的 union；无标签 union 不安全，多态接口低效。",
+        "en": "Almost every language interpreter uses a tagged union; untagged unions are unsafe and polymorphic interfaces are inefficient.",
+        "es": "Casi todos los intérpretes de lenguajes usan una union etiquetada; la union sin etiquetar es insegura y la interfaz polimórfica es ineficiente."
+      },
       "options": [
-        "Untagged union（无标签 union）",
-        "Polymorphic interface（多态接口）",
-        "把所有值存成字符串",
-        "Tagged union（带标签的 union）"
+        {
+          "zh": "无标签 union",
+          "en": "Untagged union",
+          "es": "Union sin etiquetar"
+        },
+        {
+          "zh": "多态接口",
+          "en": "Polymorphic interface",
+          "es": "Interfaz polimórfica"
+        },
+        {
+          "zh": "把所有值都存成字符串",
+          "en": "Storing every value as a string",
+          "es": "Guardar todos los valores como cadenas"
+        },
+        {
+          "zh": "带标签的 union（tagged union）",
+          "en": "Tagged union",
+          "es": "Union etiquetada"
+        }
       ],
-      "answer": 3,
-      "explain": "Almost every language interpreter uses a tagged union. 无标签不安全，多态接口低效。"
+      "answer": 3
     },
     {
       "type": "fill",
       "ref": "11.7",
-      "q": "In bytecode, control flow is surprisingly simple: it is just a ___ that modifies the instruction index（本质上是 goto）。",
+      "q": {
+        "zh": "在字节码中，控制流出奇地简单：它只是一个修改指令索引的 ___（本质上就是 goto）。",
+        "en": "In bytecode, control flow is surprisingly simple: it is just a ___ that modifies the instruction index (essentially a goto).",
+        "es": "En el Bytecode, el flujo de control es sorprendentemente simple: es solo un ___ que modifica el índice de instrucción (esencialmente un goto)."
+      },
+      "explain": {
+        "zh": "跳转指令只是修改当前执行位置；过程调用则额外需要返回栈。",
+        "en": "A jump instruction only changes the current execution position; procedure calls additionally need a return stack.",
+        "es": "Una instrucción de salto solo cambia la posición de ejecución actual; las llamadas a procedimientos requieren además una pila de retorno."
+      },
       "answer": [
         "jump",
         "jumps",
         "跳转",
         "goto"
       ],
-      "explain": "跳转指令只是修改当前执行位置；过程调用则额外需要返回栈。"
+      "answerText": {
+        "zh": "跳转（jump / goto）",
+        "en": "jump (goto)",
+        "es": "salto (jump / goto)"
+      }
     },
     {
       "type": "open",
       "ref": "11.7",
-      "q": "Compare stack-based and register-based VMs. 作者推荐哪一种，为什么？",
-      "answer": "EN: Stack-based instructions work on the top of the stack, so they're small and code generation is simple, but you need more of them. Register-based instructions encode operand offsets, so they're larger but fewer. The author recommends stack-based because it is simpler to implement and to generate code for; register-based speed gains depend on details. 中：基于栈的指令只操作栈顶，指令小、代码生成简单，但数量更多；基于寄存器的指令编码操作数偏移，更大但更少。作者推荐基于栈，因为更易实现和生成代码，寄存器式的性能优势取决于具体细节。",
-      "explain": "Lua 是最著名的基于寄存器的虚拟机；作者的 Wren 是基于栈的。"
+      "q": {
+        "zh": "比较基于栈的虚拟机与基于寄存器的虚拟机。作者推荐哪一种，为什么？",
+        "en": "Compare stack-based and register-based VMs. Which one does the author recommend, and why?",
+        "es": "Compara las VM basadas en pila con las basadas en registros. ¿Cuál recomienda el autor y por qué?"
+      },
+      "explain": {
+        "zh": "Lua 是最著名的基于寄存器的虚拟机；作者的 Wren 是基于栈的。",
+        "en": "Lua is the best-known register-based VM; the author's Wren is stack-based.",
+        "es": "Lua es la VM basada en registros más conocida; Wren, del autor, está basada en pila."
+      },
+      "answer": {
+        "zh": "基于栈的指令只操作栈顶，因此指令小、代码生成简单，但需要的指令数量更多；基于寄存器的指令在字节码中编码操作数在栈中的偏移，更大但更少。作者推荐基于栈的虚拟机，因为它更易实现，也更容易为其生成代码；基于寄存器的性能优势取决于具体细节。",
+        "en": "Stack-based instructions work only on the top of the stack, so they are small and code generation is simpler, but you need more of them. Register-based instructions encode operand offsets in the bytecode, so they are larger but fewer. The author recommends stack-based VMs because they are simpler to implement and to generate code for; the speed advantage of register-based VMs depends on the details.",
+        "es": "Las instrucciones basadas en pila solo operan sobre la cima de la pila, así que son pequeñas y la generación de código es más simple, pero necesitas más instrucciones. Las instrucciones basadas en registros codifican los desplazamientos de los operandos en el Bytecode, así que son más grandes pero menos numerosas. El autor recomienda las VM basadas en pila porque son más simples de implementar y de generar código para ellas; la ventaja de rendimiento de las basadas en registros depende de los detalles."
+      }
     },
     {
       "type": "scenario",
       "ref": "11.2",
-      "title": "卡牌游戏的效果系统选型 · Choosing an effect system for a card game",
-      "q": "一款在线 collectible card game 有 800 张卡，每张卡有独特效果（“对敌方英雄造成等于你手牌数的伤害”）。需求：设计师每天都要调数值，不能每次都重新编译客户端；每周通过热更新推送新卡；未来开放玩家自制卡牌（mod），且绝不能让恶意卡牌让其他玩家的游戏崩溃。目前效果全写在 C++ 里。团队在三种方案之间犹豫：继续写 C++、Interpreter pattern（AST 对象树）、Bytecode VM。请分析并给出选择。",
-      "answer": "C++：每次改动都要工程师介入并重新编译；热更新需要给可执行文件打补丁；mod 作者需要完整工具链和源码，而且 native code 可以访问任何内存，无法 sandbox。Interpreter pattern：效果变成了数据，可以安全执行，但加载时要实例化并连接大量小对象，占用内存多，指针追逐伤害 data cache，虚函数调用伤害 instruction cache，执行慢；800 张卡在对局中频繁触发，这个开销很显著。Bytecode VM：效果编码为紧凑、线性的字节序列，由一个“stack + loop + switch”构成的 VM 执行，兼顾数据的灵活性（热更新只需下发数据）和接近机器码的密度与速度。更重要的是安全：卡牌只能调用我们定义的 external primitives（dealDamage、drawCard、getHandSize），栈大小固定并带溢出检查，还可以限制指令执行数量。代价：这是书中最复杂的模式，需要编写 front-end（编辑器或编译器）和调试工具。结论：选择 Bytecode。",
+      "q": {
+        "zh": "一款在线集换式卡牌游戏有 800 张卡，每张卡都有独特效果（“对敌方英雄造成等于你手牌数的伤害”）。需求：设计师每天都要调数值，不能每次都重新编译客户端；每周通过热更新推送新卡；未来开放玩家自制卡牌（mod），且绝不能让恶意卡牌让其他玩家的游戏崩溃。目前效果全写在 C++ 里。团队在三种方案之间犹豫：继续写 C++、解释器模式（AST 对象树）、字节码虚拟机。请分析并给出选择。",
+        "en": "An online collectible card game has 800 cards, each with a unique effect (\"deal damage to the enemy hero equal to the number of cards in your hand\"). Requirements: designers retune numbers every day without recompiling the client each time; new cards ship weekly as hot updates; player-made cards (mods) will be opened up in the future, and a malicious card must never crash other players' games. Today all effects live in C++. The team is torn between three options: keep writing C++, use the Interpreter pattern (an AST object tree), or use a Bytecode VM. Analyze the options and make a recommendation.",
+        "es": "Un juego de cartas coleccionables en línea tiene 800 cartas, cada una con un efecto único («inflige al héroe enemigo un daño igual al número de cartas en tu mano»). Requisitos: los diseñadores ajustan los valores a diario sin recompilar el cliente cada vez; las cartas nuevas se publican semanalmente como actualización en caliente; en el futuro se abrirá la creación de cartas por parte de los jugadores (mods), y una carta maliciosa nunca debe hacer que el juego de otros jugadores se caiga. Hoy todos los efectos están escritos en C++. El equipo duda entre tres opciones: seguir escribiendo C++, usar el patrón Intérprete (un árbol de objetos AST) o usar una VM de Bytecode. Analiza las opciones y da una recomendación."
+      },
+      "explain": {
+        "zh": "§11.2 的“Spell fight!”与“Data > code”提出相同的需求（迭代、补丁、mod、沙盒），并比较了解释器模式的“S-L-O-W”与字节码作为“机器码的性能与解释器模式的安全性之间的折中”。",
+        "en": "The \"Spell fight!\" and \"Data > code\" points in §11.2 raise the same requirements (iteration, patching, modding, sandboxing) and contrast the Interpreter pattern's \"S-L-O-W\" with bytecode as \"the compromise between the performance of machine code and the safety of the Interpreter pattern\".",
+        "es": "Los apartados «¡Duelo de hechizos!» y «Datos > código» de la sección 11.2 plantean los mismos requisitos (iteración, parches, mods, sandbox) y contrastan el «L-E-N-T-O» del patrón Intérprete con el Bytecode como «el compromiso entre el rendimiento del código de máquina y la seguridad del patrón Intérprete»."
+      },
       "code": "// Card text: deal damage equal to cards in hand to enemy hero.\nLITERAL  ENEMY_HERO     // [1]      target, consumed last\nLITERAL  PLAYER_SELF    // [1, 0]\nGET_HAND_SIZE          // [1, 5]   pops wizard, pushes hand size\nDEAL_DAMAGE            // []       pops amount, then target",
+      "title": {
+        "zh": "卡牌游戏的效果系统选型",
+        "en": "Choosing an effect system for a card game",
+        "es": "Elegir un sistema de efectos para un juego de cartas"
+      },
+      "answer": {
+        "zh": "C++：每次改动都要工程师介入并重新编译；热更新需要给可执行文件打补丁；mod 作者需要完整工具链和源码，而且原生代码可以访问任何内存，无法放进沙盒。解释器模式：效果变成了数据，可以安全执行，但加载时要实例化并连接大量小对象，占用内存多，追踪指针伤害数据缓存，虚函数调用伤害指令缓存，执行很慢；800 张卡在对局中频繁触发，这个开销非常显著。字节码虚拟机：效果被编码为紧凑、线性的字节序列，由“栈 + 循环 + switch”构成的虚拟机执行，兼顾数据的灵活性（热更新只需下发数据）和接近机器码的密度与速度。更重要的是安全：卡牌只能调用我们定义的外部原语（dealDamage、drawCard、getHandSize），栈大小固定并带溢出检查，还可以限制执行的指令数量。代价：这是书中最复杂的模式，需要编写前端（编辑器或编译器）和调试工具。结论：选择字节码。",
+        "en": "C++: every change needs an engineer and a recompile; hot updates mean patching the executable; mod authors need the full toolchain and the sources, and native code can touch any memory, so it cannot be sandboxed. Interpreter pattern: effects become safe-to-execute data, but loading requires instantiating and wiring up many small objects, it uses a lot of memory, pointer chasing hurts the data cache, virtual calls hurt the instruction cache, and execution is slow; with 800 cards triggering frequently during a match, that cost is very noticeable. Bytecode VM: effects are encoded as compact, linear byte sequences and executed by a VM made of \"a stack, a loop, and a switch\", combining the flexibility of data (a hot update only ships data) with near-machine-code density and speed. More importantly, safety: cards can only call the external primitives we define (dealDamage, drawCard, getHandSize), the stack size is fixed with overflow checks, and the number of executed instructions can be capped. The cost: this is the most complex pattern in the book, and it requires a front-end (an editor or compiler) and debugging tools. Conclusion: choose Bytecode.",
+        "es": "C++: cada cambio exige un ingeniero y una recompilación; la actualización en caliente implica parchear el ejecutable; los autores de mods necesitan toda la cadena de herramientas y el código fuente, y el código nativo puede acceder a cualquier memoria, así que no se puede encerrar en un sandbox. Patrón Intérprete: los efectos pasan a ser datos que se ejecutan de forma segura, pero cargarlos exige instanciar y conectar muchísimos objetos pequeños, consume mucha memoria, perseguir punteros perjudica la caché de datos, las llamadas virtuales perjudican la caché de instrucciones y la ejecución es lenta; con 800 cartas que se activan con frecuencia durante una partida, ese costo es muy notable. VM de Bytecode: los efectos se codifican como secuencias de bytes compactas y lineales, y los ejecuta una VM formada por «una pila, un bucle y un switch», lo que combina la flexibilidad de los datos (una actualización en caliente solo envía datos) con una densidad y velocidad cercanas al código de máquina. Más importante aún, la seguridad: las cartas solo pueden llamar a las primitivas externas que definamos (dealDamage, drawCard, getHandSize), el tamaño de la pila es fijo y con comprobación de desbordamiento, y se puede limitar el número de instrucciones ejecutadas. El costo: es el patrón más complejo del libro y exige un front-end (un editor o un compilador) y herramientas de depuración. Conclusión: elegir Bytecode."
+      },
       "checklist": [
-        "指出 C++ 迭代慢、热更新难、无法 sandbox mod",
-        "指出 Interpreter pattern 内存大、cache 不友好、执行慢",
-        "Bytecode：dense、linear，接近机器码性能，同时是数据",
-        "安全性来自受限的指令集、有界的栈、可限制执行指令数",
-        "承认代价：需要 front-end 工具与调试支持"
-      ],
-      "explain": "§11.2 的 “Spell fight!” 与 “Data > code” 提出相同的需求（迭代、补丁、modding、sandbox），并比较了 Interpreter pattern 的“S-L-O-W”与 bytecode 作为“compromise between the performance of machine code and the safety of the Interpreter pattern”。"
+        {
+          "zh": "指出 C++ 迭代慢、热更新难、无法沙盒化 mod",
+          "en": "Point out that C++ iterates slowly, makes hot updates hard, and cannot sandbox mods",
+          "es": "Señalar que C++ itera despacio, dificulta las actualizaciones en caliente y no permite encerrar los mods en un sandbox"
+        },
+        {
+          "zh": "指出解释器模式内存大、缓存不友好、执行慢",
+          "en": "Point out that the Interpreter pattern uses a lot of memory, is cache-unfriendly, and executes slowly",
+          "es": "Señalar que el patrón Intérprete usa mucha memoria, no es amigable con la caché y se ejecuta despacio"
+        },
+        {
+          "zh": "字节码：紧凑、线性，接近机器码性能，同时仍然是数据",
+          "en": "Bytecode: compact and linear, close to machine-code performance, and still data",
+          "es": "Bytecode: compacto y lineal, cerca del rendimiento del código de máquina y, aun así, datos"
+        },
+        {
+          "zh": "安全性来自受限的指令集、有界的栈、可限制的执行指令数",
+          "en": "Safety comes from a restricted instruction set, a bounded stack, and a cap on executed instructions",
+          "es": "La seguridad proviene de un conjunto de instrucciones restringido, una pila acotada y un límite al número de instrucciones ejecutadas"
+        },
+        {
+          "zh": "承认代价：需要前端工具与调试支持",
+          "en": "Acknowledge the cost: a front-end tool and debugging support are needed",
+          "es": "Reconocer el costo: se necesitan una herramienta front-end y soporte de depuración"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "11.5",
-      "title": "脚本系统的失控增长 · The scripting system that keeps growing",
-      "q": "你们给一款 RPG 的对话与任务系统做了一个简单 bytecode：只有 SHOW_TEXT、GIVE_ITEM、SET_FLAG 三条指令，设计师用表格编写。半年后，需求清单变成：if/else、循环、变量、字符串拼接、函数调用、数组……设计师抱怨脚本无法调试：出错时只看到“VM crashed at pc=0x3A2”。作为 tech lead，你如何回应？请提出控制范围与改善调试的方案。",
-      "answer": "这正是 Keep in Mind 警告的情况：小语言总是“grow like vines”，最终变成一个结构混乱的语言。先做一个刻意的决定：(a) 如果真的需要完整语言，就嵌入成熟的语言（例如 Lua），不再自己临时追加特性；(b) 否则给范围“拴上短绳”，只加入真正需要的指令，例如条件跳转 JUMP_IF_FALSE，再加有上限的循环，并保持执行步数上限。调试方面：你离开了现有的 debugger，单步调试 VM 只能看到 VM 自身在做什么。所以要投入工具：编译时生成 debug info（pc → 源表格行号的映射表）；VM 出错时报告“任务 Q12 第 7 行：GIVE_ITEM 参数为空”；提供 trace 模式打印每条指令和栈内容；做一个运行时 inspector 查看任务 flag。这些工具不一定随游戏发布，但它们决定游戏能否按时发布；若开放 mod，就必须随游戏一起发布。",
+      "q": {
+        "zh": "你们给一款 RPG 的对话与任务系统做了一个简单的字节码：只有 SHOW_TEXT、GIVE_ITEM、SET_FLAG 三条指令，设计师用表格编写。半年后，需求清单变成：if/else、循环、变量、字符串拼接、函数调用、数组……设计师抱怨脚本无法调试：出错时只看到“VM crashed at pc=0x3A2”。作为 tech lead，你如何回应？请提出控制范围与改善调试的方案。",
+        "en": "You built a simple bytecode for an RPG's dialogue and quest system: just three instructions, SHOW_TEXT, GIVE_ITEM, and SET_FLAG, authored by designers in a spreadsheet. Six months later the wish list reads: if/else, loops, variables, string concatenation, function calls, arrays... Designers complain that scripts cannot be debugged: on failure all they see is \"VM crashed at pc=0x3A2\". As tech lead, how do you respond? Propose a plan to control the scope and to improve debugging.",
+        "es": "Construyeron un Bytecode simple para el sistema de diálogos y misiones de un RPG: solo tres instrucciones, SHOW_TEXT, GIVE_ITEM y SET_FLAG, que los diseñadores escriben en una hoja de cálculo. Medio año después, la lista de deseos es: if/else, bucles, variables, concatenación de cadenas, llamadas a funciones, arreglos... Los diseñadores se quejan de que los scripts no se pueden depurar: cuando algo falla solo ven «VM crashed at pc=0x3A2». Como tech lead, ¿cómo respondes? Propón un plan para controlar el alcance y mejorar la depuración."
+      },
+      "explain": {
+        "zh": "§11.5：“这些小语言往往会像藤蔓一样疯长……要给它拴上短绳”，以及“你会怀念调试器……要投入真正的时间开发帮助用户看清字节码在做什么的功能”。嵌入 Lua 是书外的常见工程选择（§11.8 提到 Lua 是游戏中最常用的脚本语言）。",
+        "en": "§11.5: \"these things tend to grow like vines ... Put a short leash on it\", and \"You'll miss your debugger ... plan to invest real time into features that help users see what their bytecode is doing.\" Embedding Lua is a common engineering choice outside the book (§11.8 notes that Lua is the most widely used scripting language in games).",
+        "es": "§11.5: «estas cosas tienden a crecer como enredaderas... Mantén bien corta la correa», y «Vas a extrañar tu depurador... planea invertir tiempo real en funciones que ayuden a los usuarios a ver qué está haciendo su Bytecode». Integrar Lua es una decisión de ingeniería habitual fuera del libro (la sección 11.8 señala que Lua es el lenguaje de scripting más usado en los juegos)."
+      },
       "code": "struct DebugInfo {\n  std::vector<int> lineForPc;      // pc -> source row in the quest sheet\n  std::string scriptName;\n};\n\nvoid VM::fail(const char* msg) {\n  int line = debug_->lineForPc[pc_];\n  log(\"%s:%d: %s (stack size %d)\",\n      debug_->scriptName.c_str(), line, msg, stackSize_);\n}",
+      "title": {
+        "zh": "脚本系统的失控增长",
+        "en": "The scripting system that keeps growing",
+        "es": "El sistema de scripting que no deja de crecer"
+      },
+      "answer": {
+        "zh": "这正是“注意事项”警告的情况：小语言总是“像藤蔓一样疯长”，最终变成一个结构混乱的语言。先做一个刻意的决定：(a) 如果真的需要完整语言，就嵌入一门成熟的语言（例如 Lua），不再自己临时追加特性；(b) 否则就给范围“拴上短绳”，只加入真正需要的指令，例如条件跳转 JUMP_IF_FALSE，再加上有上限的循环，并保持执行步数上限。调试方面：你离开了现有的调试器，单步调试虚拟机只能看到虚拟机自身在做什么。所以要投入工具：编译时生成调试信息（pc → 源表格行号的映射表）；虚拟机出错时报告“任务 Q12 第 7 行：GIVE_ITEM 参数为空”；提供 trace 模式打印每条指令和栈内容；做一个运行时检查器查看任务 flag。这些工具不一定随游戏发布，但它们决定游戏能否按时发布；若开放 mod，就必须随游戏一起发布。",
+        "en": "This is exactly the situation \"Keep in Mind\" warns about: little languages tend to \"grow like vines\" until they become a structurally messy language. Make a deliberate decision first: (a) if you really need a full language, embed a mature one (Lua, for example) instead of patching features on ad hoc; (b) otherwise, put a short leash on the scope and add only the instructions you truly need, such as a conditional JUMP_IF_FALSE plus bounded loops, while keeping a cap on executed steps. On debugging: you left the existing debuggers behind, and stepping through the VM only shows what the VM itself is doing. So invest in tools: emit debug info at compile time (a table mapping pc to the source spreadsheet row); when the VM fails, report \"quest Q12, line 7: GIVE_ITEM with an empty argument\"; offer a trace mode that prints each instruction and the stack contents; build a runtime inspector for quest flags. These tools will not necessarily ship with the game, but they decide whether the game ships on time; if the game is moddable, they must ship with it.",
+        "es": "Es exactamente la situación que advierte «A tener en cuenta»: los lenguajes pequeños tienden a «crecer como enredaderas» hasta convertirse en un lenguaje estructuralmente desordenado. Primero toma una decisión deliberada: (a) si de verdad necesitas un lenguaje completo, integra uno maduro (Lua, por ejemplo) en lugar de ir añadiendo funciones ad hoc; (b) de lo contrario, mantén bien corta la correa del alcance y añade solo las instrucciones que de verdad necesitas, como un JUMP_IF_FALSE condicional y bucles acotados, manteniendo un límite de pasos ejecutados. Sobre la depuración: dejaste atrás los depuradores existentes, y recorrer la VM paso a paso solo muestra lo que hace la VM misma. Por eso hay que invertir en herramientas: emitir información de depuración en tiempo de compilación (una tabla que asocie cada pc con la fila de la hoja de origen); cuando la VM falle, informar «misión Q12, línea 7: GIVE_ITEM con un argumento vacío»; ofrecer un modo trace que imprima cada instrucción y el contenido de la pila; construir un inspector en tiempo de ejecución para ver los flags de las misiones. Estas herramientas no tienen por qué distribuirse con el juego, pero deciden si el juego sale a tiempo; si admite mods, deben distribuirse con él."
+      },
       "checklist": [
-        "识别“说好很小”的语言不断膨胀的风险，做出刻意的选择",
-        "可选择嵌入成熟语言，或者严格限制指令集的范围",
-        "指出自定义 VM 无法直接使用现有 debugger",
-        "提出 pc → 源码行映射、trace、inspector 等调试工具",
-        "说明调试工具对按时发布（以及 mod）的重要性"
-      ],
-      "explain": "§11.5：“these things tend to grow like vines ... Put a short leash on it”，以及 “You'll miss your debugger ... plan to invest real time into features that help users see what their bytecode is doing.” 嵌入 Lua 是书外的常见工程选择（§11.8 提到 Lua 是游戏中最常用的脚本语言）。"
+        {
+          "zh": "识别“说好很小”的语言不断膨胀的风险，做出刻意的选择",
+          "en": "Recognize the risk of a language that was meant to stay tiny ballooning, and make a deliberate choice",
+          "es": "Reconocer el riesgo de que un lenguaje que iba a ser mínimo se expanda sin control y tomar una decisión deliberada"
+        },
+        {
+          "zh": "可选择嵌入成熟语言，或者严格限制指令集的范围",
+          "en": "Either embed a mature language or strictly limit the scope of the instruction set",
+          "es": "O bien integrar un lenguaje maduro, o bien limitar estrictamente el alcance del conjunto de instrucciones"
+        },
+        {
+          "zh": "指出自定义虚拟机无法直接使用现有的调试器",
+          "en": "Point out that a custom VM cannot use existing debuggers directly",
+          "es": "Señalar que una VM propia no puede usar directamente los depuradores existentes"
+        },
+        {
+          "zh": "提出 pc → 源码行映射、trace、inspector 等调试工具",
+          "en": "Propose debugging tools such as pc-to-source-line mapping, trace, and an inspector",
+          "es": "Proponer herramientas de depuración como el mapeo de pc a línea de origen, el trace y un inspector"
+        },
+        {
+          "zh": "说明调试工具对按时发布（以及 mod）的重要性",
+          "en": "Explain why debugging tools matter for shipping on time (and for mods)",
+          "es": "Explicar la importancia de las herramientas de depuración para publicar a tiempo (y para los mods)"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "11.6",
-      "title": "把技能公式编译成字节码 · Compiling a skill formula",
-      "q": "一款 ARPG 的技能“Life Tap”：对自己造成 10 点伤害，然后把敌人的 health 设为“当前 health − (自己的 wisdom × 3 + 敌人的 agility) / 2”。你们的 stack-based VM 已经支持 LITERAL、GET_HEALTH、GET_WISDOM、GET_AGILITY、ADD、SUBTRACT、MULTIPLY、DIVIDE、SET_HEALTH，其中 SET_HEALTH 先 pop amount，再 pop wizard。0 是自己，1 是敌人。请手工编译后半段公式为 bytecode，并写出栈的变化（假设敌人 health 80、agility 6，自己 wisdom 8）。",
-      "answer": "思路：按“remember = push，recall = pop”逐步翻译。SET_HEALTH 最后执行，需要栈底是 wizard 索引 1，其上是新的 health 值，所以第一条指令先压入 1，它会一直待在栈底，直到最后被使用。然后计算 GET_HEALTH(1)；再计算 wisdom×3：LITERAL 0、GET_WISDOM、LITERAL 3、MULTIPLY；再取敌人的 agility 并 ADD；LITERAL 2、DIVIDE；最后 SUBTRACT（a − b，a 是先压入的 health），然后 SET_HEALTH。注意操作数顺序：ADD 和 SUBTRACT 先 pop b 再 pop a，计算 a op b，非交换的运算要特别小心顺序。结果：80 − (24 + 6) / 2 = 65。前半段“对自己造成 10 点伤害”同理：LITERAL 0, LITERAL 0, GET_HEALTH, LITERAL 10, SUBTRACT, SET_HEALTH。",
+      "q": {
+        "zh": "一款 ARPG 的技能“Life Tap”：对自己造成 10 点伤害，然后把敌人的 health 设为“当前 health − (自己的 wisdom × 3 + 敌人的 agility) / 2”。你们的基于栈的虚拟机已经支持 LITERAL、GET_HEALTH、GET_WISDOM、GET_AGILITY、ADD、SUBTRACT、MULTIPLY、DIVIDE、SET_HEALTH，其中 SET_HEALTH 先弹出 amount，再弹出 wizard。0 是自己，1 是敌人。请手工把后半段公式编译为字节码，并写出栈的变化（假设敌人 health 80、agility 6，自己 wisdom 8）。",
+        "en": "An ARPG skill, \"Life Tap\", deals 10 damage to yourself and then sets the enemy's health to \"current health − (your wisdom × 3 + the enemy's agility) / 2\". Your stack-based VM already supports LITERAL, GET_HEALTH, GET_WISDOM, GET_AGILITY, ADD, SUBTRACT, MULTIPLY, DIVIDE, and SET_HEALTH, where SET_HEALTH pops amount first and then pops wizard. 0 is yourself and 1 is the enemy. Hand-compile the second half of the formula into bytecode and write out the stack changes (assume the enemy has health 80 and agility 6, and you have wisdom 8).",
+        "es": "Una habilidad de ARPG, «Life Tap», te causa 10 de daño a ti mismo y luego fija la salud del enemigo en «salud actual − (tu sabiduría × 3 + la agilidad del enemigo) / 2». Su VM basada en pila ya admite LITERAL, GET_HEALTH, GET_WISDOM, GET_AGILITY, ADD, SUBTRACT, MULTIPLY, DIVIDE y SET_HEALTH, donde SET_HEALTH primero saca amount y luego saca wizard. 0 eres tú y 1 es el enemigo. Compila a mano la segunda mitad de la fórmula a Bytecode y escribe los cambios de la pila (supón que el enemigo tiene salud 80 y agilidad 6, y que tú tienes sabiduría 8)."
+      },
+      "explain": {
+        "zh": "§11.6“行为 = 组合”逐行翻译 setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) 的方法：每个“记住”对应一次压栈，每个“取回”对应一次出栈；“我们在开头为巫师编号压入 0，它就一直在栈底待着。”",
+        "en": "§11.6, \"Behavior = composition\", translates setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) line by line: every \"remember\" is a push and every \"recall\" is a pop; \"We push 0 for the wizard index at the beginning, and it just hangs around at the bottom of the stack.\"",
+        "es": "La sección 11.6, «Comportamiento = composición», traduce setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) línea por línea: cada «recuerda» es un push y cada «recupera» es un pop; «Apilamos 0 para el índice de mago al principio, y se queda ahí en el fondo de la pila»."
+      },
       "code": "LITERAL 1      [1]               # target wizard (enemy)\nLITERAL 1      [1, 1]\nGET_HEALTH     [1, 80]\nLITERAL 0      [1, 80, 0]\nGET_WISDOM     [1, 80, 8]\nLITERAL 3      [1, 80, 8, 3]\nMULTIPLY       [1, 80, 24]\nLITERAL 1      [1, 80, 24, 1]\nGET_AGILITY    [1, 80, 24, 6]\nADD            [1, 80, 30]\nLITERAL 2      [1, 80, 30, 2]\nDIVIDE         [1, 80, 15]\nSUBTRACT       [1, 65]           # a - b, a pushed first\nSET_HEALTH     []                # pops 65, then 1",
+      "title": {
+        "zh": "把技能公式编译成字节码",
+        "en": "Compiling a skill formula",
+        "es": "Compilar la fórmula de una habilidad"
+      },
+      "answer": {
+        "zh": "思路：按“记住 = 压栈，取回 = 出栈”逐步翻译。SET_HEALTH 最后执行，需要栈底是 wizard 索引 1，其上是新的 health 值，所以第一条指令先压入 1，它会一直待在栈底，直到最后才被使用。然后计算 GET_HEALTH(1)；再计算 wisdom×3：LITERAL 0、GET_WISDOM、LITERAL 3、MULTIPLY；再取敌人的 agility 并 ADD；LITERAL 2、DIVIDE；最后 SUBTRACT（a − b，a 是先压入的 health），然后 SET_HEALTH。注意操作数顺序：ADD 与 SUBTRACT 先弹出 b 再弹出 a，计算 a op b，非交换运算要特别注意顺序。结果：80 − (24 + 6) / 2 = 65。前半段“对自己造成 10 点伤害”同理：LITERAL 0, LITERAL 0, GET_HEALTH, LITERAL 10, SUBTRACT, SET_HEALTH。",
+        "en": "Approach: translate step by step following \"remember = push, recall = pop\". SET_HEALTH runs last and needs the wizard index 1 at the bottom of the stack with the new health value above it, so the first instruction pushes 1, which waits at the bottom of the stack until the very end. Then compute GET_HEALTH(1); then compute wisdom×3: LITERAL 0, GET_WISDOM, LITERAL 3, MULTIPLY; then fetch the enemy's agility and ADD it; LITERAL 2, DIVIDE; finally SUBTRACT (a − b, where a is the health pushed first), then SET_HEALTH. Mind the operand order: ADD and SUBTRACT pop b first and then a, and compute a op b, so non-commutative operations need care. Result: 80 − (24 + 6) / 2 = 65. The first half, \"deal 10 damage to yourself\", works the same way: LITERAL 0, LITERAL 0, GET_HEALTH, LITERAL 10, SUBTRACT, SET_HEALTH.",
+        "es": "Enfoque: traduce paso a paso siguiendo «recordar = push, recuperar = pop». SET_HEALTH se ejecuta al final y necesita el índice de mago 1 en el fondo de la pila, con el nuevo valor de salud encima, así que la primera instrucción apila 1, que espera en el fondo de la pila hasta el último momento. Luego calcula GET_HEALTH(1); después calcula sabiduría×3: LITERAL 0, GET_WISDOM, LITERAL 3, MULTIPLY; luego toma la agilidad del enemigo y haz ADD; LITERAL 2, DIVIDE; por último SUBTRACT (a − b, donde a es la salud apilada primero) y después SET_HEALTH. Cuida el orden de los operandos: ADD y SUBTRACT sacan primero b y luego a, y calculan a op b, así que las operaciones no conmutativas requieren atención. Resultado: 80 − (24 + 6) / 2 = 65. La primera mitad, «causarte 10 de daño a ti mismo», funciona igual: LITERAL 0, LITERAL 0, GET_HEALTH, LITERAL 10, SUBTRACT, SET_HEALTH."
+      },
       "checklist": [
-        "先压入 SET_HEALTH 需要的 wizard 索引，使其留在栈底",
-        "嵌套表达式按从内到外的顺序翻译，栈隐式处理了括号",
-        "正确处理非交换运算（SUBTRACT / DIVIDE）的操作数顺序",
-        "栈变化轨迹正确，最终结果为 65"
-      ],
-      "explain": "§11.6 “Behavior = composition” 中逐行翻译 setHealth(0, getHealth(0) + (getAgility(0) + getWisdom(0)) / 2) 的方法：每个 “remember” 对应 push，每个 “recall” 对应 pop；“We push 0 for the wizard index at the beginning, and it just hangs around at the bottom of the stack.”"
+        {
+          "zh": "先压入 SET_HEALTH 需要的 wizard 索引，使其留在栈底",
+          "en": "Push the wizard index that SET_HEALTH needs first, so it stays at the bottom of the stack",
+          "es": "Apilar primero el índice de mago que necesita SET_HEALTH, para que se quede en el fondo de la pila"
+        },
+        {
+          "zh": "嵌套表达式按从内到外的顺序翻译，栈隐式处理了括号",
+          "en": "Translate nested expressions from the inside out; the stack handles the parentheses implicitly",
+          "es": "Traducir las expresiones anidadas de dentro hacia fuera; la pila se encarga de los paréntesis de forma implícita"
+        },
+        {
+          "zh": "正确处理非交换运算（SUBTRACT / DIVIDE）的操作数顺序",
+          "en": "Handle operand order correctly for non-commutative operations (SUBTRACT / DIVIDE)",
+          "es": "Manejar correctamente el orden de los operandos en las operaciones no conmutativas (SUBTRACT / DIVIDE)"
+        },
+        {
+          "zh": "栈变化轨迹正确，最终结果为 65",
+          "en": "Get the stack trace right, with a final result of 65",
+          "es": "Que la traza de la pila sea correcta, con un resultado final de 65"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "11.6",
-      "title": "不可信 mod 的沙箱 · Sandboxing untrusted mod bytecode",
-      "q": "你在一款支持 Steam Workshop 的 roguelike 中运行玩家上传的 bytecode（遗物效果）。安全审查列出了几种恶意或错误的 mod：(1) 构造大量 LITERAL 让栈溢出；(2) 对空栈执行 ADD；(3) 加入 JUMP 后写死循环，卡住游戏；(4) LITERAL 位于字节流末尾，读取越界；(5) 调用 VM 中根本不存在的 opcode。请设计 VM 的防护措施，使任何 bytecode 都无法让游戏崩溃或卡死。",
-      "answer": "Bytecode 的 sandbox 能力来自“VM 完全由我们控制”：(1)(2) 栈大小固定（MAX_STACK），push 前检查 stackSize_ < MAX_STACK，pop 前检查 > 0。书中示例用的是 assert，但面对不可信输入，release 版本必须改为运行时检查：出错时中止该脚本并报告错误，而不是崩溃。(3) 书中建议在指令循环中计数，超过上限（例如每次触发 10000 条）就中止；没有跳转时也可以通过限制 bytecode 长度间接限制执行时间。(4) 读取操作数前检查 i + 1 < size。(5) switch 的 default 分支视为非法指令并中止。此外，只暴露受限的 external primitives（例如只能修改遗物持有者和当前目标），脚本无法触及引擎的其他部分。更进一步可以做加载时校验（类似 JVM 的 bytecode verification），因为恶意用户可以绕过你的编译器手工构造字节码。",
+      "q": {
+        "zh": "你在一款支持 Steam Workshop 的 roguelike 中运行玩家上传的字节码（遗物效果）。安全审查列出了几种恶意或错误的 mod：(1) 构造大量 LITERAL 让栈溢出；(2) 对空栈执行 ADD；(3) 加入 JUMP 后写死循环，卡住游戏；(4) LITERAL 位于字节流末尾，读取越界；(5) 调用虚拟机中根本不存在的 opcode。请设计虚拟机的防护措施，使任何字节码都无法让游戏崩溃或卡死。",
+        "en": "You run player-uploaded bytecode (relic effects) in a roguelike that supports Steam Workshop. A security review lists several malicious or buggy mods: (1) emitting many LITERALs to overflow the stack; (2) executing ADD on an empty stack; (3) adding JUMPs to write an infinite loop that freezes the game; (4) placing a LITERAL at the very end of the byte stream so the read goes out of bounds; (5) calling an opcode that does not exist in the VM at all. Design the VM's defenses so that no bytecode can crash or freeze the game.",
+        "es": "Ejecutas Bytecode subido por los jugadores (efectos de reliquias) en un roguelike que admite Steam Workshop. Una revisión de seguridad enumera varios mods maliciosos o defectuosos: (1) emitir muchos LITERAL para desbordar la pila; (2) ejecutar ADD con la pila vacía; (3) añadir JUMP para escribir un bucle infinito que congela el juego; (4) colocar un LITERAL al final del flujo de bytes, de modo que la lectura se salga de los límites; (5) llamar a un opcode que no existe en la VM. Diseña las defensas de la VM para que ningún Bytecode pueda hacer que el juego se caiga o se congele."
+      },
+      "explain": {
+        "zh": "§11.6“虚拟机”一节：“我们通过创建多大的栈来控制它使用多少内存……我们还可以统计已经执行了多少条指令，一旦超过某个上限就退出。”§11.7 提到 JVM 的字节码校验；把 assert 改为运行时错误是书外的工程补充。",
+        "en": "§11.6, \"A virtual machine\": \"We control how much memory it uses by how big of a stack we create ... we can track how many we've executed and bail out if it goes over some limit.\" §11.7 mentions the JVM's bytecode verification; turning assert into a runtime error is an engineering addition beyond the book.",
+        "es": "§11.6, «Una máquina virtual»: «Controlamos cuánta memoria usa por el tamaño de la pila que creamos... podemos llevar la cuenta de cuántas hemos ejecutado y salir si supera algún límite». La sección 11.7 menciona la verificación de Bytecode de la JVM; convertir assert en un error en tiempo de ejecución es un complemento de ingeniería ajeno al libro."
+      },
       "code": "bool VM::interpret(const uint8_t* code, int size) {\n  int executed = 0;\n  for (int i = 0; i < size; i++) {\n    if (++executed > MAX_INSTRUCTIONS) return fail(\"too many steps\");\n    switch (code[i]) {\n      case INST_LITERAL:\n        if (i + 1 >= size) return fail(\"truncated literal\");\n        if (!push(code[++i])) return fail(\"stack overflow\");\n        break;\n      case INST_ADD: {\n        int a, b;\n        if (!pop(b) || !pop(a)) return fail(\"stack underflow\");\n        push(a + b);\n        break;\n      }\n      // ...\n      default:\n        return fail(\"unknown opcode\");\n    }\n  }\n  return true;\n}",
+      "title": {
+        "zh": "不可信 mod 的沙盒",
+        "en": "Sandboxing untrusted mod bytecode",
+        "es": "Aislar en un sandbox el Bytecode de mods no confiables"
+      },
+      "answer": {
+        "zh": "字节码的沙盒能力来自“虚拟机完全由我们掌控”：(1)(2) 栈大小固定（MAX_STACK），压栈前检查 stackSize_ < MAX_STACK，出栈前检查 > 0。书中示例用的是 assert，但面对不可信输入，release 版本也必须改为运行时检查：出错时中止该脚本并报告错误，而不是崩溃。(3) 书中建议在指令循环中计数，超过上限（例如每次触发 10000 条）就中止；没有跳转时也可以通过限制字节码长度间接限制执行时间。(4) 读取操作数前检查 i + 1 < size。(5) switch 的 default 分支视为非法指令并中止。此外，只暴露受限的外部原语（例如只能修改遗物持有者和当前目标），脚本无法触及引擎的其他部分。更进一步可以做加载时校验（类似 JVM 的字节码校验），因为恶意用户可以绕过你的编译器手工构造字节码。",
+        "en": "The sandboxing power of bytecode comes from the fact that the VM is entirely under our control: (1)(2) the stack size is fixed (MAX_STACK); check stackSize_ < MAX_STACK before pushing and > 0 before popping. The book's example uses assert, but with untrusted input the release build must turn these into runtime checks: on failure, abort that script and report the error instead of crashing. (3) The book suggests counting instructions in the loop and bailing out past a limit (for example 10000 instructions per trigger); with no jumps, you can also bound execution time indirectly by limiting the bytecode length. (4) Check i + 1 < size before reading an operand. (5) Treat the switch's default branch as an illegal instruction and abort. In addition, expose only restricted external primitives (for example, they may only modify the relic's holder and the current target), so scripts cannot reach the rest of the engine. Going further, you can verify bytecode at load time (like the JVM's bytecode verification), because malicious users can bypass your compiler and hand-craft bytecode.",
+        "es": "El poder de sandbox del Bytecode proviene de que la VM está enteramente bajo nuestro control: (1)(2) el tamaño de la pila es fijo (MAX_STACK); comprueba stackSize_ < MAX_STACK antes de apilar y > 0 antes de sacar. El ejemplo del libro usa assert, pero ante entradas no confiables la compilación de release debe convertirlos en comprobaciones en tiempo de ejecución: si falla, aborta ese script e informa el error en lugar de caerse. (3) El libro sugiere contar las instrucciones en el bucle y abortar al superar un límite (por ejemplo, 10000 instrucciones por activación); sin saltos, también puedes acotar el tiempo de ejecución indirectamente limitando la longitud del Bytecode. (4) Comprueba i + 1 < size antes de leer un operando. (5) Trata la rama default del switch como una instrucción ilegal y aborta. Además, expón solo primitivas externas restringidas (por ejemplo, que solo puedan modificar al portador de la reliquia y al objetivo actual), de modo que los scripts no puedan tocar el resto del motor. Yendo más lejos, puedes verificar el Bytecode al cargarlo (como la verificación de Bytecode de la JVM), porque los usuarios maliciosos pueden saltarse tu compilador y construir el Bytecode a mano."
+      },
       "checklist": [
-        "固定大小的栈，并对 push / pop 做溢出与下溢检查（release 下也要检查）",
-        "限制执行指令数，防止死循环",
-        "检查操作数读取是否越界，未知 opcode 走 default 报错",
-        "只暴露有限的 external primitives",
-        "提到加载时 bytecode verification，因为恶意字节码可以绕过编译器"
-      ],
-      "explain": "§11.6 “A virtual machine”：“We control how much memory it uses by how big of a stack we create ... we can track how many we've executed and bail out if it goes over some limit.” §11.7 提到 JVM 的 bytecode verification；把 assert 改为运行时错误是书外的工程补充。"
+        {
+          "zh": "固定大小的栈，并对 push / pop 做溢出与下溢检查（release 下也要检查）",
+          "en": "A fixed-size stack with overflow and underflow checks on push / pop (including in release builds)",
+          "es": "Una pila de tamaño fijo con comprobaciones de desbordamiento y subdesbordamiento en push / pop (también en las compilaciones de release)"
+        },
+        {
+          "zh": "限制执行指令数，防止死循环",
+          "en": "Cap the number of executed instructions to prevent infinite loops",
+          "es": "Limitar el número de instrucciones ejecutadas para evitar bucles infinitos"
+        },
+        {
+          "zh": "检查操作数读取是否越界，未知 opcode 走 default 报错",
+          "en": "Check that operand reads stay in bounds and route unknown opcodes to the default error branch",
+          "es": "Comprobar que las lecturas de operandos no salgan de los límites y llevar los opcodes desconocidos a la rama de error default"
+        },
+        {
+          "zh": "只暴露有限的 external primitives",
+          "en": "Expose only a limited set of external primitives",
+          "es": "Exponer solo un conjunto limitado de primitivas externas"
+        },
+        {
+          "zh": "提到加载时的字节码校验，因为恶意字节码可以绕过编译器",
+          "en": "Mention load-time bytecode verification, because malicious bytecode can bypass the compiler",
+          "es": "Mencionar la verificación de Bytecode en tiempo de carga, porque el Bytecode malicioso puede saltarse el compilador"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "11.7",
-      "title": "给非程序员的创作工具 · Authoring tools and VM design for designers",
-      "q": "一家小型工作室要为一款 puzzle-platformer 的机关（触发器、门、移动平台）做脚本系统，作者是关卡设计师而不是程序员。脚本需要处理整数、布尔值和少量字符串（音效名）。技术方案讨论中有三个问题：(1) stack-based 还是 register-based VM？(2) 值如何表示：single type、tagged union、untagged union，还是 Value interface？(3) 设计师用文本语言还是图形化编辑器创作？请逐一给出选择并说明理由。",
-      "answer": "(1) Stack-based：指令小（通常一个字节）、代码生成简单，只需按正确顺序输出指令；register-based 指令更大（如 Lua 的 32 位），对小团队收益不确定。书中推荐 stack-based。(2) Tagged union：需要支持多种类型，single type 不够用；untagged union 虽然紧凑快速，但不安全，错误的字节码会把数字当指针使用；Value interface 冗长，而且每个值都要堆分配加虚函数调用，又回到了 Interpreter pattern 的性能问题。tagged union 让值“知道自己的类型”，可以在运行时检查类型，代价只是少量额外内存。(3) 图形化编辑器：设计师不是程序员，文本语法对他们来说就像“给愤怒的机器人审计员填税表”；UI 可以通过禁用按钮、提供默认值，让用户无法构造非法程序，错误情况大大减少，也不需要设计语法和 parser。代价是要实现 UI，并且跨平台更难。编辑器内部维护节点树（正是 Interpreter pattern 的结构），递归遍历生成 bytecode；最好支持 undo。",
+      "q": {
+        "zh": "一家小型工作室要为一款 puzzle-platformer 的机关（触发器、门、移动平台）做脚本系统，作者是关卡设计师而不是程序员。脚本需要处理整数、布尔值和少量字符串（音效名）。技术方案讨论中有三个问题：(1) 用基于栈的虚拟机还是基于寄存器的虚拟机？(2) 值如何表示：单一类型、带标签的 union、无标签的 union，还是 Value 接口？(3) 设计师用文本语言还是图形化编辑器创作？请逐一给出选择并说明理由。",
+        "en": "A small studio wants a scripting system for the mechanisms (triggers, doors, moving platforms) of a puzzle-platformer, and the authors are level designers, not programmers. Scripts need to handle integers, booleans, and a few strings (sound effect names). The technical discussion raises three questions: (1) stack-based or register-based VM? (2) How should values be represented: a single type, a tagged union, an untagged union, or a Value interface? (3) Should designers author in a text language or a graphical editor? Answer each one and give your reasons.",
+        "es": "Un pequeño estudio quiere un sistema de scripting para los mecanismos (disparadores, puertas, plataformas móviles) de un puzzle-platformer, y quienes lo escriben son diseñadores de niveles, no programadores. Los scripts deben manejar enteros, booleanos y algunas cadenas (nombres de efectos de sonido). La discusión técnica plantea tres preguntas: (1) ¿VM basada en pila o basada en registros? (2) ¿Cómo se representan los valores: un solo tipo, una union etiquetada, una union sin etiquetar o una interfaz Value? (3) ¿Los diseñadores deben crear en un lenguaje de texto o en un editor gráfico? Responde cada una y da tus razones."
+      },
+      "explain": {
+        "zh": "§11.7 的四项设计决策：作者推荐“坚持使用基于栈的虚拟机”；值的表示上“如果能只用一个数据类型，就用；否则用带标签的 union”；图形化工具“可以让用户根本无法创建非法程序”。节点树生成字节码来自 §11.8 对解释器模式的说明。",
+        "en": "The four design decisions of §11.7: the author recommends \"stick with a stack-based VM\"; on values, \"if you can stick with a single data type, do that. Otherwise, do a tagged union\"; and a graphical tool \"can make it impossible for users to create invalid programs\". Generating bytecode from a node tree comes from §11.8's description of the Interpreter pattern.",
+        "es": "Las cuatro decisiones de diseño de la sección 11.7: el autor recomienda «quédate con una VM basada en pila»; sobre los valores, «si puedes quedarte con un solo tipo de dato, hazlo. De lo contrario, usa una union etiquetada»; y una herramienta gráfica «puede hacer imposible que los usuarios creen programas inválidos». Generar Bytecode a partir de un árbol de nodos proviene de la descripción del patrón Intérprete en la sección 11.8."
+      },
       "code": "enum ValueType { TYPE_INT, TYPE_BOOL, TYPE_STRING };\n\nstruct Value {\n  ValueType type;\n  union {\n    int intValue;\n    bool boolValue;\n    const char* stringValue;\n  };\n};\n\n// Editor side: node tree -> bytecode (Interpreter-pattern-shaped).\nvoid IfNode::emit(Emitter& out) {\n  cond_->emit(out);\n  int patch = out.emitJumpIfFalse();\n  body_->emit(out);\n  out.patchJump(patch);\n}",
+      "title": {
+        "zh": "给非程序员的创作工具",
+        "en": "Authoring tools and VM design for designers",
+        "es": "Herramientas de autoría y diseño de la VM para diseñadores"
+      },
+      "answer": {
+        "zh": "(1) 基于栈：指令小（通常一个字节），代码生成简单，只需按正确顺序输出指令；基于寄存器的指令更大（如 Lua 的 32 位指令），对小团队收益不确定。书中推荐基于栈。(2) 带标签的 union：需要支持多种类型，单一类型不够用；无标签 union 虽然紧凑快速，但不安全，错误的字节码会把数字当指针使用；Value 接口冗长，而且每个值都要堆分配加虚函数调用，又回到了解释器模式的性能问题。带标签的 union 让值“知道自己的类型”，可以在运行时检查类型，代价只是少量额外内存。(3) 图形化编辑器：设计师不是程序员，文本语法对他们来说就像“给愤怒的机器人审计员填税表”；界面可以通过禁用按钮、提供默认值，让用户无法构造非法程序，错误情况大大减少，也不需要设计语法和解析器。代价是要实现界面，并且跨平台更难。编辑器内部维护节点树（正是解释器模式的结构），递归遍历生成字节码；最好支持撤销。",
+        "en": "(1) Stack-based: instructions are small (usually one byte) and code generation is simple — just emit instructions in the right order; register-based instructions are larger (such as Lua's 32-bit ones) and the payoff is uncertain for a small team. The book recommends stack-based. (2) A tagged union: you need to support several types, so a single type will not do; an untagged union is compact and fast but unsafe, since bad bytecode can treat a number as a pointer; a Value interface is verbose, and every value needs a heap allocation plus a virtual call, which brings back the Interpreter pattern's performance problems. A tagged union lets values know their type, so types can be checked at runtime, at the cost of a little extra memory. (3) A graphical editor: designers are not programmers, and a text syntax reads to them like \"filling out tax forms for an angry robot auditor\"; a UI can disable buttons and provide defaults so users cannot construct illegal programs, cutting error cases sharply, and it needs no syntax design or parser. The cost is building the UI, and cross-platform support is harder. Internally the editor keeps a node tree (exactly the Interpreter pattern's structure) and generates bytecode by walking it recursively; undo support is worth having.",
+        "es": "(1) Basada en pila: las instrucciones son pequeñas (normalmente un byte) y la generación de código es simple —basta emitir las instrucciones en el orden correcto—; las instrucciones basadas en registros son más grandes (como las de 32 bits de Lua) y la ganancia es incierta para un equipo pequeño. El libro recomienda la basada en pila. (2) Una union etiquetada: necesitas admitir varios tipos, así que un solo tipo no basta; la union sin etiquetar es compacta y rápida pero insegura, ya que un Bytecode defectuoso puede tratar un número como un puntero; la interfaz Value es verbosa y cada valor exige una asignación en el heap más una llamada virtual, lo que devuelve los problemas de rendimiento del patrón Intérprete. Una union etiquetada hace que los valores conozcan su tipo, de modo que se puede comprobar en tiempo de ejecución, a cambio de un poco de memoria adicional. (3) Un editor gráfico: los diseñadores no son programadores, y una sintaxis de texto les resulta como «rellenar formularios de impuestos para un auditor robot furioso»; una interfaz puede deshabilitar botones y ofrecer valores predeterminados para que los usuarios no puedan construir programas ilegales, lo que reduce drásticamente los casos de error, y no exige diseñar una sintaxis ni un analizador. El costo es construir la interfaz, y el soporte multiplataforma es más difícil. Internamente el editor mantiene un árbol de nodos (exactamente la estructura del patrón Intérprete) y genera Bytecode recorriéndolo de forma recursiva; conviene admitir deshacer."
+      },
       "checklist": [
-        "选择 stack-based，理由：指令小、代码生成简单",
-        "选择 tagged union，并说明排除其他方案的理由（不安全 / 低效）",
-        "面向非技术用户选择图形化编辑器：从源头避免非法程序",
-        "说明 UI 方案的代价（实现成本、可移植性）",
-        "编辑器内部的节点树通过递归遍历生成 bytecode"
-      ],
-      "explain": "§11.7 的四个 Design Decisions：作者推荐“stick with a stack-based VM”，值表示上“if you can stick with a single data type, do that. Otherwise, do a tagged union”，以及图形化工具“can make it impossible for users to create invalid programs”。节点树生成 bytecode 来自 §11.8 对 Interpreter pattern 的说明。"
+        {
+          "zh": "选择基于栈的方案，理由：指令小、代码生成简单",
+          "en": "Choose stack-based: small instructions and simple code generation",
+          "es": "Elegir la basada en pila: instrucciones pequeñas y generación de código simple"
+        },
+        {
+          "zh": "选择带标签的 union，并说明排除其他方案的理由（不安全 / 低效）",
+          "en": "Choose a tagged union and explain why the alternatives are excluded (unsafe / inefficient)",
+          "es": "Elegir una union etiquetada y explicar por qué se descartan las alternativas (inseguras / ineficientes)"
+        },
+        {
+          "zh": "面向非技术用户选择图形化编辑器：从源头避免非法程序",
+          "en": "Choose a graphical editor for non-technical users: illegal programs are prevented at the source",
+          "es": "Elegir un editor gráfico para usuarios no técnicos: los programas ilegales se evitan desde el origen"
+        },
+        {
+          "zh": "说明界面方案的代价（实现成本、可移植性）",
+          "en": "State the cost of the UI approach (implementation effort, portability)",
+          "es": "Indicar el costo del enfoque con interfaz (esfuerzo de implementación, portabilidad)"
+        },
+        {
+          "zh": "编辑器内部的节点树通过递归遍历生成字节码",
+          "en": "The editor's internal node tree generates bytecode by recursive traversal",
+          "es": "El árbol de nodos interno del editor genera Bytecode mediante recorrido recursivo"
+        }
+      ]
     }
   ]
 }

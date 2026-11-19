@@ -1,29 +1,34 @@
 {
   "id": "object-pool",
   "title": {
+    "zh": "对象池模式",
     "en": "Object Pool",
-    "zh": "对象池模式"
+    "es": "Grupo de objetos"
   },
   "summary": {
+    "zh": "对象池预先分配一组固定数量的可复用对象，按需取出和归还。对内存管理器而言，它只是一大块从不释放的内存；对使用者而言，可以随意创建和销毁对象，而不会造成内存碎片或缓慢的堆分配。",
     "en": "An object pool allocates a fixed collection of reusable objects up front and hands them out and takes them back as needed. To the memory manager it is one big allocation that never gets freed; to its users, objects can be created and destroyed freely, without fragmentation or slow heap allocation.",
-    "zh": "对象池预先分配一组固定数量的可复用对象，按需取出和归还。对内存管理器而言，它只是一大块从不释放的内存；对使用者而言，可以随意创建和销毁对象，而不会造成内存碎片或缓慢的堆分配。"
+    "es": "Un grupo de objetos asigna por adelantado una colección fija de objetos reutilizables, y los entrega y los recupera según se necesiten. Para el gestor de memoria es una única asignación grande que nunca se libera; para sus usuarios, los objetos se pueden crear y destruir libremente, sin fragmentación ni asignaciones lentas en el heap."
   },
   "sections": [
     {
       "num": "19.1",
       "title": {
+        "zh": "意图",
         "en": "Intent",
-        "zh": "意图"
+        "es": "Intención"
       },
       "points": [
         {
           "title": {
+            "zh": "从固定的池中复用对象",
             "en": "Reuse objects from a fixed pool",
-            "zh": "从固定的池中复用对象"
+            "es": "Reutilizar objetos de un grupo fijo"
           },
           "body": {
+            "zh": "该模式的意图是：从一个固定的池中复用对象，而不是逐个分配和释放，以此提升性能并改善内存使用。",
             "en": "The intent of the pattern is to improve performance and memory use by reusing objects from a fixed pool instead of allocating and freeing them individually.",
-            "zh": "该模式的意图是：从一个固定的池中复用对象，而不是逐个分配和释放，以此提升性能并改善内存使用。"
+            "es": "La intención del patrón es mejorar el rendimiento y el uso de memoria reutilizando objetos de un grupo fijo en lugar de asignarlos y liberarlos individualmente."
           }
         }
       ]
@@ -31,46 +36,55 @@
     {
       "num": "19.2",
       "title": {
+        "zh": "动机",
         "en": "Motivation",
-        "zh": "动机"
+        "es": "Motivación"
       },
       "points": [
         {
           "title": {
+            "zh": "粒子必须快速而安全地创建",
             "en": "Particles must be created fast and safely",
-            "zh": "粒子必须快速而安全地创建"
+            "es": "Las partículas deben crearse rápido y de forma segura"
           },
           "body": {
+            "zh": "英雄施法时，挥一下魔杖就可能让粒子系统生成数百个闪光粒子。系统必须能非常快地创建它们，更重要的是，创建和销毁粒子不能导致内存碎片。",
             "en": "When the hero casts a spell, a particle system may spawn hundreds of sparkles from a single wave of the wand. It must create them very quickly, and, more importantly, creating and destroying them must not cause memory fragmentation.",
-            "zh": "英雄施法时，挥一下魔杖就可能让粒子系统生成数百个闪光粒子。系统必须能非常快地创建它们，更重要的是，创建和销毁粒子不能导致内存碎片。"
+            "es": "Cuando el héroe lanza un hechizo, un sistema de partículas puede generar cientos de destellos con un solo movimiento de la varita. Debe crearlos muy rápido y, más importante aún, crearlos y destruirlos no debe provocar fragmentación de memoria."
           }
         },
         {
           "title": {
+            "zh": "碎片化的诅咒",
             "en": "The curse of fragmentation",
-            "zh": "碎片化的诅咒"
-          },
-          "subsection": {
-            "en": "The curse of fragmentation",
-            "zh": "碎片化的诅咒"
+            "es": "La maldición de la fragmentación"
           },
           "body": {
+            "zh": "主机和移动设备上的编程更接近嵌入式开发：内存稀缺，也很少有能整理内存的内存管理器。碎片化会把堆上的空闲空间切成小块，比如有十四字节空闲，但被分成两个七字节的空洞，那么分配十二字节的对象就会失败。日积月累，堆会变成无法使用的“泡沫”；逐渐加剧的碎片化常常是游戏通不过主机厂商长达数天的“浸泡测试”的原因。",
             "en": "Consoles and mobile devices resemble embedded systems: memory is scarce and compacting memory managers are rare. Fragmentation splits free heap space into small pieces, so with fourteen free bytes split into two seven-byte holes, a twelve-byte allocation fails. Over time it can reduce the heap to an unusable foam, and creeping fragmentation is a common reason games fail console makers' multi-day soak tests.",
-            "zh": "主机和移动设备上的编程更接近嵌入式开发：内存稀缺，也很少有能整理内存的内存管理器。碎片化会把堆上的空闲空间切成小块，比如有十四字节空闲，但被分成两个七字节的空洞，那么分配十二字节的对象就会失败。日积月累，堆会变成无法使用的“泡沫”；逐渐加剧的碎片化常常是游戏通不过主机厂商长达数天的“浸泡测试”的原因。"
+            "es": "Programar para consolas y dispositivos móviles se parece más al desarrollo de sistemas embebidos: la memoria es escasa y los gestores de memoria que compactan son raros. La fragmentación divide el espacio libre del heap en trozos pequeños, de modo que, si hay catorce bytes libres repartidos en dos huecos de siete bytes, una asignación de doce bytes falla. Con el tiempo, puede reducir el heap a una espuma inutilizable, y la fragmentación que crece lentamente es una causa habitual de que los juegos no superen las pruebas de remojo (soak test) de varios días de los fabricantes de consolas."
+          },
+          "subsection": {
+            "zh": "碎片化的诅咒",
+            "en": "The curse of fragmentation",
+            "es": "La maldición de la fragmentación"
           }
         },
         {
           "title": {
+            "zh": "两全其美",
             "en": "The best of both worlds",
-            "zh": "两全其美"
-          },
-          "subsection": {
-            "en": "The best of both worlds",
-            "zh": "两全其美"
+            "es": "Lo mejor de ambos mundos"
           },
           "body": {
+            "zh": "一种简单的做法是在游戏启动时分配一大块内存，直到游戏结束才释放，但对于运行时需要不断创建和销毁对象的系统来说，这很麻烦。对象池两者兼得：在内存管理器看来，只是预先分配了一大块内存且游戏期间不释放；在池的使用者看来，则可以随意分配和释放对象。",
             "en": "A simple approach is to allocate a big chunk of memory when the game starts and never free it, but that's painful for systems that create and destroy things at runtime. An object pool gives both: the memory manager sees one big up-front allocation that is never freed, while users of the pool allocate and deallocate objects freely.",
-            "zh": "一种简单的做法是在游戏启动时分配一大块内存，直到游戏结束才释放，但对于运行时需要不断创建和销毁对象的系统来说，这很麻烦。对象池两者兼得：在内存管理器看来，只是预先分配了一大块内存且游戏期间不释放；在池的使用者看来，则可以随意分配和释放对象。"
+            "es": "Un enfoque sencillo consiste en asignar un bloque grande de memoria al iniciar el juego y no liberarlo nunca, pero eso resulta incómodo para los sistemas que crean y destruyen cosas en tiempo de ejecución. Un grupo de objetos ofrece ambas cosas: para el gestor de memoria es una única asignación grande hecha por adelantado que nunca se libera, mientras que los usuarios del grupo asignan y liberan objetos con libertad."
+          },
+          "subsection": {
+            "zh": "两全其美",
+            "en": "The best of both worlds",
+            "es": "Lo mejor de ambos mundos"
           }
         }
       ]
@@ -78,18 +92,21 @@
     {
       "num": "19.3",
       "title": {
+        "zh": "模式",
         "en": "The Pattern",
-        "zh": "模式"
+        "es": "El patrón"
       },
       "points": [
         {
           "title": {
+            "zh": "带“使用中”查询的可复用对象池",
             "en": "A pool of reusable objects with an \"in use\" query",
-            "zh": "带“使用中”查询的可复用对象池"
+            "es": "Un grupo de objetos reutilizables con una consulta de «en uso»"
           },
           "body": {
+            "zh": "定义一个池类，维护一组可复用对象，每个对象都支持“是否在使用中”的查询。池初始化时预先创建全部对象（通常是一次连续分配），并都设为“未使用”。需要新对象时，池找到一个可用对象，将其设为“使用中”并返回；不再需要时，再把它设回“未使用”。这样创建和销毁对象都无需分配内存或其他资源。",
             "en": "Define a pool class holding a collection of reusable objects, each supporting an \"in use\" query. On initialization the pool creates all objects up front, usually in one contiguous allocation, all \"not in use\". When you need an object, the pool finds an available one, marks it \"in use\" and returns it; when done, it is set back to \"not in use\", so no memory or other resources are allocated.",
-            "zh": "定义一个池类，维护一组可复用对象，每个对象都支持“是否在使用中”的查询。池初始化时预先创建全部对象（通常是一次连续分配），并都设为“未使用”。需要新对象时，池找到一个可用对象，将其设为“使用中”并返回；不再需要时，再把它设回“未使用”。这样创建和销毁对象都无需分配内存或其他资源。"
+            "es": "Define una clase de grupo que mantenga una colección de objetos reutilizables, cada uno de los cuales admite una consulta de «en uso». Al inicializarse, el grupo crea todos los objetos por adelantado, normalmente en una sola asignación contigua, y todos quedan «sin usar». Cuando se necesita un objeto, el grupo busca uno disponible, lo marca como «en uso» y lo devuelve; cuando ya no se necesita, se vuelve a marcar como «sin usar», de modo que no se asigna memoria ni otros recursos."
           }
         }
       ]
@@ -97,18 +114,21 @@
     {
       "num": "19.4",
       "title": {
+        "zh": "何时使用",
         "en": "When to Use It",
-        "zh": "何时使用"
+        "es": "Cuándo usarlo"
       },
       "points": [
         {
           "title": {
+            "zh": "使用对象池的条件",
             "en": "Conditions for using a pool",
-            "zh": "使用对象池的条件"
+            "es": "Condiciones para usar un grupo de objetos"
           },
           "body": {
+            "zh": "对象池常用于游戏实体、视觉特效，以及正在播放的声音这类不太显眼的数据结构。在以下情况使用它：需要频繁创建和销毁对象；对象大小相近；在堆上分配对象很慢或可能导致内存碎片；每个对象都封装了获取代价高昂且可复用的资源，如数据库或网络连接。",
             "en": "Pools are used for game entities, visual effects, and less visible things like currently playing sounds. Use one when you frequently create and destroy objects, the objects are similar in size, heap allocation is slow or could fragment memory, or each object encapsulates an expensive, reusable resource such as a database or network connection.",
-            "zh": "对象池常用于游戏实体、视觉特效，以及正在播放的声音这类不太显眼的数据结构。在以下情况使用它：需要频繁创建和销毁对象；对象大小相近；在堆上分配对象很慢或可能导致内存碎片；每个对象都封装了获取代价高昂且可复用的资源，如数据库或网络连接。"
+            "es": "Los grupos se usan para entidades de juego, efectos visuales y cosas menos visibles, como los sonidos que se están reproduciendo. Úsalo cuando crees y destruyas objetos con frecuencia, cuando los objetos sean de tamaño similar, cuando la asignación en el heap sea lenta o pueda fragmentar la memoria, o cuando cada objeto encapsule un recurso costoso y reutilizable, como una conexión a base de datos o de red."
           }
         }
       ]
@@ -116,78 +136,94 @@
     {
       "num": "19.5",
       "title": {
+        "zh": "注意事项",
         "en": "Keep in Mind",
-        "zh": "注意事项"
+        "es": "Puntos a tener en cuenta"
       },
       "points": [
         {
           "title": {
+            "zh": "你接管了内存管理",
             "en": "You take over memory management",
-            "zh": "你接管了内存管理"
+            "es": "Tú te haces cargo de la gestión de memoria"
           },
           "body": {
+            "zh": "使用对象池等于宣称“我比垃圾回收器或 new/delete 更懂得如何管理这些字节”，因此处理该模式的局限就成了你的责任。池的大小需要调校：太小会崩溃，太大则浪费本可用于其他地方的内存。",
             "en": "Using a pool says \"I know better how these bytes should be handled\" than the garbage collector or new/delete, so dealing with the pattern's limitations is your responsibility. A pool must be tuned: too small and you crash, too big and you waste memory that could be used elsewhere.",
-            "zh": "使用对象池等于宣称“我比垃圾回收器或 new/delete 更懂得如何管理这些字节”，因此处理该模式的局限就成了你的责任。池的大小需要调校：太小会崩溃，太大则浪费本可用于其他地方的内存。"
+            "es": "Usar un grupo equivale a decir «sé mejor que el recolector de basura o que new/delete cómo deben manejarse estos bytes», así que ocuparte de las limitaciones del patrón es tu responsabilidad. Un grupo debe ajustarse: demasiado pequeño y el juego se cae; demasiado grande y se desperdicia memoria que podría usarse en otra parte."
           },
           "subsection": {
+            "zh": "池可能在不需要的对象上浪费内存",
             "en": "The pool may waste memory on unneeded objects",
-            "zh": "池可能在不需要的对象上浪费内存"
+            "es": "El grupo puede desperdiciar memoria en objetos innecesarios"
           }
         },
         {
           "title": {
+            "zh": "池满时如何处理",
             "en": "Handling a full pool",
-            "zh": "池满时如何处理"
-          },
-          "subsection": {
-            "en": "Only a fixed number of objects can be active at any one time",
-            "zh": "同一时间只能有固定数量的活跃对象"
+            "es": "Cómo manejar un grupo lleno"
           },
           "body": {
+            "zh": "分开的池可以防止诸如大量爆炸吃掉创建敌人所需的内存，但当所有对象都在使用时，请求就会失败。应对策略有：通过调校大小彻底避免（适合 Boss 等关键对象，可以按关卡分别调校）；干脆不创建（适合粒子）；强行销毁一个现有对象（例如替换掉最安静的正在播放的声音）；或者在运行时扩大池或增设溢出池。",
             "en": "Separate pools keep, e.g., explosions from eating memory needed for enemies, but a request can fail when all objects are in use. Strategies: prevent it by tuning sizes (right for critical objects like the boss, possibly per-level); just don't create the object (fine for particles); forcibly kill an existing one (replace the quietest playing sound); or grow the pool or add an overflow pool at runtime.",
-            "zh": "分开的池可以防止诸如大量爆炸吃掉创建敌人所需的内存，但当所有对象都在使用时，请求就会失败。应对策略有：通过调校大小彻底避免（适合 Boss 等关键对象，可以按关卡分别调校）；干脆不创建（适合粒子）；强行销毁一个现有对象（例如替换掉最安静的正在播放的声音）；或者在运行时扩大池或增设溢出池。"
+            "es": "Los grupos separados evitan, por ejemplo, que las explosiones consuman la memoria que se necesita para los enemigos, pero una solicitud puede fallar cuando todos los objetos están en uso. Estrategias: evitarlo ajustando los tamaños (apropiado para objetos críticos como el jefe, posiblemente ajustado por nivel); simplemente no crear el objeto (válido para partículas); destruir a la fuerza uno existente (reemplazar el sonido más silencioso que se esté reproduciendo); o ampliar el grupo o añadir un grupo de desbordamiento en tiempo de ejecución."
+          },
+          "subsection": {
+            "zh": "同一时间只能有固定数量的活跃对象",
+            "en": "Only a fixed number of objects can be active at any one time",
+            "es": "Solo puede haber activos un número fijo de objetos a la vez"
           }
         },
         {
           "title": {
+            "zh": "每个对象的内存大小固定",
             "en": "Fixed memory size per object",
-            "zh": "每个对象的内存大小固定"
-          },
-          "subsection": {
-            "en": "Memory size for each object is fixed",
-            "zh": "每个对象的内存大小是固定的"
+            "es": "Tamaño de memoria fijo por objeto"
           },
           "body": {
+            "zh": "池通常把对象原地存放在数组中，所以每个槽位都必须能容纳最大的对象，否则较大的子类实例会覆盖相邻对象。较小的对象就会浪费空间，就像在安检时用一个装行李的大托盘只放钥匙和钱包。如果浪费严重，就按对象大小拆分成多个池，高效的内存管理器正是这样实现的。",
             "en": "Pools usually store objects in place in an array, so each slot must fit the largest possible object, or a larger subclass will stomp over its neighbor. Smaller objects then waste space, like using a luggage tray for just your keys. If this wastes a lot of memory, split into pools of different sizes, which is how fast memory managers are built.",
-            "zh": "池通常把对象原地存放在数组中，所以每个槽位都必须能容纳最大的对象，否则较大的子类实例会覆盖相邻对象。较小的对象就会浪费空间，就像在安检时用一个装行李的大托盘只放钥匙和钱包。如果浪费严重，就按对象大小拆分成多个池，高效的内存管理器正是这样实现的。"
+            "es": "Los grupos suelen almacenar los objetos en su sitio dentro de un arreglo, así que cada ranura debe caber en el objeto más grande posible; de lo contrario, una subclase más grande pisotea a su vecino. Los objetos más pequeños, entonces, desperdician espacio, como usar una bandeja de equipaje solo para tus llaves. Si esto desperdicia mucha memoria, divide en grupos de distintos tamaños, que es como se construyen los gestores de memoria rápidos."
+          },
+          "subsection": {
+            "zh": "每个对象的内存大小是固定的",
+            "en": "Memory size for each object is fixed",
+            "es": "El tamaño de memoria de cada objeto es fijo"
           }
         },
         {
           "title": {
+            "zh": "复用的对象不会被自动清空",
             "en": "Reused objects aren't automatically cleared",
-            "zh": "复用的对象不会被自动清空"
-          },
-          "subsection": {
-            "en": "Reused objects aren't automatically cleared",
-            "zh": "复用的对象不会被自动清空"
+            "es": "Los objetos reutilizados no se limpian automáticamente"
           },
           "body": {
+            "zh": "调试版内存管理器会把新分配或刚释放的内存填成 0xdeadbeef 之类的魔数，以暴露未初始化变量和释放后使用的 bug；对象池绕过了这层保护。更糟的是，被复用的槽位之前存放的是同类型对象，残留的“几乎正确”的数据会掩盖遗漏的初始化。因此一定要完整初始化新对象，也可以考虑加一个在回收时清空槽位的调试功能。",
             "en": "Debug memory managers fill fresh or freed memory with magic values like 0xdeadbeef to expose uninitialized-variable and use-after-free bugs; a pool bypasses that safety net. Worse, a reused slot held an object of the same type, so almost-correct leftover data hides missed initialization. Initialize new objects fully, and consider a debug feature that clears reclaimed slots.",
-            "zh": "调试版内存管理器会把新分配或刚释放的内存填成 0xdeadbeef 之类的魔数，以暴露未初始化变量和释放后使用的 bug；对象池绕过了这层保护。更糟的是，被复用的槽位之前存放的是同类型对象，残留的“几乎正确”的数据会掩盖遗漏的初始化。因此一定要完整初始化新对象，也可以考虑加一个在回收时清空槽位的调试功能。"
+            "es": "Los gestores de memoria de depuración llenan la memoria nueva o recién liberada con valores mágicos como 0xdeadbeef para exponer errores de variables no inicializadas y de uso después de liberar; un grupo pasa por alto esa red de seguridad. Peor aún, una ranura reutilizada contenía un objeto del mismo tipo, así que los datos residuales casi correctos ocultan una inicialización omitida. Inicializa por completo los objetos nuevos y considera una función de depuración que limpie las ranuras recuperadas."
+          },
+          "subsection": {
+            "zh": "复用的对象不会被自动清空",
+            "en": "Reused objects aren't automatically cleared",
+            "es": "Los objetos reutilizados no se limpian automáticamente"
           }
         },
         {
           "title": {
+            "zh": "未使用的对象仍留在内存中",
             "en": "Unused objects stay in memory",
-            "zh": "未使用的对象仍留在内存中"
-          },
-          "subsection": {
-            "en": "Unused objects will remain in memory",
-            "zh": "未使用的对象会留在内存中"
+            "es": "Los objetos sin usar permanecen en memoria"
           },
           "body": {
+            "zh": "在有垃圾回收的系统中，对象池较少见，但仍可用来避免分配开销，尤其是在移动设备上。由于池中的对象从不被释放，它们持有的引用会让其他对象无法被回收，因此当池中对象不再使用时，要清除它对其他对象的引用。",
             "en": "With garbage collection, pools are less common but still useful to avoid allocation costs, especially on mobile. Since pooled objects are never deallocated, any references they hold keep other objects alive, so clear those references when a pooled object is no longer in use.",
-            "zh": "在有垃圾回收的系统中，对象池较少见，但仍可用来避免分配开销，尤其是在移动设备上。由于池中的对象从不被释放，它们持有的引用会让其他对象无法被回收，因此当池中对象不再使用时，要清除它对其他对象的引用。"
+            "es": "Con recolección de basura, los grupos son menos comunes, pero siguen siendo útiles para evitar los costos de asignación, sobre todo en móviles. Dado que los objetos del grupo nunca se desasignan, cualquier referencia que mantengan mantiene vivos a otros objetos, así que limpia esas referencias cuando un objeto del grupo deje de estar en uso."
+          },
+          "subsection": {
+            "zh": "未使用的对象会留在内存中",
+            "en": "Unused objects will remain in memory",
+            "es": "Los objetos no utilizados permanecen en memoria"
           }
         }
       ]
@@ -195,59 +231,70 @@
     {
       "num": "19.6",
       "title": {
+        "zh": "示例代码",
         "en": "Sample Code",
-        "zh": "示例代码"
+        "es": "Código de ejemplo"
       },
       "points": [
         {
           "title": {
+            "zh": "知道自己是否在使用中的粒子",
             "en": "A Particle that knows if it's in use",
-            "zh": "知道自己是否在使用中的粒子"
+            "es": "Una Particle que sabe si está en uso"
           },
           "body": {
+            "zh": "默认构造函数让粒子处于“未使用”状态；init() 使其激活，animate() 每帧移动它一次。inUse() 利用了粒子寿命有限这一点：只要 framesLeft_ > 0 粒子就是活的，因此无需额外的标志位。",
             "en": "The default constructor makes a particle \"not in use\"; init() brings it to life, and animate() moves it once per frame. inUse() exploits the limited lifetime: a particle is alive while framesLeft_ > 0, so no separate flag is needed.",
-            "zh": "默认构造函数让粒子处于“未使用”状态；init() 使其激活，animate() 每帧移动它一次。inUse() 利用了粒子寿命有限这一点：只要 framesLeft_ > 0 粒子就是活的，因此无需额外的标志位。"
+            "es": "El constructor por defecto deja una partícula «sin usar»; init() la pone en marcha y animate() la mueve una vez por fotograma. inUse() aprovecha la duración limitada: una partícula está viva mientras framesLeft_ > 0, así que no hace falta un indicador aparte."
           },
           "code": "class Particle {\npublic:\n  Particle() : framesLeft_(0) {}\n  void init(double x, double y,\n            double xVel, double yVel, int lifetime);\n  void animate() {\n    if (!inUse()) return;\n    framesLeft_--;\n    x_ += xVel_;\n    y_ += yVel_;\n  }\n  bool inUse() const { return framesLeft_ > 0; }\n\nprivate:\n  int framesLeft_;\n  double x_, y_;\n  double xVel_, yVel_;\n};"
         },
         {
           "title": {
+            "zh": "简单的池：线性查找",
             "en": "The simple pool: linear search",
-            "zh": "简单的池：线性查找"
+            "es": "El grupo simple: búsqueda lineal"
           },
           "body": {
+            "zh": "ParticlePool 持有一个固定大小的数组，每帧对所有粒子调用 animate()（更新方法模式）。create() 遍历寻找第一个未使用的粒子并初始化它；若没有空闲粒子，就不创建。这已经足以用于正式发布，但创建的复杂度是 O(n)，在池很大且接近满时会变慢。",
             "en": "ParticlePool holds a fixed-size array and animates every particle each frame (an Update Method). create() scans for the first particle not in use and initializes it; if none is free, no particle is created. This is good enough to ship, but creation is O(n) and can be slow for a large, mostly full pool.",
-            "zh": "ParticlePool 持有一个固定大小的数组，每帧对所有粒子调用 animate()（更新方法模式）。create() 遍历寻找第一个未使用的粒子并初始化它；若没有空闲粒子，就不创建。这已经足以用于正式发布，但创建的复杂度是 O(n)，在池很大且接近满时会变慢。"
+            "es": "ParticlePool contiene un arreglo de tamaño fijo y anima todas las partículas en cada fotograma (un Método de actualización). create() recorre el arreglo en busca de la primera partícula sin usar y la inicializa; si no hay ninguna libre, no se crea ninguna partícula. Esto basta para publicar el juego, pero la creación es O(n) y puede ser lenta para un grupo grande y casi lleno."
           },
           "code": "void ParticlePool::create(double x, double y,\n                          double xVel, double yVel,\n                          int lifetime) {\n  for (int i = 0; i < POOL_SIZE; i++) {\n    if (!particles_[i].inUse()) {\n      particles_[i].init(x, y, xVel, yVel, lifetime);\n      return;\n    }\n  }\n}"
         },
         {
           "title": {
+            "zh": "存放在 union 中的空闲链表",
             "en": "A free list inside a union",
-            "zh": "存放在 union 中的空闲链表"
-          },
-          "subsection": {
-            "en": "A free list",
-            "zh": "空闲链表"
+            "es": "Una lista de libres dentro de una union"
           },
           "body": {
+            "zh": "单独维护一个指向空闲粒子的指针数组会额外占用内存。更好的办法是借用死亡粒子自身的内存：粒子不用时，它的位置和速度都无关紧要，于是用一个 union 存放活跃时的状态，或者指向下一个可用粒子的 next 指针。把这些指针串起来就形成了空闲链表，且不需要额外内存。",
             "en": "A separate array of pointers to free particles would cost extra memory. Instead, reuse the dead particles' own memory: when unused, a particle's position and velocity are irrelevant, so a union stores either the live state or a next pointer to the next available particle. Chaining these pointers forms a free list with no extra memory.",
-            "zh": "单独维护一个指向空闲粒子的指针数组会额外占用内存。更好的办法是借用死亡粒子自身的内存：粒子不用时，它的位置和速度都无关紧要，于是用一个 union 存放活跃时的状态，或者指向下一个可用粒子的 next 指针。把这些指针串起来就形成了空闲链表，且不需要额外内存。"
+            "es": "Un arreglo separado de punteros a partículas libres costaría memoria adicional. En su lugar, reutiliza la memoria de las propias partículas muertas: cuando una partícula no se usa, su posición y su velocidad son irrelevantes, así que una union almacena o bien el estado activo, o bien un puntero next a la siguiente partícula disponible. Encadenar estos punteros forma una lista de libres sin memoria adicional."
+          },
+          "subsection": {
+            "zh": "空闲链表",
+            "en": "A free list",
+            "es": "Una lista de libres"
           },
           "code": "class Particle {\n  // ...\nprivate:\n  int framesLeft_;\n  union {\n    // State when it's in use.\n    struct {\n      double x, y;\n      double xVel, yVel;\n    } live;\n    // State when it's available.\n    Particle* next;\n  } state_;\n};"
         },
         {
           "title": {
+            "zh": "O(1) 的创建与回收",
             "en": "O(1) creation and reclamation",
-            "zh": "O(1) 的创建与回收"
-          },
-          "subsection": {
-            "en": "A free list",
-            "zh": "空闲链表"
+            "es": "Creación y recuperación en O(1)"
           },
           "body": {
+            "zh": "池记录链表头 firstAvailable_，构造函数把所有粒子串进链表。create() 以常数时间弹出表头。animate() 改为在粒子于当帧死亡时返回 true，池随即把它放回空闲链表的头部，从而实现常数时间的创建与删除。",
             "en": "The pool tracks the list head firstAvailable_; its constructor threads every particle into the list. create() pops the head in constant time. animate() now returns true when a particle dies that frame, and the pool pushes it back onto the front of the free list, giving constant-time creation and deletion.",
-            "zh": "池记录链表头 firstAvailable_，构造函数把所有粒子串进链表。create() 以常数时间弹出表头。animate() 改为在粒子于当帧死亡时返回 true，池随即把它放回空闲链表的头部，从而实现常数时间的创建与删除。"
+            "es": "El grupo guarda la cabeza de la lista, firstAvailable_; su constructor enlaza todas las partículas en la lista. create() saca la cabeza en tiempo constante. animate() ahora devuelve true cuando una partícula muere en ese fotograma, y el grupo la vuelve a insertar al frente de la lista de libres, lo que da creación y eliminación en tiempo constante."
+          },
+          "subsection": {
+            "zh": "空闲链表",
+            "en": "A free list",
+            "es": "Una lista de libres"
           },
           "code": "void ParticlePool::create(double x, double y,\n                          double xVel, double yVel,\n                          int lifetime) {\n  assert(firstAvailable_ != NULL);\n  Particle* newParticle = firstAvailable_;\n  firstAvailable_ = newParticle->getNext();\n  newParticle->init(x, y, xVel, yVel, lifetime);\n}\n\nvoid ParticlePool::animate() {\n  for (int i = 0; i < POOL_SIZE; i++) {\n    if (particles_[i].animate()) {\n      particles_[i].setNext(firstAvailable_);\n      firstAvailable_ = &particles_[i];\n    }\n  }\n}"
         }
@@ -256,66 +303,79 @@
     {
       "num": "19.7",
       "title": {
+        "zh": "设计决策",
         "en": "Design Decisions",
-        "zh": "设计决策"
+        "es": "Decisiones de diseño"
       },
       "points": [
         {
           "title": {
+            "zh": "对象与池耦合",
             "en": "Objects coupled to the pool",
-            "zh": "对象与池耦合"
-          },
-          "subsection": {
-            "en": "Are objects coupled to the pool?",
-            "zh": "对象是否与池耦合？"
+            "es": "Objetos acoplados al grupo"
           },
           "body": {
+            "zh": "如果对象知道自己在池中，实现会更简单。可以把池声明为友元并把构造函数设为私有，以确保只有池能创建对象；还可以利用已有状态来判断是否存活（例如粒子在屏幕外即为空闲），从而省去显式的“使用中”标志。",
             "en": "If objects know they're pooled, the implementation is simpler. You can ensure only the pool creates them by making the pool a friend and the constructor private, and you may avoid an explicit \"in use\" flag by reusing existing state (e.g., a particle is free if it's offscreen).",
-            "zh": "如果对象知道自己在池中，实现会更简单。可以把池声明为友元并把构造函数设为私有，以确保只有池能创建对象；还可以利用已有状态来判断是否存活（例如粒子在屏幕外即为空闲），从而省去显式的“使用中”标志。"
+            "es": "Si los objetos saben que están en un grupo, la implementación es más sencilla. Puedes garantizar que solo el grupo los cree declarando al grupo como friend y el constructor como privado, y puedes evitar un indicador explícito de «en uso» reutilizando el estado existente (por ejemplo, una partícula está libre si está fuera de pantalla)."
+          },
+          "subsection": {
+            "zh": "对象是否与池耦合？",
+            "en": "Are objects coupled to the pool?",
+            "es": "¿Los objetos están acoplados al grupo?"
           },
           "code": "class Particle {\n  friend class ParticlePool;\nprivate:\n  Particle() : inUse_(false) {}\n  bool inUse_;\n};"
         },
         {
           "title": {
+            "zh": "对象与池解耦",
             "en": "Objects decoupled from the pool",
-            "zh": "对象与池解耦"
-          },
-          "subsection": {
-            "en": "Are objects coupled to the pool?",
-            "zh": "对象是否与池耦合？"
+            "es": "Objetos desacoplados del grupo"
           },
           "body": {
+            "zh": "如果对象不知道池的存在，任何类型的对象都可以放进池中，从而可以实现一个通用的可复用池类。此时“使用中”状态必须在对象外部记录，比如用一个单独的标志数组。",
             "en": "If objects don't know about the pool, objects of any type can be pooled, allowing a generic reusable pool class. The \"in use\" state must then be tracked outside the objects, for example with a separate array of flags.",
-            "zh": "如果对象不知道池的存在，任何类型的对象都可以放进池中，从而可以实现一个通用的可复用池类。此时“使用中”状态必须在对象外部记录，比如用一个单独的标志数组。"
+            "es": "Si los objetos no conocen el grupo, se puede agrupar objetos de cualquier tipo, lo que permite una clase de grupo genérica y reutilizable. En ese caso, el estado de «en uso» debe rastrearse fuera de los objetos, por ejemplo con un arreglo de indicadores aparte."
+          },
+          "subsection": {
+            "zh": "对象是否与池耦合？",
+            "en": "Are objects coupled to the pool?",
+            "es": "¿Los objetos están acoplados al grupo?"
           },
           "code": "template <class TObject>\nclass GenericPool {\nprivate:\n  static const int POOL_SIZE = 100;\n  TObject pool_[POOL_SIZE];\n  bool    inUse_[POOL_SIZE];\n};"
         },
         {
           "title": {
+            "zh": "由池在内部初始化对象",
             "en": "Pool initializes objects internally",
-            "zh": "由池在内部初始化对象"
-          },
-          "subsection": {
-            "en": "What is responsible for initializing the reused objects?",
-            "zh": "谁负责初始化被复用的对象？"
+            "es": "El grupo inicializa los objetos internamente"
           },
           "body": {
+            "zh": "池可以完全封装其对象，外部代码就不会持有可能被意外复用的对象的引用。但池与对象的初始化方式绑定在一起：对象支持的每一种 init() 重载，池都必须提供相应接口并转发。",
             "en": "The pool can fully encapsulate its objects, so outside code never holds references to objects that might be unexpectedly reused. But the pool is tied to how objects are initialized: it must offer and forward every init() overload the object supports.",
-            "zh": "池可以完全封装其对象，外部代码就不会持有可能被意外复用的对象的引用。但池与对象的初始化方式绑定在一起：对象支持的每一种 init() 重载，池都必须提供相应接口并转发。"
+            "es": "El grupo puede encapsular por completo sus objetos, de modo que el código externo nunca tenga referencias a objetos que podrían reutilizarse de forma inesperada. Pero el grupo queda atado a cómo se inicializan los objetos: debe ofrecer y reenviar cada sobrecarga de init() que admita el objeto."
+          },
+          "subsection": {
+            "zh": "谁负责初始化被复用的对象？",
+            "en": "What is responsible for initializing the reused objects?",
+            "es": "¿Quién es responsable de inicializar los objetos reutilizados?"
           }
         },
         {
           "title": {
+            "zh": "由外部代码初始化对象",
             "en": "Outside code initializes objects",
-            "zh": "由外部代码初始化对象"
-          },
-          "subsection": {
-            "en": "What is responsible for initializing the reused objects?",
-            "zh": "谁负责初始化被复用的对象？"
+            "es": "El código externo inicializa los objetos"
           },
           "body": {
+            "zh": "池的接口更简单：create() 只返回一个指针，调用方可以调用任意一个 init()。但调用方必须处理失败的情况，因为池满时 create() 可能返回 NULL。",
             "en": "The pool's interface is simpler: create() just returns a pointer, and the caller calls whichever init() it likes. But the caller must handle failure, since create() may return NULL when the pool is full.",
-            "zh": "池的接口更简单：create() 只返回一个指针，调用方可以调用任意一个 init()。但调用方必须处理失败的情况，因为池满时 create() 可能返回 NULL。"
+            "es": "La interfaz del grupo es más sencilla: create() solo devuelve un puntero y quien llama invoca el init() que prefiera. Pero quien llama debe manejar el fallo, ya que create() puede devolver NULL cuando el grupo está lleno."
+          },
+          "subsection": {
+            "zh": "谁负责初始化被复用的对象？",
+            "en": "What is responsible for initializing the reused objects?",
+            "es": "¿Quién es responsable de inicializar los objetos reutilizados?"
           },
           "code": "Particle* particle = pool.create();\nif (particle != NULL) particle->init(1, 2);"
         }
@@ -324,18 +384,21 @@
     {
       "num": "19.8",
       "title": {
+        "zh": "参见",
         "en": "See Also",
-        "zh": "参见"
+        "es": "Véase también"
       },
       "points": [
         {
           "title": {
+            "zh": "对象池与享元，以及数据局部性",
             "en": "Pool vs. Flyweight, and Data Locality",
-            "zh": "对象池与享元，以及数据局部性"
+            "es": "Grupo de objetos frente a Peso ligero, y Localidad de datos"
           },
           "body": {
+            "zh": "享元模式同样维护可复用的对象，但其对象被多个所有者同时共享，以避免重复占用内存。对象池中的对象只是随时间被复用：原所有者用完后回收其内存，对象在生命周期内不会被共享。此外，把同类型对象紧密排列在内存中有助于让 CPU 缓存保持充盈，这正是数据局部性模式的主题。",
             "en": "Flyweight also keeps reusable objects, but its objects are shared by multiple owners simultaneously to avoid duplicate memory. Pooled objects are reused only over time: memory is reclaimed after the original owner is done, with no sharing during a lifetime. Packing same-typed objects together also keeps the CPU cache full, which is the subject of Data Locality.",
-            "zh": "享元模式同样维护可复用的对象，但其对象被多个所有者同时共享，以避免重复占用内存。对象池中的对象只是随时间被复用：原所有者用完后回收其内存，对象在生命周期内不会被共享。此外，把同类型对象紧密排列在内存中有助于让 CPU 缓存保持充盈，这正是数据局部性模式的主题。"
+            "es": "Peso ligero también mantiene objetos reutilizables, pero sus objetos son compartidos simultáneamente por varios propietarios para evitar duplicar memoria. Los objetos de un grupo solo se reutilizan a lo largo del tiempo: la memoria se recupera cuando el propietario original ya terminó, y no hay compartición durante la vida del objeto. Empaquetar objetos del mismo tipo juntos también mantiene llena la caché de la CPU, que es el tema de Localidad de datos."
           }
         }
       ]
@@ -343,237 +406,621 @@
   ],
   "terms": [
     {
-      "en": "object pool",
-      "zh": "对象池"
+      "term": {
+        "zh": "对象池",
+        "en": "object pool",
+        "es": "grupo de objetos"
+      }
     },
     {
-      "en": "memory fragmentation",
-      "zh": "内存碎片"
+      "term": {
+        "zh": "内存碎片",
+        "en": "memory fragmentation",
+        "es": "fragmentación de memoria"
+      }
     },
     {
-      "en": "soak test",
-      "zh": "浸泡测试（长时间稳定性测试）"
+      "term": {
+        "zh": "浸泡测试（长时间稳定性测试）",
+        "en": "soak test",
+        "es": "prueba de remojo (soak test)"
+      }
     },
     {
-      "en": "in use",
-      "zh": "使用中"
+      "term": {
+        "zh": "使用中",
+        "en": "in use",
+        "es": "en uso"
+      }
     },
     {
-      "en": "free list",
-      "zh": "空闲链表"
+      "term": {
+        "zh": "空闲链表",
+        "en": "free list",
+        "es": "lista de libres"
+      }
     },
     {
-      "en": "union",
-      "zh": "联合体"
+      "term": {
+        "zh": "联合体",
+        "en": "union",
+        "es": "union"
+      }
     },
     {
-      "en": "overflow pool",
-      "zh": "溢出池"
+      "term": {
+        "zh": "溢出池",
+        "en": "overflow pool",
+        "es": "grupo de desbordamiento"
+      }
     },
     {
-      "en": "particle system",
-      "zh": "粒子系统"
+      "term": {
+        "zh": "粒子系统",
+        "en": "particle system",
+        "es": "sistema de partículas"
+      }
     },
     {
-      "en": "garbage collector",
-      "zh": "垃圾回收器"
+      "term": {
+        "zh": "垃圾回收器",
+        "en": "garbage collector",
+        "es": "recolector de basura"
+      }
     },
     {
-      "en": "Flyweight",
-      "zh": "享元模式"
+      "term": {
+        "zh": "享元模式",
+        "en": "Flyweight",
+        "es": "Peso ligero"
+      }
     }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "19.2",
-      "q": "14 bytes are free, split into two 7-byte holes. 分配一个 12 字节的对象会怎样？",
+      "q": {
+        "zh": "堆上有 14 字节空闲，但被分成两个 7 字节的空洞。此时分配一个 12 字节的对象会怎样？",
+        "en": "14 bytes are free, but they are split into two 7-byte holes. What happens when you allocate a 12-byte object?",
+        "es": "Hay 14 bytes libres, pero están divididos en dos huecos de 7 bytes. ¿Qué ocurre cuando se asigna un objeto de 12 bytes?"
+      },
+      "explain": {
+        "zh": "碎片化（fragmentation）：总空闲内存虽然不少，但最大的连续区域太小，所以分配失败。",
+        "en": "Fragmentation: total free memory is large but the largest contiguous region is too small.",
+        "es": "Fragmentación: la memoria libre total es grande, pero la región contigua más grande es demasiado pequeña."
+      },
       "options": [
-        "成功，因为总空闲空间足够",
-        "成功，内存管理器会自动合并空洞",
-        "失败，因为最大的连续空闲块只有 7 字节",
-        "失败，因为堆只能分配 2 的幂大小"
+        {
+          "zh": "成功，因为总空闲空间足够",
+          "en": "It succeeds, because the total free space is enough",
+          "es": "Se asigna correctamente, porque el espacio libre total es suficiente"
+        },
+        {
+          "zh": "成功，内存管理器会自动合并空洞",
+          "en": "It succeeds, because the memory manager merges the holes automatically",
+          "es": "Se asigna correctamente, porque el gestor de memoria fusiona los huecos automáticamente"
+        },
+        {
+          "zh": "失败，因为最大的连续空闲块只有 7 字节",
+          "en": "It fails, because the largest contiguous free block is only 7 bytes",
+          "es": "Falla, porque el bloque libre contiguo más grande mide solo 7 bytes"
+        },
+        {
+          "zh": "失败，因为堆只能分配 2 的幂大小",
+          "en": "It fails, because the heap only allocates power-of-two sizes",
+          "es": "Falla, porque el heap solo asigna tamaños potencia de dos"
+        }
       ],
-      "answer": 2,
-      "explain": "Fragmentation: total free memory is large but the largest contiguous region is too small. 碎片化导致连续空间不足。"
+      "answer": 2
     },
     {
       "type": "fill",
       "ref": "19.2",
-      "q": "Console makers run ___ tests, leaving the game in demo mode for days; creeping fragmentation often makes them fail.",
+      "q": {
+        "zh": "主机制造商会让游戏在 demo mode 下连续运行好几天，这就是 ___ 测试；逐渐加剧的碎片化常常使游戏无法通过这些测试。",
+        "en": "Console makers run ___ tests, leaving the game in demo mode for days; creeping fragmentation often makes them fail.",
+        "es": "Los fabricantes de consolas ejecutan pruebas ___ que dejan el juego en modo demo durante días; la fragmentación que se acumula poco a poco suele hacer que el juego no las supere."
+      },
+      "explain": {
+        "zh": "浸泡测试（soak test）会长时间运行游戏，以检查稳定性。",
+        "en": "A soak test runs the game for a long time in order to check stability.",
+        "es": "La prueba de remojo (soak test) deja el juego funcionando mucho tiempo para comprobar su estabilidad."
+      },
       "answer": [
         "soak",
         "浸泡"
       ],
-      "explain": "Soak test（浸泡测试）：长时间运行游戏以检查稳定性。"
+      "answerText": {
+        "zh": "soak（浸泡测试）",
+        "en": "soak",
+        "es": "soak (prueba de remojo)"
+      }
     },
     {
       "type": "truefalse",
       "ref": "19.4",
-      "q": "Object Pool works best when pooled objects vary greatly in size.",
-      "answer": false,
-      "explain": "错误。适用条件之一是 objects are similar in size；大小差异大会浪费槽位空间。"
+      "q": {
+        "zh": "当池中的对象大小差异很大时，对象池效果最好。",
+        "en": "Object Pool works best when pooled objects vary greatly in size.",
+        "es": "El Grupo de objetos (Object Pool) funciona mejor cuando los objetos del grupo varían mucho de tamaño."
+      },
+      "explain": {
+        "zh": "错误。使用对象池的条件之一是对象大小相近（objects are similar in size）；大小差异太大会浪费槽位空间。",
+        "en": "False. One of the conditions for using a pool is that the objects are similar in size; large size differences waste slot space.",
+        "es": "Falso. Una de las condiciones para usar un grupo es que los objetos sean de tamaño similar; si los tamaños difieren mucho, se desperdicia espacio en las ranuras."
+      },
+      "answer": false
     },
     {
       "type": "choice",
       "ref": "19.5",
-      "q": "声音池已满，又要播放一个新的魔杖音效。作者推荐怎么做？ / The sound pool is full; what's best?",
+      "q": {
+        "zh": "声音池已满，此时又要播放一个新的魔杖音效。作者推荐怎么做？",
+        "en": "The sound pool is full and a new wand sound effect has to be played. What does the author recommend?",
+        "es": "El grupo de sonidos está lleno y hay que reproducir un nuevo efecto de sonido de varita. ¿Qué recomienda el autor?"
+      },
+      "explain": {
+        "zh": "强行回收一个已有对象（forcibly kill an existing object）：新声音会掩盖旧声音被截断的事实。而缺少新声音比旧声音突然中断更容易被察觉。",
+        "en": "Forcibly kill an existing object: the new sound masks the cutoff of the old one. A missing new sound is more noticeable than an abruptly cut old one.",
+        "es": "Destruir a la fuerza un objeto existente (forcibly kill an existing object): el sonido nuevo oculta el corte del anterior. Que falte el sonido nuevo se nota más que la interrupción repentina de uno viejo."
+      },
       "options": [
-        "忽略新声音",
-        "让游戏崩溃以便调试",
-        "等待某个声音播放完毕",
-        "替换掉正在播放的最安静的声音"
+        {
+          "zh": "忽略这个新声音",
+          "en": "Ignore the new sound",
+          "es": "Ignorar el sonido nuevo"
+        },
+        {
+          "zh": "让游戏崩溃，方便调试",
+          "en": "Crash the game so it can be debugged",
+          "es": "Hacer que el juego se caiga para poder depurarlo"
+        },
+        {
+          "zh": "等待某一个声音播放完毕",
+          "en": "Wait for one of the sounds to finish playing",
+          "es": "Esperar a que termine de reproducirse alguno de los sonidos"
+        },
+        {
+          "zh": "替换掉正在播放的最安静的声音",
+          "en": "Replace the quietest sound that is currently playing",
+          "es": "Reemplazar el sonido más silencioso que se esté reproduciendo"
+        }
       ],
-      "answer": 3,
-      "explain": "Forcibly kill an existing object: the new sound masks the cutoff of the old one. 新声音的缺失比旧声音的中断更容易被察觉。"
+      "answer": 3
     },
     {
       "type": "open",
       "ref": "19.5",
-      "q": "Why is it harder to catch missing initialization bugs with a pool? 为什么在对象池中更难发现漏初始化的 bug？",
-      "answer": "EN: The pool bypasses the memory manager's debug feature that fills memory with magic values like 0xdeadbeef, and the reused slot previously held an object of the exact same type, so leftover data looks almost correct. 中：对象池绕过了内存管理器用 0xdeadbeef 等魔数填充内存的调试功能，而且被复用的槽位之前存的正是同类型对象，残留数据看起来几乎是正确的。",
-      "explain": "对策：完整初始化新对象，并可在回收时用调试功能清空槽位。"
+      "q": {
+        "zh": "为什么在对象池中更难发现漏初始化的 bug？",
+        "en": "Why is it harder to catch missing initialization bugs with a pool?",
+        "es": "¿Por qué es más difícil detectar errores por inicialización omitida cuando se usa un grupo de objetos?"
+      },
+      "explain": {
+        "zh": "对策：完整初始化新对象，并可以考虑加一个在回收时清空槽位的调试功能。",
+        "en": "The remedy: initialize new objects fully, and consider a debug feature that clears reclaimed slots.",
+        "es": "La solución: inicializar por completo los objetos nuevos y, si se quiere, añadir una función de depuración que limpie las ranuras recuperadas."
+      },
+      "answer": {
+        "zh": "对象池绕过了内存管理器用 0xdeadbeef 之类的魔数填充内存的调试功能；而且被复用的槽位之前放的正是同类型的对象，残留数据看起来几乎是正确的，所以忘了初始化某个字段也很难察觉。",
+        "en": "The pool bypasses the memory manager's debug feature that fills memory with magic values like 0xdeadbeef, and the reused slot previously held an object of the exact same type, so the leftover data looks almost correct.",
+        "es": "El grupo se salta la función de depuración del gestor de memoria que rellena la memoria con valores mágicos como 0xdeadbeef, y la ranura reutilizada contenía antes un objeto exactamente del mismo tipo, así que los datos que quedan parecen casi correctos."
+      }
     },
     {
       "type": "truefalse",
       "ref": "19.5",
-      "q": "在有 GC 的语言中使用对象池时，应在对象不再使用时清除它对其他对象的引用。",
-      "answer": true,
-      "explain": "True. Pooled objects are never freed, so their references would keep other objects from being collected."
+      "q": {
+        "zh": "在有 GC 的语言中使用对象池时，应在对象不再使用时清除它对其他对象的引用。",
+        "en": "When using an object pool in a language with a garbage collector, you should clear a pooled object's references to other objects once it is no longer in use.",
+        "es": "Al usar un grupo de objetos en un lenguaje con recolector de basura (GC), conviene limpiar las referencias que el objeto tiene a otros objetos cuando deja de estar en uso."
+      },
+      "explain": {
+        "zh": "正确。池中的对象从不被释放，因此它们持有的引用会让其他对象无法被回收。",
+        "en": "True. Pooled objects are never freed, so their references would keep other objects from being collected.",
+        "es": "Correcto. Los objetos del grupo nunca se liberan, así que sus referencias impedirían que otros objetos se recolectaran."
+      },
+      "answer": true
     },
     {
       "type": "choice",
       "ref": "19.6",
-      "q": "In the sample Particle, how does inUse() work without a separate flag? inUse() 如何判断？",
+      "q": {
+        "zh": "在示例的 Particle 中，没有单独的标志位，inUse() 是如何判断的？",
+        "en": "In the sample Particle, how does inUse() work without a separate flag?",
+        "es": "En el Particle del ejemplo, ¿cómo funciona inUse() sin una bandera aparte?"
+      },
+      "explain": {
+        "zh": "粒子寿命有限，所以剩余帧数同时充当“使用中”状态，用寿命计数代替了标志位。",
+        "en": "Particles have a limited lifetime, so the remaining frames double as the in-use state.",
+        "es": "Las partículas tienen una vida limitada, así que los fotogramas restantes hacen también de estado «en uso»; el contador de vida sustituye a la bandera."
+      },
       "options": [
-        "framesLeft_ > 0",
-        "x_ 是否在屏幕内",
-        "检查 next 指针是否为 NULL",
-        "查询池中的 inUse_ 数组"
+        {
+          "zh": "framesLeft_ > 0",
+          "en": "framesLeft_ > 0",
+          "es": "framesLeft_ > 0"
+        },
+        {
+          "zh": "x_ 是否位于屏幕内",
+          "en": "Whether x_ is on screen",
+          "es": "Si x_ está dentro de la pantalla"
+        },
+        {
+          "zh": "检查 next 指针是否为 NULL",
+          "en": "Check whether the next pointer is NULL",
+          "es": "Comprobar si el puntero next es NULL"
+        },
+        {
+          "zh": "查询池中的 inUse_ 数组",
+          "en": "Query the pool's inUse_ array",
+          "es": "Consultar el arreglo inUse_ del grupo"
+        }
       ],
-      "answer": 0,
-      "explain": "Particles have a limited lifetime, so remaining frames double as the in-use state. 利用寿命计数代替标志位。"
+      "answer": 0
     },
     {
       "type": "fill",
       "ref": "19.6",
-      "q": "把空闲粒子的内存“借来”存放 next 指针、串成链表的技巧叫做 ___。",
+      "q": {
+        "zh": "把空闲粒子的内存“借来”存放 next 指针、串成链表的技巧叫做 ___。",
+        "en": "The trick of borrowing the memory of free particles to store a next pointer and chain them into a linked list is called a ___.",
+        "es": "La técnica de «tomar prestada» la memoria de las partículas libres para guardar un puntero next y enlazarlas en una lista se llama ___."
+      },
+      "explain": {
+        "zh": "空闲链表蚕食（cannibalize）死亡对象自身的内存，因此不额外占用内存；创建操作变成 O(1)。",
+        "en": "A free list cannibalizes the memory of dead objects, so it costs no extra memory; creation becomes O(1).",
+        "es": "La lista de libres canibaliza (cannibalize) la memoria de los propios objetos muertos, así que no cuesta memoria extra; la creación pasa a ser O(1)."
+      },
       "answer": [
         "free list",
         "空闲链表",
         "空闲列表"
       ],
-      "explain": "A free list cannibalizes the memory of dead objects, so it costs no extra memory; creation becomes O(1)."
+      "answerText": {
+        "zh": "空闲链表（free list）",
+        "en": "free list",
+        "es": "lista de libres (free list)"
+      }
     },
     {
       "type": "choice",
       "ref": "19.6",
-      "q": "Why can the free-list version store next in a union with the live state?",
+      "q": {
+        "zh": "为什么空闲链表版本可以把 next 指针与活跃状态放在同一个 union 里？",
+        "en": "Why can the free-list version store next in a union with the live state?",
+        "es": "¿Por qué la versión con lista de libres puede guardar next en una union junto con el estado activo?"
+      },
+      "explain": {
+        "zh": "未使用的粒子只需要 framesLeft_ 判断是否死亡，其余字段可以复用来存放 next 指针。",
+        "en": "An unused particle only needs framesLeft_ to tell whether it is dead, so the other fields can be reused to store the next pointer.",
+        "es": "Una partícula sin usar solo necesita framesLeft_ para saber si está muerta, así que los demás campos se pueden reutilizar para guardar el puntero next."
+      },
       "options": [
-        "Because unions are faster than structs",
-        "Because a dead particle's position and velocity are irrelevant, only framesLeft_ is needed",
-        "Because C++ requires it for linked lists",
-        "Because next is only used while the particle is alive"
+        {
+          "zh": "因为 union 比 struct 更快",
+          "en": "Because unions are faster than structs",
+          "es": "Porque las union son más rápidas que los struct"
+        },
+        {
+          "zh": "因为死亡粒子的位置和速度都无关紧要，只需要 framesLeft_",
+          "en": "Because a dead particle's position and velocity are irrelevant; only framesLeft_ is needed",
+          "es": "Porque la posición y la velocidad de una partícula muerta son irrelevantes; solo hace falta framesLeft_"
+        },
+        {
+          "zh": "因为 C++ 要求链表必须这样做",
+          "en": "Because C++ requires it for linked lists",
+          "es": "Porque C++ lo exige para las listas enlazadas"
+        },
+        {
+          "zh": "因为 next 只在粒子活着时使用",
+          "en": "Because next is only used while the particle is alive",
+          "es": "Porque next solo se usa mientras la partícula está viva"
+        }
       ],
-      "answer": 1,
-      "explain": "未使用的粒子只需要 framesLeft_ 来判断是否死亡，其余字段可以复用来存放 next 指针。"
+      "answer": 1
     },
     {
       "type": "open",
       "ref": "19.7",
-      "q": "比较“池内部初始化对象”与“外部代码初始化对象”两种设计。 / Compare the two initialization choices.",
-      "answer": "EN: If the pool initializes internally, it can fully encapsulate objects so no one holds references to objects that might be reused, but the pool must mirror and forward every init() overload. If outside code initializes, create() just returns a pointer and the interface is simpler, but callers must handle create() returning NULL when the pool is full. 中：池内部初始化可以完全封装对象，避免外部持有可能被复用的对象引用，但池必须镜像并转发每一种 init() 重载；外部初始化时 create() 只返回指针，接口更简单，但调用方必须处理池满时返回 NULL 的情况。",
-      "explain": "关键词：encapsulation（封装）vs. simpler interface（更简单的接口）。"
+      "q": {
+        "zh": "比较“由池在内部初始化对象”与“由外部代码初始化对象”两种设计。",
+        "en": "Compare the two initialization choices.",
+        "es": "Compara las dos opciones de inicialización: que el grupo inicialice los objetos o que lo haga el código externo."
+      },
+      "explain": {
+        "zh": "关键词：封装（encapsulation）vs. 更简单的接口（simpler interface）。",
+        "en": "Keywords: encapsulation vs. a simpler interface.",
+        "es": "Palabras clave: encapsulación frente a una interfaz más sencilla."
+      },
+      "answer": {
+        "zh": "池内部初始化可以完全封装对象，避免外部代码持有可能被意外复用的对象引用，但池必须镜像并转发对象支持的每一种 init() 重载；由外部初始化时 create() 只返回指针，接口更简单，但调用方必须处理池满时 create() 返回 NULL 的情况。",
+        "en": "If the pool initializes internally, it can fully encapsulate its objects so no outside code holds references to objects that might be reused, but the pool is tied to how the objects are initialized and must mirror and forward every init() overload the object supports. If outside code initializes, create() just returns a pointer and the interface is simpler, but callers must handle create() returning NULL when the pool is full.",
+        "es": "Si el grupo inicializa internamente, puede encapsular del todo sus objetos y el código externo nunca guarda referencias a objetos que podrían reutilizarse; pero el grupo queda atado a cómo se inicializan los objetos y debe replicar y reenviar cada sobrecarga de init() que admita el objeto. Si inicializa el código externo, create() solo devuelve un puntero y la interfaz es más sencilla, pero quien llama debe manejar que create() devuelva NULL cuando el grupo está lleno."
+      }
     },
     {
       "type": "choice",
       "ref": "19.8",
-      "q": "Object Pool 与 Flyweight 中“reuse”的区别是？",
+      "q": {
+        "zh": "Object Pool 与 Flyweight 中的“reuse”有什么区别？",
+        "en": "What is the difference between \"reuse\" in Object Pool and in Flyweight?",
+        "es": "¿Cuál es la diferencia entre la «reutilización» del grupo de objetos (Object Pool) y la del peso ligero (Flyweight)?"
+      },
+      "explain": {
+        "zh": "享元是同时共享（空间上的共享），对象池是随时间复用（时间上的复用）。",
+        "en": "Flyweight shares simultaneously; a pool reuses over time.",
+        "es": "El peso ligero comparte de forma simultánea; el grupo reutiliza a lo largo del tiempo, es decir, el peso ligero comparte en el espacio y el grupo reutiliza en el tiempo."
+      },
       "options": [
-        "二者完全相同",
-        "池中的对象被多个所有者同时共享",
-        "享元对象只在原所有者用完后才被复用",
-        "享元是同时共享同一实例；对象池是随时间复用，生命周期内不共享"
+        {
+          "zh": "二者完全相同",
+          "en": "They are exactly the same",
+          "es": "Son exactamente lo mismo"
+        },
+        {
+          "zh": "池中的对象被多个所有者同时共享",
+          "en": "Pooled objects are shared by several owners at the same time",
+          "es": "Los objetos del grupo se comparten entre varios dueños al mismo tiempo"
+        },
+        {
+          "zh": "享元对象只有在原所有者用完之后才被复用",
+          "en": "Flyweight objects are reused only after the original owner is done with them",
+          "es": "Los objetos de peso ligero se reutilizan solo cuando el dueño original ya terminó con ellos"
+        },
+        {
+          "zh": "享元是同时共享同一实例；对象池是随时间复用，生命周期内不共享",
+          "en": "Flyweight shares the same instance simultaneously; a pool reuses over time and shares nothing during a lifetime",
+          "es": "El peso ligero comparte la misma instancia al mismo tiempo; el grupo reutiliza a lo largo del tiempo y no comparte nada durante la vida de un objeto"
+        }
       ],
-      "answer": 3,
-      "explain": "Flyweight shares simultaneously; a pool reuses over time. 享元是空间上的共享，对象池是时间上的复用。"
+      "answer": 3
     },
     {
       "type": "scenario",
       "ref": "19.2",
-      "title": "主机浸泡测试崩溃 · Failing the soak test",
-      "q": "你的主机射击游戏在提交前的 soak test 中失败：demo mode 连续运行 40 小时后，生成新的弹壳和火花时 new 返回 NULL 而崩溃，但内存统计显示仍有 30MB 空闲。弹壳、火花、弹孔贴花每秒会创建和销毁上百个，大小相近。请解释为什么“有空闲内存却分配失败”，并用 Object Pool 设计解决方案（内存何时分配、对象如何“创建/销毁”）。",
-      "answer": "原因：memory fragmentation。频繁 new/delete 大小不一的对象，使 heap 的空闲空间被切成许多小洞，总空闲量虽大，但最大的连续块可能小于要分配的对象，于是分配失败；主机上通常没有能 compact 的内存管理器，碎片会随时间慢慢累积，正是 soak test 能抓到的问题。设计：为弹壳、火花、贴花各建一个 pool，在游戏启动（或关卡加载）时一次性分配一块连续内存放入固定数量的对象，游戏期间从不 free。每个对象有 inUse 状态；“创建”= 在池中找到空闲对象并 init()，“销毁”= 把它标记为 not in use。对内存管理器而言，这只是一次大块分配；对使用者而言，可以随意创建和销毁。此外按类型分池还能防止大量特效挤占敌人等关键对象的内存。",
+      "q": {
+        "zh": "你的主机射击游戏在提交前的 soak test 中失败：demo mode 连续运行 40 小时后，生成新的弹壳和火花时 new 返回 NULL 而崩溃，但内存统计显示仍有 30MB 空闲。弹壳、火花、弹孔贴花每秒会创建和销毁上百个，大小相近。请解释为什么“有空闲内存却分配失败”，并用 Object Pool 设计解决方案（内存何时分配、对象如何“创建/销毁”）。",
+        "en": "Your console shooter fails the soak test before submission: after running in demo mode for 40 hours straight, it crashes because new returns NULL when spawning new shell casings and sparks, even though the memory stats still show 30 MB free. Shell casings, sparks and bullet-hole decals are created and destroyed hundreds of times per second, and they are similar in size. Explain why allocation fails even though there is free memory, and design a solution with the Object Pool pattern (when is memory allocated, how are objects \"created\" and \"destroyed\").",
+        "es": "Tu shooter de consola no pasa la prueba de remojo antes de la entrega: tras 40 horas seguidas en modo demo, se cae porque new devuelve NULL al generar nuevos casquillos y chispas, aunque las estadísticas de memoria siguen mostrando 30 MB libres. Los casquillos, las chispas y las calcomanías de agujeros de bala se crean y destruyen cientos de veces por segundo, y son de tamaño similar. Explica por qué falla la asignación si hay memoria libre y diseña una solución con el patrón Grupo de objetos (Object Pool): cuándo se asigna la memoria y cómo se «crean» y «destruyen» los objetos."
+      },
+      "explain": {
+        "zh": "对应 §19.2 Motivation 的 The curse of fragmentation 与 soak test：“it's usually creeping fragmentation or memory leakage that brings the game down”。对象池提供了“the best of both worlds”。",
+        "en": "Corresponds to §19.2 Motivation, \"The curse of fragmentation\" and the soak test: \"it's usually creeping fragmentation or memory leakage that brings the game down\". An object pool gives \"the best of both worlds\".",
+        "es": "Corresponde a §19.2 Motivation, «The curse of fragmentation», y a la prueba de remojo: «it's usually creeping fragmentation or memory leakage that brings the game down». El grupo de objetos ofrece «the best of both worlds»."
+      },
       "code": "class EffectPool {\npublic:\n  Shell* spawnShell(Vec3 pos, Vec3 vel) {\n    for (int i = 0; i < MAX_SHELLS; i++) {\n      if (!shells_[i].inUse()) {\n        shells_[i].init(pos, vel);\n        return &shells_[i];\n      }\n    }\n    return NULL;   // pool full\n  }\nprivate:\n  static const int MAX_SHELLS = 256;\n  Shell shells_[MAX_SHELLS];   // allocated once, never freed\n};",
+      "title": {
+        "zh": "主机浸泡测试崩溃",
+        "en": "Failing the soak test",
+        "es": "Fracaso en la prueba de remojo de la consola"
+      },
+      "answer": {
+        "zh": "原因：memory fragmentation。频繁 new/delete 大小不一的对象，使 heap 的空闲空间被切成许多小洞，总空闲量虽大，但最大的连续块可能小于要分配的对象，于是分配失败；主机上通常没有能 compact 的内存管理器，碎片会随时间慢慢累积，正是 soak test 能抓到的问题。设计：为弹壳、火花、贴花各建一个 pool，在游戏启动（或关卡加载）时一次性分配一块连续内存放入固定数量的对象，游戏期间从不 free。每个对象有 inUse 状态；“创建”= 在池中找到空闲对象并 init()，“销毁”= 把它标记为 not in use。对内存管理器而言，这只是一次大块分配；对使用者而言，可以随意创建和销毁。此外按类型分池还能防止大量特效挤占敌人等关键对象的内存。",
+        "en": "Cause: memory fragmentation. Repeatedly new/delete-ing objects of varying sizes slices the heap's free space into many small holes; the total free amount is large, but the largest contiguous block can be smaller than the object being allocated, so allocation fails. Consoles usually have no compacting memory manager, so fragmentation builds up slowly over time, which is exactly what a soak test catches. Design: give shell casings, sparks and decals a pool each; at game start (or level load) allocate one contiguous chunk once and place a fixed number of objects in it, and never free it during the game. Each object has an inUse state; \"creating\" = find a free object in the pool and init() it, \"destroying\" = mark it as not in use. To the memory manager this is just one large allocation; to the users, objects can be created and destroyed at will. Pooling per type also stops a burst of effects from eating the memory needed for critical objects such as enemies.",
+        "es": "Causa: fragmentación de memoria. Crear y destruir con new/delete objetos de tamaños distintos una y otra vez corta el espacio libre del heap en muchos huecos pequeños; la cantidad libre total es grande, pero el bloque contiguo más grande puede ser menor que el objeto que se quiere asignar, y la asignación falla. En consola normalmente no hay un gestor de memoria que compacte, así que la fragmentación se acumula poco a poco, que es justo lo que detecta una prueba de remojo. Diseño: crea un grupo para los casquillos, otro para las chispas y otro para las calcomanías; al iniciar el juego (o al cargar el nivel) asigna una sola vez un bloque contiguo con una cantidad fija de objetos y no lo liberes durante la partida. Cada objeto tiene un estado en uso; «crear» = buscar un objeto libre en el grupo y llamar a su init(), «destruir» = marcarlo como no en uso. Para el gestor de memoria es una única asignación grande; para quien usa el grupo, los objetos se pueden crear y destruir a voluntad. Además, separar los grupos por tipo evita que una avalancha de efectos consuma la memoria que necesitan objetos críticos como los enemigos."
+      },
       "checklist": [
-        "识别根因是 heap fragmentation：总空闲足够但缺少足够大的连续块",
-        "指出主机/移动设备通常没有 compacting memory manager",
-        "启动时一次性分配固定数量对象，运行期不再 new/delete",
-        "用 in-use 状态表示对象的“生”与“死”",
-        "按对象类型分池，防止一种对象吃光内存"
-      ],
-      "explain": "对应 §19.2 Motivation 的 The curse of fragmentation 与 soak test：“it’s usually creeping fragmentation or memory leakage that brings the game down”。Object pool 提供“the best of both worlds”。"
+        {
+          "zh": "识别根因是 heap fragmentation：总空闲足够，但缺少足够大的连续块",
+          "en": "Identify the root cause as heap fragmentation: enough total free space, but no large enough contiguous block",
+          "es": "Identificar que la causa raíz es la fragmentación del heap: hay suficiente espacio libre total, pero ningún bloque contiguo lo bastante grande"
+        },
+        {
+          "zh": "指出主机/移动设备通常没有 compacting memory manager",
+          "en": "Point out that consoles and mobile devices usually have no compacting memory manager",
+          "es": "Señalar que las consolas y los móviles normalmente no tienen un gestor de memoria que compacte"
+        },
+        {
+          "zh": "启动时一次性分配固定数量对象，运行期不再 new/delete",
+          "en": "Allocate a fixed number of objects once at startup, with no new/delete at run time",
+          "es": "Asignar una sola vez una cantidad fija de objetos al iniciar, sin new/delete en tiempo de ejecución"
+        },
+        {
+          "zh": "用 in-use 状态表示对象的“生”与“死”",
+          "en": "Use an in-use state to represent an object's \"life\" and \"death\"",
+          "es": "Usar un estado en uso para representar el «nacimiento» y la «muerte» de un objeto"
+        },
+        {
+          "zh": "按对象类型分池，防止一种对象吃光内存",
+          "en": "Split the pool by object type so one kind of object cannot eat all the memory",
+          "es": "Separar el grupo por tipo de objeto para que una clase de objeto no consuma toda la memoria"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "19.5",
-      "title": "池满了怎么办 · When the pool is full",
-      "q": "一款 MOBA 手游使用多个固定大小的池：Projectile 池、Hit VFX 池、Playing Sound 池、以及每局 Boss 召唤物池（Boss 在第 20 分钟召唤 Elite Minion）。团战时各个池都可能被耗尽。请为每个池分别选择“池满时”的处理策略（提前避免 / 不创建 / 强制回收已有对象 / 扩容），并说明理由。",
-      "answer": "Hit VFX 池：Just don't create。团战时屏幕已满是特效，少一个火花玩家察觉不到，直接返回 NULL 即可。Playing Sound 池：Forcibly kill an existing object。玩家的技能音效如果有时不响会很明显；应找到当前最安静（音量最低或最远）的声音，替换为新声音，新声音会掩盖旧声音的截断。Projectile 池：子弹是 gameplay 关键对象，不能静默丢弃，应 Prevent it outright——根据最大英雄数 × 最大弹幕数调大池容量，并通过测试确保不会溢出；内存允许时也可加一个 overflow pool。Boss 召唤物池：Prevent it outright。Boss 召唤失败没有“正确”的降级方式，必须保证足够；代价是为罕见情况占用内存，可按地图/模式设置不同池大小。Increase size：若平台内存较宽裕可运行时扩容或建第二个溢出池，需考虑高峰过后是否收缩回原大小。",
+      "q": {
+        "zh": "一款 MOBA 手游使用多个固定大小的池：Projectile 池、Hit VFX 池、Playing Sound 池、以及每局 Boss 召唤物池（Boss 在第 20 分钟召唤 Elite Minion）。团战时各个池都可能被耗尽。请为每个池分别选择“池满时”的处理策略（提前避免 / 不创建 / 强制回收已有对象 / 扩容），并说明理由。",
+        "en": "A mobile MOBA uses several fixed-size pools: a Projectile pool, a Hit VFX pool, a Playing Sound pool, and a per-match Boss summon pool (the Boss summons Elite Minions at the 20-minute mark). During team fights any of these pools can be exhausted. Choose a strategy for what to do when the pool is full for each pool (prevent it outright / just don't create / forcibly kill an existing object / grow the pool), and justify each choice.",
+        "es": "Un MOBA para móviles usa varios grupos de tamaño fijo: un grupo de Projectile, uno de VFX de impacto, uno de sonidos en reproducción y un grupo de invocaciones del jefe por partida (el jefe invoca Elite Minions en el minuto 20). En las peleas en equipo cualquiera de estos grupos puede agotarse. Elige para cada grupo una estrategia para cuando el grupo está lleno (evitarlo por completo / no crear el objeto / destruir a la fuerza un objeto existente / ampliar el grupo) y justifica cada elección."
+      },
+      "explain": {
+        "zh": "对应 §19.5 Keep in Mind 的“Only a fixed number of objects can be active at any one time”，书中列出了四种策略，并以 sound pool 为例：“find the quietest sound already playing and replace that”。",
+        "en": "Corresponds to §19.5 Keep in Mind, \"Only a fixed number of objects can be active at any one time\": the book lists four strategies and uses the sound pool as its example — \"find the quietest sound already playing and replace that\".",
+        "es": "Corresponde a §19.5 Keep in Mind, «Only a fixed number of objects can be active at any one time»: el libro enumera cuatro estrategias y usa el grupo de sonidos como ejemplo: «find the quietest sound already playing and replace that»."
+      },
       "code": "Sound* SoundPool::play(SoundId id, float volume) {\n  Sound* slot = findFree();\n  if (slot == NULL) {\n    // Pool full: steal the quietest playing sound.\n    slot = findQuietest();\n    slot->stop();\n  }\n  slot->start(id, volume);\n  return slot;\n}\n\nVfx* VfxPool::spawn(...) {\n  Vfx* v = findFree();\n  if (v == NULL) return NULL;   // nobody will notice\n  v->init(...);\n  return v;\n}",
+      "title": {
+        "zh": "池满了怎么办",
+        "en": "When the pool is full",
+        "es": "Qué hacer cuando el grupo está lleno"
+      },
+      "answer": {
+        "zh": "Hit VFX 池：Just don't create。团战时屏幕已经满是特效，少一个火花玩家察觉不到，直接返回 NULL 即可。Playing Sound 池：Forcibly kill an existing object。玩家的技能音效如果有时不响会很明显；应找到当前最安静（音量最低或最远）的声音，替换为新声音，新声音会掩盖旧声音的截断。Projectile 池：子弹是 gameplay 关键对象，不能静默丢弃，应 Prevent it outright——根据最大英雄数 × 最大弹幕数调大池容量，并通过测试确保不会溢出；内存允许时也可加一个 overflow pool。Boss 召唤物池：Prevent it outright。Boss 召唤失败没有“正确”的降级方式，必须保证足够；代价是为罕见情况占用内存，可按地图/模式设置不同池大小。Increase size：若平台内存较宽裕可运行时扩容或建第二个溢出池，需考虑高峰过后是否收缩回原大小。",
+        "en": "Hit VFX pool: just don't create. In a team fight the screen is already full of effects, so nobody notices a missing spark; just return NULL. Playing Sound pool: forcibly kill an existing object. If a player's ability sound is sometimes silent it is very noticeable; find the quietest sound currently playing (lowest volume or farthest away) and replace it with the new one, and the new sound masks the cutoff of the old. Projectile pool: bullets are gameplay-critical and must not be silently dropped, so prevent it outright — size the pool from the maximum number of heroes × the maximum number of projectiles, and test that it never overflows; if memory allows, add an overflow pool as well. Boss summon pool: prevent it outright. A failed Boss summon has no correct fallback, so it must be guaranteed, at the cost of memory held for a rare case; pool sizes can differ per map or mode. Increase size: if the platform's memory is roomy you can grow the pool at run time or add a second overflow pool, but consider whether it shrinks back after the peak.",
+        "es": "Grupo de VFX de impacto: simplemente no crearlos. En una pelea en equipo la pantalla ya está llena de efectos y nadie nota que falte una chispa, así que basta con devolver NULL. Grupo de sonidos en reproducción: destruir a la fuerza un objeto existente. Si el sonido de la habilidad del jugador a veces no suena, se nota mucho; hay que buscar el sonido más silencioso que se esté reproduciendo (el de menor volumen o el más lejano), reemplazarlo por el nuevo, y el sonido nuevo oculta el corte del anterior. Grupo de Projectile: las balas son objetos críticos para el gameplay y no se pueden descartar en silencio, así que hay que evitarlo por completo: calcular el tamaño del grupo como máximo de héroes × máximo de proyectiles y probar que nunca se desborde; si la memoria lo permite, añadir también un grupo de desbordamiento. Grupo de invocaciones del jefe: evitarlo por completo. Una invocación fallida del jefe no tiene una degradación correcta, así que hay que garantizarla, a costa de ocupar memoria para un caso poco frecuente; se pueden usar tamaños distintos por mapa o por modo. Ampliar el tamaño: si la memoria de la plataforma es holgada se puede ampliar el grupo en tiempo de ejecución o crear un segundo grupo de desbordamiento, aunque conviene decidir si se reduce de nuevo al pasar el pico."
+      },
       "checklist": [
-        "装饰性特效：池满时直接不创建",
-        "音效：强制替换最不明显的已有对象（如最安静的声音）",
-        "关键 gameplay 对象：调大池容量以完全避免溢出",
-        "提到可按场景/关卡调整池大小，或运行时扩容/溢出池及收缩问题"
-      ],
-      "explain": "对应 §19.5 Keep in Mind 的 “Only a fixed number of objects can be active at any one time”，书中列出了四种策略，并以 sound pool 为例：“find the quietest sound already playing and replace that”。"
+        {
+          "zh": "装饰性特效：池满时直接不创建",
+          "en": "Decorative VFX: simply don't create when the pool is full",
+          "es": "VFX decorativos: simplemente no crearlos cuando el grupo está lleno"
+        },
+        {
+          "zh": "音效：强制替换最不明显的已有对象（如最安静的声音）",
+          "en": "Sound: forcibly replace the least noticeable existing object (such as the quietest sound)",
+          "es": "Sonido: reemplazar a la fuerza el objeto existente menos perceptible (por ejemplo, el sonido más silencioso)"
+        },
+        {
+          "zh": "关键 gameplay 对象：调大池容量以完全避免溢出",
+          "en": "Critical gameplay objects: size the pool larger so it never overflows",
+          "es": "Objetos críticos del gameplay: dimensionar el grupo más grande para que nunca se desborde"
+        },
+        {
+          "zh": "提到可按场景/关卡调整池大小，或运行时扩容/溢出池及收缩问题",
+          "en": "Mention per-scene or per-level pool sizing, run-time growth or overflow pools, and the question of shrinking back",
+          "es": "Mencionar el dimensionamiento del grupo por escena o nivel, la ampliación en tiempo de ejecución o los grupos de desbordamiento, y el problema de reducirlos después"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "19.5",
-      "title": "复用对象的残留状态 · Ghost state from a past life",
-      "q": "一款 roguelike 用 Object Pool 管理 Enemy。QA 报告了几个难以复现的 bug：(1) 新生成的史莱姆偶尔带着“中毒”状态和上一个敌人的仇恨目标；(2) 在 Unity/C# 移植版中，内存占用持续上升，Profiler 显示已“回收”的 Enemy 仍引用着巨大的 LootTable 和玩家对象。请分析这两个问题的根源，并给出池化对象 init/release 的设计规范。",
-      "answer": "(1) 根源：Reused objects aren’t automatically cleared。对象从池中复用时不经过内存管理器，没有 0xdeadbeef 之类的调试填充；更糟的是，那块内存之前就是同类型的 Enemy，残留的数据“几乎正确”，忘记初始化某个字段（statusEffects、aggroTarget）也很难察觉。规范：init() 必须完整初始化所有字段，最好集中在一个 reset 函数里；debug build 下回收对象时把整个槽位清成显眼的 magic value（如 0x1deadb0b），让遗漏的字段立刻暴露。(2) 根源：Unused objects will remain in memory。池在 GC 环境中不会真正释放对象，若回收的对象仍持有对其他对象的引用，GC 无法回收那些对象，造成“泄漏”。规范：release() 时把所有对外引用置 null（target、lootTable、owner、回调委托），只保留池自身需要的状态。",
+      "q": {
+        "zh": "一款 roguelike 用 Object Pool 管理 Enemy。QA 报告了几个难以复现的 bug：(1) 新生成的史莱姆偶尔带着“中毒”状态和上一个敌人的仇恨目标；(2) 在 Unity/C# 移植版中，内存占用持续上升，Profiler 显示已“回收”的 Enemy 仍引用着巨大的 LootTable 和玩家对象。请分析这两个问题的根源，并给出池化对象 init/release 的设计规范。",
+        "en": "A roguelike uses an Object Pool to manage enemies. QA reports a few hard-to-reproduce bugs: (1) a newly spawned slime occasionally carries a \"poisoned\" status and the previous enemy's aggro target; (2) in the Unity/C# port, memory use keeps climbing, and the Profiler shows that \"recycled\" enemies still reference a huge LootTable and the player object. Analyze the root cause of both problems and give a design convention for init/release on pooled objects.",
+        "es": "Un roguelike usa un grupo de objetos (Object Pool) para gestionar los Enemy. QA reporta algunos errores difíciles de reproducir: (1) una babosa (slime) recién generada a veces aparece con el estado «envenenado» y con el objetivo de aggro del enemigo anterior; (2) en el port a Unity/C#, el uso de memoria no deja de subir y el Profiler muestra que los Enemy «reciclados» siguen referenciando un LootTable enorme y el objeto del jugador. Analiza la causa raíz de ambos problemas y propone una convención de diseño para init/release de los objetos del grupo."
+      },
+      "explain": {
+        "zh": "对应 §19.5 的两条 pitfall：“Reused objects aren't automatically cleared”与“Unused objects will remain in memory”——“when a pooled object is no longer in use, clear any references it has to other objects.”",
+        "en": "Corresponds to the two pitfalls in §19.5: \"Reused objects aren't automatically cleared\" and \"Unused objects will remain in memory\" — \"when a pooled object is no longer in use, clear any references it has to other objects.\"",
+        "es": "Corresponde a los dos escollos de §19.5: «Reused objects aren't automatically cleared» y «Unused objects will remain in memory», es decir, «when a pooled object is no longer in use, clear any references it has to other objects»."
+      },
       "code": "void Enemy::init(EnemyType* type, Vec2 pos) {\n  // Fully initialize EVERY field.\n  type_ = type; pos_ = pos; hp_ = type->maxHp;\n  aggroTarget_ = NULL;\n  statusEffects_.clear();\n  inUse_ = true;\n}\n\nvoid Enemy::release() {\n  inUse_ = false;\n  aggroTarget_ = NULL;   // drop references (GC languages)\n  lootTable_ = NULL;\n#ifdef DEBUG\n  fillDebugPattern();    // e.g. 0x1deadb0b\n#endif\n}",
+      "title": {
+        "zh": "复用对象的残留状态",
+        "en": "Ghost state from a past life",
+        "es": "Estado fantasma de una vida anterior"
+      },
+      "answer": {
+        "zh": "(1) 根源：Reused objects aren't automatically cleared。对象从池中复用时不经过内存管理器，没有 0xdeadbeef 之类的调试填充；更糟的是，那块内存之前就是同类型的 Enemy，残留的数据“几乎正确”，忘记初始化某个字段（statusEffects、aggroTarget）也很难察觉。规范：init() 必须完整初始化所有字段，最好集中在一个 reset 函数里；debug build 下回收对象时把整个槽位清成显眼的 magic value（如 0x1deadb0b），让遗漏的字段立刻暴露。(2) 根源：Unused objects will remain in memory。池在 GC 环境中不会真正释放对象，若回收的对象仍持有对其他对象的引用，GC 无法回收那些对象，造成“泄漏”。规范：release() 时把所有对外引用置 null（target、lootTable、owner、回调委托），只保留池自身需要的状态。",
+        "en": "(1) Root cause: reused objects aren't automatically cleared. Objects recycled from the pool bypass the memory manager, so there is no debug fill like 0xdeadbeef; worse, that memory already held an Enemy of the same type, so the leftover data looks \"almost correct\" and a forgotten field (statusEffects, aggroTarget) is hard to notice. Convention: init() must fully initialize every field, ideally in one reset function; in a debug build, clear the whole slot to an obvious magic value (such as 0x1deadb0b) when an object is reclaimed, so a missed field shows up immediately. (2) Root cause: unused objects will remain in memory. In a GC environment the pool never really frees objects, so if a reclaimed object still holds references to other objects, the GC cannot collect them — a \"leak\". Convention: in release(), null out every outward reference (target, lootTable, owner, callback delegates) and keep only the state the pool itself needs.",
+        "es": "(1) Causa raíz: los objetos reutilizados no se limpian automáticamente. Los objetos que se reciclan del grupo no pasan por el gestor de memoria, así que no hay un relleno de depuración como 0xdeadbeef; peor aún, esa memoria ya contenía un Enemy del mismo tipo, así que los datos que quedan parecen «casi correctos» y un campo olvidado (statusEffects, aggroTarget) es difícil de notar. Convención: init() debe inicializar por completo todos los campos, preferiblemente en una sola función reset; en una compilación de depuración, al recuperar un objeto hay que limpiar toda la ranura con un valor mágico bien visible (como 0x1deadb0b) para que un campo omitido salte de inmediato. (2) Causa raíz: los objetos sin usar permanecen en memoria. En un entorno con GC el grupo nunca libera de verdad los objetos, así que si un objeto recuperado todavía guarda referencias a otros objetos, el GC no puede recogerlos: se produce una «fuga». Convención: en release() hay que poner en null todas las referencias hacia afuera (target, lootTable, owner, delegados de callback) y conservar solo el estado que necesita el propio grupo."
+      },
       "checklist": [
-        "指出复用对象不会被自动清空，残留旧数据且几乎“看起来正确”",
-        "init 必须完整初始化所有字段",
-        "debug 模式下回收时用 magic value 填充以暴露未初始化问题",
-        "在 GC 环境中，回收时清空对其他对象的引用，否则阻止 GC 回收"
-      ],
-      "explain": "对应 §19.5 的两条 pitfall：“Reused objects aren’t automatically cleared”与“Unused objects will remain in memory”——“when a pooled object is no longer in use, clear any references it has to other objects.”"
+        {
+          "zh": "指出复用对象不会被自动清空，残留旧数据且几乎“看起来正确”",
+          "en": "Point out that reused objects are not cleared automatically, and the old data looks almost \"correct\"",
+          "es": "Señalar que los objetos reutilizados no se limpian automáticamente y que los datos viejos parecen «casi correctos»"
+        },
+        {
+          "zh": "init 必须完整初始化所有字段",
+          "en": "init must fully initialize every field",
+          "es": "init debe inicializar por completo todos los campos"
+        },
+        {
+          "zh": "debug 模式下回收时用 magic value 填充以暴露未初始化问题",
+          "en": "In debug mode, fill reclaimed slots with a magic value to expose uninitialized fields",
+          "es": "En modo de depuración, rellenar las ranuras recuperadas con un valor mágico para exponer los campos sin inicializar"
+        },
+        {
+          "zh": "在 GC 环境中，回收时清空对其他对象的引用，否则阻止 GC 回收",
+          "en": "In a GC environment, clear references to other objects on reclaim, or the GC cannot collect them",
+          "es": "En un entorno con GC, limpiar las referencias a otros objetos al recuperar, o el GC no podrá recogerlos"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "19.6",
-      "title": "O(1) 分配的子弹池 · Constant-time bullet pool",
-      "q": "一款 bullet-hell 游戏的子弹池有 20,000 个槽位，经常 90% 占满。现在 create() 从头线性扫描找第一个 !inUse() 的槽，profiler 显示 Boss 弹幕阶段 create() 很慢。主程要求：分配和回收都是 O(1)，且不能为此额外分配一个 20,000 项的指针数组。Bullet 活着时有 x, y, vx, vy，死了只需要 framesLeft_ 判断状态。请给出数据结构设计。",
-      "answer": "用 free list，并借用死亡子弹本身的内存来存链表指针：Bullet 中保留 framesLeft_（用于判断 inUse），其余字段放进 union state_：活着时用 live { x, y, vx, vy }，空闲时用 Bullet* next，指向下一个空闲子弹。池保存头指针 firstAvailable_。构造时把所有槽位串成链表：firstAvailable_ = &bullets_[0]，每个 i 指向 i+1，最后一个指向 NULL。create()：取 firstAvailable_，头指针移到它的 next，再 init()——O(1)。回收：update() 返回 true 表示本帧刚死亡，池把它插回链表头：setNext(firstAvailable_)；firstAvailable_ = &bullets_[i]——O(1)。没有额外内存开销，因为 next 与死亡时无用的位置/速度共享同一块内存。注意：init 会覆盖 union 中的 next，所以必须先读取 next 再 init；池满时 firstAvailable_ 为 NULL，需要处理（书中用 assert）。",
+      "q": {
+        "zh": "一款 bullet-hell 游戏的子弹池有 20,000 个槽位，经常 90% 占满。现在 create() 从头线性扫描找第一个 !inUse() 的槽，profiler 显示 Boss 弹幕阶段 create() 很慢。主程要求：分配和回收都是 O(1)，且不能为此额外分配一个 20,000 项的指针数组。Bullet 活着时有 x, y, vx, vy，死了只需要 framesLeft_ 判断状态。请给出数据结构设计。",
+        "en": "A bullet-hell game's bullet pool has 20,000 slots and is often 90% full. Right now create() scans linearly from the front for the first slot with !inUse(), and the profiler shows create() is slow during the Boss's bullet-hell phase. The lead programmer requires allocation and reclamation to be O(1), without allocating an extra 20,000-entry pointer array for it. A Bullet has x, y, vx, vy while alive, and once dead only framesLeft_ is needed to tell its state. Give the data structure design.",
+        "es": "El grupo de balas de un juego bullet-hell tiene 20,000 ranuras y a menudo está al 90% de ocupación. Ahora mismo create() recorre linealmente desde el principio para encontrar la primera ranura con !inUse(), y el profiler muestra que create() es lento durante la fase de cortina de balas del jefe. El programador principal exige que la asignación y la recuperación sean O(1), sin asignar para ello un arreglo adicional de 20,000 punteros. Una Bullet tiene x, y, vx, vy mientras está viva, y cuando muere solo hace falta framesLeft_ para saber su estado. Da el diseño de la estructura de datos."
+      },
+      "explain": {
+        "zh": "对应 §19.6 Sample Code 的 A free list：“we cannibalize the memory of the dead particles themselves to store the list”，把 create 从 O(n) 降到 O(1)。",
+        "en": "Corresponds to §19.6 Sample Code, \"A free list\": \"we cannibalize the memory of the dead particles themselves to store the list\", which takes create from O(n) down to O(1).",
+        "es": "Corresponde a §19.6 Sample Code, «A free list»: «we cannibalize the memory of the dead particles themselves to store the list», lo que lleva create de O(n) a O(1)."
+      },
       "code": "class Bullet {\npublic:\n  Bullet* getNext() const { return state_.next; }\n  void setNext(Bullet* next) { state_.next = next; }\nprivate:\n  int framesLeft_;\n  union {\n    struct { double x, y, vx, vy; } live;\n    Bullet* next;\n  } state_;\n};\n\nvoid BulletPool::create(double x, double y, double vx, double vy, int life) {\n  assert(firstAvailable_ != NULL);\n  Bullet* b = firstAvailable_;\n  firstAvailable_ = b->getNext();   // read next BEFORE init overwrites it\n  b->init(x, y, vx, vy, life);\n}",
+      "title": {
+        "zh": "O(1) 分配的子弹池",
+        "en": "Constant-time bullet pool",
+        "es": "Grupo de balas con asignación O(1)"
+      },
+      "answer": {
+        "zh": "用 free list，并借用死亡子弹本身的内存来存链表指针：Bullet 中保留 framesLeft_（用于判断 inUse），其余字段放进 union state_：活着时用 live { x, y, vx, vy }，空闲时用 Bullet* next，指向下一个空闲子弹。池保存头指针 firstAvailable_。构造时把所有槽位串成链表：firstAvailable_ = &bullets_[0]，每个 i 指向 i+1，最后一个指向 NULL。create()：取 firstAvailable_，头指针移到它的 next，再 init()——O(1)。回收：update() 返回 true 表示本帧刚死亡，池把它插回链表头：setNext(firstAvailable_)；firstAvailable_ = &bullets_[i]——O(1)。没有额外内存开销，因为 next 与死亡时无用的位置/速度共享同一块内存。注意：init 会覆盖 union 中的 next，所以必须先读取 next 再 init；池满时 firstAvailable_ 为 NULL，需要处理（书中用 assert）。",
+        "en": "Use a free list and borrow the dead bullets' own memory to store the list pointers: Bullet keeps framesLeft_ (to tell whether it is in use) and puts the remaining fields in a union state_: while alive it uses live { x, y, vx, vy }, and while free it uses Bullet* next, pointing at the next free bullet. The pool stores the head pointer firstAvailable_. The constructor threads every slot into the list: firstAvailable_ = &bullets_[0], each i points at i+1, and the last one points at NULL. create(): take firstAvailable_, move the head to its next, then init() — O(1). Reclaiming: update() returns true when the bullet died this frame, and the pool pushes it back onto the front of the list: setNext(firstAvailable_); firstAvailable_ = &bullets_[i] — O(1). There is no extra memory cost, because next shares the same memory as the position and velocity that are useless once the bullet is dead. Watch out: init overwrites next in the union, so read next before calling init; when the pool is full firstAvailable_ is NULL, and that case must be handled (the book uses assert).",
+        "es": "Usa una lista de libres y toma prestada la memoria de las propias balas muertas para guardar los punteros de la lista: Bullet conserva framesLeft_ (para saber si está en uso) y guarda los demás campos en una union state_: mientras está viva usa live { x, y, vx, vy }, y mientras está libre usa Bullet* next, que apunta a la siguiente bala libre. El grupo guarda el puntero de cabeza firstAvailable_. El constructor enlaza todas las ranuras en la lista: firstAvailable_ = &bullets_[0], cada i apunta a i+1 y la última apunta a NULL. create(): toma firstAvailable_, mueve la cabeza a su next y luego llama a init() — O(1). Recuperación: update() devuelve true cuando la bala murió en ese fotograma, y el grupo la inserta al frente de la lista: setNext(firstAvailable_); firstAvailable_ = &bullets_[i] — O(1). No hay costo extra de memoria, porque next comparte la misma memoria que la posición y la velocidad, inútiles cuando la bala está muerta. Ojo: init sobrescribe next en la union, así que hay que leer next antes de llamar a init; cuando el grupo está lleno firstAvailable_ es NULL y hay que manejar ese caso (el libro usa assert)."
+      },
       "checklist": [
-        "使用 free list 记录空闲对象，分配 O(1)",
-        "用 union 让 next 指针复用死亡对象的数据内存，无额外数组",
-        "构造时把所有槽位串成链表，最后一个为 NULL",
-        "对象死亡时插回链表头",
-        "处理池满（firstAvailable_ 为 NULL）"
-      ],
-      "explain": "对应 §19.6 Sample Code 的 A free list：“we cannibalize the memory of the dead particles themselves to store the list”，把 create 从 O(n) 降到 O(1)。"
+        {
+          "zh": "使用 free list 记录空闲对象，分配 O(1)",
+          "en": "Track free objects with a free list so allocation is O(1)",
+          "es": "Llevar los objetos libres con una lista de libres para que la asignación sea O(1)"
+        },
+        {
+          "zh": "用 union 让 next 指针复用死亡对象的数据内存，无额外数组",
+          "en": "Use a union so the next pointer reuses the dead object's data memory, with no extra array",
+          "es": "Usar una union para que el puntero next reutilice la memoria de datos del objeto muerto, sin un arreglo adicional"
+        },
+        {
+          "zh": "构造时把所有槽位串成链表，最后一个为 NULL",
+          "en": "Thread every slot into the list in the constructor, with the last one set to NULL",
+          "es": "Enlazar todas las ranuras en la lista en el constructor, con la última en NULL"
+        },
+        {
+          "zh": "对象死亡时插回链表头",
+          "en": "Push a dying object back onto the front of the list",
+          "es": "Insertar el objeto que muere al frente de la lista"
+        },
+        {
+          "zh": "处理池满（firstAvailable_ 为 NULL）",
+          "en": "Handle a full pool (firstAvailable_ is NULL)",
+          "es": "Manejar el grupo lleno (firstAvailable_ es NULL)"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "19.7",
-      "title": "通用池还是专用池 · Generic pool vs coupled pool",
-      "q": "引擎组想写一个通用的 template<class T> class Pool，供 Projectile、NetworkPacket、AudioVoice 等多个系统使用；而粒子组坚持保留自己的 ParticlePool。Particle 有 init(x,y)、init(x,y,angle)、init(x,y,vx,vy) 三种初始化方式。请就两个设计决策给出方案：(1) 对象是否知道自己在池中（coupled or not）？in-use 状态存在哪里？(2) 由池还是外部代码负责初始化？分析各自的 trade-off。",
-      "answer": "(1) 通用 Pool<T> 不能要求 T 知道池，因此 in-use 状态必须存在对象之外，例如 bool inUse_[N] 或 bitset，优点是任意类型都能池化、代码复用；ParticlePool 可与 Particle 耦合：Particle 构造函数设为 private 并 friend ParticlePool，保证外部无法绕过池创建粒子；还能复用已有状态推断 inUse()（如 framesLeft_ > 0），省掉额外的标志内存。(2) 池内初始化：池完全封装对象，外部不会持有可能被意外复用的引用；但池必须为 Particle 的每个 init 重载都提供对应的 create() 转发，池与对象的初始化方式绑定。外部初始化：池只提供 T* create() 返回空闲对象，调用方自行 init，接口简单、适合通用 Pool<T>；代价是调用方要处理 create() 返回 NULL（池满）的情况，并且可能持有已被回收复用的对象引用。推荐：通用 Pool<T> 用外部状态 + 外部初始化；ParticlePool 用耦合 + 池内初始化。",
+      "q": {
+        "zh": "引擎组想写一个通用的 template<class T> class Pool，供 Projectile、NetworkPacket、AudioVoice 等多个系统使用；而粒子组坚持保留自己的 ParticlePool。Particle 有 init(x,y)、init(x,y,angle)、init(x,y,vx,vy) 三种初始化方式。请就两个设计决策给出方案：(1) 对象是否知道自己在池中（coupled or not）？in-use 状态存在哪里？(2) 由池还是外部代码负责初始化？分析各自的 trade-off。",
+        "en": "The engine team wants a generic template<class T> class Pool for several systems such as Projectile, NetworkPacket and AudioVoice, while the particle team insists on keeping its own ParticlePool. Particle has three initializers: init(x,y), init(x,y,angle) and init(x,y,vx,vy). Answer the two design decisions: (1) do objects know they are in a pool (coupled or not), and where does the in-use state live? (2) is the pool or outside code responsible for initialization? Analyze the trade-offs of each.",
+        "es": "El equipo del motor quiere escribir un template<class T> class Pool genérico para que lo usen varios sistemas como Projectile, NetworkPacket y AudioVoice, mientras que el equipo de partículas insiste en conservar su propio ParticlePool. Particle tiene tres formas de inicialización: init(x,y), init(x,y,angle) e init(x,y,vx,vy). Responde las dos decisiones de diseño: (1) ¿los objetos saben que están en un grupo (coupled o no)? ¿Dónde vive el estado en uso? (2) ¿Quién es responsable de la inicialización, el grupo o el código externo? Analiza las ventajas y desventajas de cada opción."
+      },
+      "explain": {
+        "zh": "对应 §19.7 Design Decisions：“Are objects coupled to the pool?”与“What is responsible for initializing the reused objects?”，书中分别给出了 GenericPool 的 inUse_ 数组和 pool.create()->init(...) 的例子。",
+        "en": "Corresponds to §19.7 Design Decisions: \"Are objects coupled to the pool?\" and \"What is responsible for initializing the reused objects?\", where the book shows the GenericPool inUse_ array and the pool.create()->init(...) example.",
+        "es": "Corresponde a §19.7 Design Decisions: «Are objects coupled to the pool?» y «What is responsible for initializing the reused objects?», donde el libro muestra el arreglo inUse_ de GenericPool y el ejemplo pool.create()->init(...)."
+      },
       "code": "template <class T, int N>\nclass Pool {\npublic:\n  T* create() {\n    for (int i = 0; i < N; i++)\n      if (!inUse_[i]) { inUse_[i] = true; return &items_[i]; }\n    return NULL;\n  }\n  void release(T* obj) { inUse_[obj - items_] = false; }\nprivate:\n  T    items_[N];\n  bool inUse_[N] = {};   // state tracked outside the objects\n};\n\n// Caller must handle failure:\nParticle* p = pool.create();\nif (p != NULL) p->init(1, 2, 0.3);",
+      "title": {
+        "zh": "通用池还是专用池",
+        "en": "Generic pool vs coupled pool",
+        "es": "Grupo genérico o grupo acoplado"
+      },
+      "answer": {
+        "zh": "(1) 通用 Pool<T> 不能要求 T 知道池，因此 in-use 状态必须存在对象之外，例如 bool inUse_[N] 或 bitset，优点是任意类型都能池化、代码复用；ParticlePool 可与 Particle 耦合：Particle 构造函数设为 private 并 friend ParticlePool，保证外部无法绕过池创建粒子；还能复用已有状态推断 inUse()（如 framesLeft_ > 0），省掉额外的标志内存。(2) 池内初始化：池完全封装对象，外部不会持有可能被意外复用的引用；但池必须为 Particle 的每个 init 重载都提供对应的 create() 转发，池与对象的初始化方式绑定。外部初始化：池只提供 T* create() 返回空闲对象，调用方自行 init，接口简单、适合通用 Pool<T>；代价是调用方要处理 create() 返回 NULL（池满）的情况，并且可能持有已被回收复用的对象引用。推荐：通用 Pool<T> 用外部状态 + 外部初始化；ParticlePool 用耦合 + 池内初始化。",
+        "en": "(1) A generic Pool<T> cannot require T to know about the pool, so the in-use state must live outside the objects, for example a bool inUse_[N] or a bitset; the payoff is that any type can be pooled and the code is reusable. ParticlePool can be coupled to Particle: make Particle's constructor private and declare ParticlePool a friend, so nothing outside can create a particle without going through the pool; it can also infer inUse() from existing state (such as framesLeft_ > 0), saving the memory of a separate flag. (2) Pool-internal initialization: the pool fully encapsulates its objects, so outside code never holds a reference to an object that might be unexpectedly reused; but the pool must provide and forward a create() for every init overload of Particle, tying the pool to how objects are initialized. Outside initialization: the pool only offers T* create() returning a free object, and the caller calls init itself; the interface is simple and fits a generic Pool<T>; the cost is that the caller must handle create() returning NULL (a full pool) and may hold a reference to an object that has already been reclaimed and reused. Recommendation: the generic Pool<T> uses external state + outside initialization; ParticlePool uses coupling + pool-internal initialization.",
+        "es": "(1) Un Pool<T> genérico no puede exigir que T conozca el grupo, así que el estado en uso debe vivir fuera de los objetos, por ejemplo un bool inUse_[N] o un bitset; la ventaja es que cualquier tipo se puede agrupar y el código se reutiliza. ParticlePool sí puede acoplarse a Particle: haz privado el constructor de Particle y declara a ParticlePool como friend, para que nada externo pueda crear una partícula sin pasar por el grupo; además puede deducir inUse() del estado que ya existe (como framesLeft_ > 0), ahorrando la memoria de una bandera aparte. (2) Inicialización dentro del grupo: el grupo encapsula del todo sus objetos, así que el código externo nunca guarda una referencia a un objeto que podría reutilizarse de forma inesperada; pero el grupo debe ofrecer y reenviar un create() por cada sobrecarga de init de Particle, lo que ata el grupo a cómo se inicializan los objetos. Inicialización externa: el grupo solo ofrece T* create(), que devuelve un objeto libre, y quien llama hace el init por su cuenta; la interfaz es sencilla y encaja con un Pool<T> genérico; el costo es que quien llama debe manejar que create() devuelva NULL (grupo lleno) y puede guardar una referencia a un objeto que ya fue recuperado y reutilizado. Recomendación: el Pool<T> genérico usa estado externo e inicialización externa; ParticlePool usa acoplamiento e inicialización dentro del grupo."
+      },
       "checklist": [
-        "通用池：对象不耦合池，in-use 状态需存于池内（bit field / bool 数组）",
-        "耦合池：可用 friend + private 构造函数保证只能由池创建，可从已有状态推断 inUse",
-        "池内初始化：封装性好，但需转发所有 init 重载",
-        "外部初始化：接口简单，但调用方需检查 NULL 并面临引用被复用的风险"
-      ],
-      "explain": "对应 §19.7 Design Decisions：“Are objects coupled to the pool?”与“What is responsible for initializing the reused objects?”，书中分别给出了 GenericPool 的 inUse_ 数组和 pool.create()->init(...) 的例子。"
+        {
+          "zh": "通用池：对象不耦合池，in-use 状态需存于池内（bit field / bool 数组）",
+          "en": "Generic pool: objects are not coupled to the pool, so the in-use state must live in the pool (bit field / bool array)",
+          "es": "Grupo genérico: los objetos no se acoplan al grupo, así que el estado en uso debe vivir en el grupo (campo de bits / arreglo de bool)"
+        },
+        {
+          "zh": "耦合池：可用 friend + private 构造函数保证只能由池创建，可从已有状态推断 inUse",
+          "en": "Coupled pool: friend plus a private constructor guarantees only the pool can create objects, and inUse can be inferred from existing state",
+          "es": "Grupo acoplado: friend más un constructor privado garantizan que solo el grupo pueda crear objetos, y inUse se puede deducir del estado existente"
+        },
+        {
+          "zh": "池内初始化：封装性好，但需转发所有 init 重载",
+          "en": "Pool-internal initialization: good encapsulation, but every init overload must be forwarded",
+          "es": "Inicialización dentro del grupo: buen encapsulamiento, pero hay que reenviar todas las sobrecargas de init"
+        },
+        {
+          "zh": "外部初始化：接口简单，但调用方需检查 NULL 并面临引用被复用的风险",
+          "en": "Outside initialization: a simple interface, but the caller must check for NULL and risks holding a reference that gets reused",
+          "es": "Inicialización externa: interfaz sencilla, pero quien llama debe comprobar NULL y corre el riesgo de que su referencia se reutilice"
+        }
+      ]
     }
   ]
 }

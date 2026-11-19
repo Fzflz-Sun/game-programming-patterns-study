@@ -1,49 +1,58 @@
 {
   "id": "command",
   "title": {
+    "zh": "命令模式",
     "en": "Command",
-    "zh": "命令模式"
+    "es": "Comando"
   },
   "summary": {
+    "zh": "命令就是“实体化（reified）的方法调用”，即把一次方法调用包装成一个对象。把动作变成对象之后，就能重新映射按键、让玩家或 AI 驱动任意角色、对动作排队与回放，并实现撤销/重做。",
     "en": "A command is a reified method call: a method call wrapped in an object. Turning actions into objects lets you remap input, drive any actor from players or AI, queue and replay actions, and implement undo/redo.",
-    "zh": "命令就是“实体化（reified）的方法调用”，即把一次方法调用包装成一个对象。把动作变成对象之后，就能重新映射按键、让玩家或 AI 驱动任意角色、对动作排队与回放，并实现撤销/重做。"
+    "es": "Un comando es una llamada a método reificada: una llamada a método envuelta en un objeto. Convertir las acciones en objetos permite reasignar la entrada, hacer que cualquier actor sea impulsado por el jugador o por la IA, encolar y reproducir acciones, e implementar deshacer/rehacer."
   },
   "sections": [
     {
       "num": "2.0",
       "title": {
+        "zh": "命令模式（引言）",
         "en": "Command (Introduction)",
-        "zh": "命令模式（引言）"
+        "es": "Comando (Introducción)"
       },
       "points": [
         {
           "title": {
+            "zh": "GoF 的定义晦涩难懂",
             "en": "The GoF definition is abstruse",
-            "zh": "GoF 的定义晦涩难懂"
+            "es": "La definición del GoF es abstrusa"
           },
           "body": {
+            "zh": "GoF（四人帮）对命令模式的描述是：“将一个请求封装为一个对象，从而让你可以用不同的请求对客户端进行参数化，对请求排队或记录日志，并支持可撤销的操作。”作者认为这句话比喻混乱，基本上只是罗列了几种可能的用途。",
             "en": "The Gang of Four describes Command as: \"Encapsulate a request as an object, thereby letting users parameterize clients with different requests, queue or log requests, and support undoable operations.\" The author argues this sentence mangles its metaphor and is mostly a list of possible uses.",
-            "zh": "GoF（四人帮）对命令模式的描述是：“将一个请求封装为一个对象，从而让你可以用不同的请求对客户端进行参数化，对请求排队或记录日志，并支持可撤销的操作。”作者认为这句话比喻混乱，基本上只是罗列了几种可能的用途。"
+            "es": "El Gang of Four describe el Comando así: «Encapsular una solicitud como un objeto, de modo que los usuarios puedan parametrizar a los clientes con distintas solicitudes, encolar o registrar solicitudes y admitir operaciones que se puedan deshacer». El autor sostiene que esta frase enmaraña su metáfora y que, en su mayor parte, solo es una lista de posibles usos."
           }
         },
         {
           "title": {
+            "zh": "命令是实体化的方法调用",
             "en": "A command is a reified method call",
-            "zh": "命令是实体化的方法调用"
+            "es": "Un comando es una llamada a método reificada"
           },
           "body": {
+            "zh": "作者的一句话概括：命令是实体化（reified）的方法调用。“Reify”意为“使之成为实物”，也就是让某个东西成为“一等公民”（first-class）：把一个概念变成数据，变成可以存进变量、传给函数的对象。所以命令就是被包装进对象里的方法调用。",
             "en": "The author's tagline: a command is a reified method call. \"Reify\" means \"make real\" (\"thingify\"), i.e. making something first-class: taking a concept and turning it into data, an object you can store in a variable or pass to a function. So a command is a method call wrapped in an object.",
-            "zh": "作者的一句话概括：命令是实体化（reified）的方法调用。“Reify”意为“使之成为实物”，也就是让某个东西成为“一等公民”（first-class）：把一个概念变成数据，变成可以存进变量、传给函数的对象。所以命令就是被包装进对象里的方法调用。"
+            "es": "La consigna del autor: un comando es una llamada a método reificada. «Reificar» significa «hacer real» («cosificar»), es decir, convertir algo en ciudadano de primera clase: tomar un concepto y transformarlo en datos, en un objeto que se puede guardar en una variable o pasar a una función. Así que un comando es una llamada a método envuelta en un objeto."
           }
         },
         {
           "title": {
+            "zh": "相近的概念：回调与闭包",
             "en": "Related ideas: callbacks and closures",
-            "zh": "相近的概念：回调与闭包"
+            "es": "Ideas afines: callbacks y clausuras"
           },
           "body": {
+            "zh": "取决于你熟悉的语言，这类似于回调、一等函数、函数指针、闭包或偏函数应用。GoF 后来称命令是“回调的面向对象替代品”，作者认为这句话比原定义更贴切。",
             "en": "Depending on your language background, this resembles a callback, first-class function, function pointer, closure, or partially applied function. The GoF later calls commands \"an object-oriented replacement for callbacks\", which the author thinks is a better slogan.",
-            "zh": "取决于你熟悉的语言，这类似于回调、一等函数、函数指针、闭包或偏函数应用。GoF 后来称命令是“回调的面向对象替代品”，作者认为这句话比原定义更贴切。"
+            "es": "Según tu experiencia con lenguajes, esto se parece a un callback, una función de primera clase, un puntero a función, una clausura o una función parcialmente aplicada. Más adelante, el GoF llama a los comandos «un reemplazo orientado a objetos de los callbacks», lo que al autor le parece un eslogan mejor que la definición original."
           }
         }
       ]
@@ -51,51 +60,60 @@
     {
       "num": "2.1",
       "title": {
+        "zh": "配置输入",
         "en": "Configuring Input",
-        "zh": "配置输入"
+        "es": "Configuración de la entrada"
       },
       "points": [
         {
           "title": {
+            "zh": "硬编码的输入处理",
             "en": "Hard-wired input handling",
-            "zh": "硬编码的输入处理"
+            "es": "Manejo de entrada cableado directamente"
           },
           "body": {
+            "zh": "最简单的输入处理函数由游戏循环每帧调用一次，把每个按键直接对应到一个函数调用。这只适用于按键与动作写死的情况，而很多游戏允许玩家自定义按键。",
             "en": "The naive input handler, called once per frame by the game loop, maps each button directly to a function call. This works only if inputs are hard-wired to actions; many games let players remap buttons.",
-            "zh": "最简单的输入处理函数由游戏循环每帧调用一次，把每个按键直接对应到一个函数调用。这只适用于按键与动作写死的情况，而很多游戏允许玩家自定义按键。"
+            "es": "El manejador de entrada más simple, al que el bucle de juego llama una vez por fotograma, asigna cada botón directamente a una llamada de función. Esto solo funciona si las entradas están cableadas a las acciones; muchos juegos permiten que los jugadores reasignen los botones."
           },
           "code": "void InputHandler::handleInput() {\n  if (isPressed(BUTTON_X)) jump();\n  else if (isPressed(BUTTON_Y)) fireGun();\n  else if (isPressed(BUTTON_A)) swapWeapon();\n  else if (isPressed(BUTTON_B)) lurchIneffectively();\n}"
         },
         {
           "title": {
+            "zh": "命令基类",
             "en": "A Command base class",
-            "zh": "命令基类"
+            "es": "Una clase base Command"
           },
           "body": {
+            "zh": "为了让动作可以替换，把每个游戏动作表示为一个对象：定义一个只有 execute() 方法的基类，再为每个动作写一个子类。如果一个接口只有一个无返回值的方法，它很可能就是命令模式。",
             "en": "To make actions swappable, represent each game action as an object. Define a base class with a single execute() method, then one subclass per action. An interface with a single method that returns nothing is a strong hint you're looking at the Command pattern.",
-            "zh": "为了让动作可以替换，把每个游戏动作表示为一个对象：定义一个只有 execute() 方法的基类，再为每个动作写一个子类。如果一个接口只有一个无返回值的方法，它很可能就是命令模式。"
+            "es": "Para que las acciones se puedan intercambiar, representa cada acción del juego como un objeto: define una clase base con un único método execute() y luego una subclase por acción. Una interfaz con un solo método que no devuelve nada es una señal fuerte de que estás ante el patrón Comando."
           },
           "code": "class Command {\npublic:\n  virtual ~Command() {}\n  virtual void execute() = 0;\n};\n\nclass JumpCommand : public Command {\npublic:\n  virtual void execute() { jump(); }\n};"
         },
         {
           "title": {
+            "zh": "通过一层间接来委托",
             "en": "Delegating through a layer of indirection",
-            "zh": "通过一层间接来委托"
+            "es": "Delegar a través de una capa de indirección"
           },
           "body": {
+            "zh": "输入处理器为每个按键保存一个 Command 指针，按下时只需调用它的 execute()。原本直接调用函数的输入现在多了一层间接，重新映射按键只需换一个命令对象。",
             "en": "The input handler stores a Command pointer for each button and just calls execute() on it. Each input that used to call a function directly now goes through a layer of indirection, so remapping a button means assigning a different command object.",
-            "zh": "输入处理器为每个按键保存一个 Command 指针，按下时只需调用它的 execute()。原本直接调用函数的输入现在多了一层间接，重新映射按键只需换一个命令对象。"
+            "es": "El manejador de entrada guarda un puntero a Command por cada botón y simplemente llama a execute() sobre él. Cada entrada que antes llamaba directamente a una función ahora pasa por una capa de indirección, de modo que reasignar un botón significa asignar un objeto comando diferente."
           },
           "code": "void InputHandler::handleInput() {\n  if (isPressed(BUTTON_X)) buttonX_->execute();\n  else if (isPressed(BUTTON_Y)) buttonY_->execute();\n  // ...\n}"
         },
         {
           "title": {
+            "zh": "用空对象处理未绑定的按键",
             "en": "Null Object for unbound buttons",
-            "zh": "用空对象处理未绑定的按键"
+            "es": "Objeto nulo para botones sin enlazar"
           },
           "body": {
+            "zh": "与其检查 NULL，不如让“什么也不做”的按键绑定一个 execute() 为空的命令。这就是空对象（Null Object）模式。",
             "en": "Instead of checking for NULL, you can bind buttons that do nothing to a command whose execute() is empty. This is the Null Object pattern.",
-            "zh": "与其检查 NULL，不如让“什么也不做”的按键绑定一个 execute() 为空的命令。这就是空对象（Null Object）模式。"
+            "es": "En lugar de comprobar si hay NULL, puedes enlazar los botones que no hacen nada a un comando cuyo execute() esté vacío. Este es el patrón Objeto nulo (Null Object)."
           }
         }
       ]
@@ -103,50 +121,59 @@
     {
       "num": "2.2",
       "title": {
+        "zh": "给角色下达指令",
         "en": "Directions for Actors",
-        "zh": "给角色下达指令"
+        "es": "Instrucciones para los actores"
       },
       "points": [
         {
           "title": {
+            "zh": "把角色作为参数传给 execute()",
             "en": "Pass the actor into execute()",
-            "zh": "把角色作为参数传给 execute()"
+            "es": "Pasar el actor a execute()"
           },
           "body": {
+            "zh": "调用全局 jump()/fireGun() 的命令隐式地绑定在玩家身上。把 GameActor& 传给 execute() 之后，同一个 JumpCommand 类就能让任何角色跳跃。",
             "en": "Commands that call global jump()/fireGun() are implicitly coupled to the player. Passing a GameActor& into execute() lets one JumpCommand class make any character jump.",
-            "zh": "调用全局 jump()/fireGun() 的命令隐式地绑定在玩家身上。把 GameActor& 传给 execute() 之后，同一个 JumpCommand 类就能让任何角色跳跃。"
+            "es": "Los comandos que llaman a jump()/fireGun() globales están implícitamente acoplados al jugador. Si pasas un GameActor& a execute(), una sola clase JumpCommand puede hacer saltar a cualquier personaje."
           },
           "code": "class Command {\npublic:\n  virtual ~Command() {}\n  virtual void execute(GameActor& actor) = 0;\n};\n\nclass JumpCommand : public Command {\npublic:\n  virtual void execute(GameActor& actor) { actor.jump(); }\n};"
         },
         {
           "title": {
+            "zh": "返回命令而不是立即执行",
             "en": "Return commands instead of executing them",
-            "zh": "返回命令而不是立即执行"
+            "es": "Devolver comandos en lugar de ejecutarlos"
           },
           "body": {
+            "zh": "handleInput() 现在返回 Command*，而不是立即执行，因为它不知道该传入哪个角色。命令是实体化的调用，所以可以推迟执行时机，再由其他代码把命令作用到选定的角色上。",
             "en": "handleInput() now returns a Command* instead of executing it, because it doesn't know which actor to pass in. Since a command is a reified call, we can delay when the call is executed. Other code then runs the command on the chosen actor.",
-            "zh": "handleInput() 现在返回 Command*，而不是立即执行，因为它不知道该传入哪个角色。命令是实体化的调用，所以可以推迟执行时机，再由其他代码把命令作用到选定的角色上。"
+            "es": "Ahora handleInput() devuelve un Command* en lugar de ejecutarlo, porque no sabe qué actor debe pasarse. Como un comando es una llamada reificada, podemos retrasar el momento en que se ejecuta la llamada. Después, otro código ejecuta el comando sobre el actor elegido."
           },
           "code": "Command* command = inputHandler.handleInput();\nif (command) {\n  command->execute(actor);\n}"
         },
         {
           "title": {
+            "zh": "AI 同样发出命令",
             "en": "AI emits commands too",
-            "zh": "AI 同样发出命令"
+            "es": "La IA también emite comandos"
           },
           "body": {
+            "zh": "同样的接口也可以放在 AI 引擎和角色之间：AI 只负责产生 Command 对象。这种解耦让你能为每个角色更换 AI 模块（比如更激进的对手），甚至把 AI 挂到玩家角色上实现演示（自动驾驶）模式。",
             "en": "The same interface can sit between the AI engine and actors: the AI simply emits Command objects. This decoupling lets you swap AI modules per actor (e.g. a more aggressive opponent), or attach AI to the player's character for a demo/auto-pilot mode.",
-            "zh": "同样的接口也可以放在 AI 引擎和角色之间：AI 只负责产生 Command 对象。这种解耦让你能为每个角色更换 AI 模块（比如更激进的对手），甚至把 AI 挂到玩家角色上实现演示（自动驾驶）模式。"
+            "es": "La misma interfaz puede situarse entre el motor de IA y los actores: la IA simplemente emite objetos Command. Este desacoplamiento te permite intercambiar módulos de IA por actor (por ejemplo, un oponente más agresivo), o incluso conectar la IA al personaje del jugador para un modo de demostración o de piloto automático."
           }
         },
         {
           "title": {
+            "zh": "命令流解耦了生产者与消费者",
             "en": "A stream of commands decouples producer and consumer",
-            "zh": "命令流解耦了生产者与消费者"
+            "es": "Un flujo de comandos desacopla al productor y al consumidor"
           },
           "body": {
+            "zh": "可以把命令看作一个队列或流：生产者（输入处理器、AI）把命令放进去，消费者（调度器、角色）取出并执行。如果命令可序列化，就能把命令流通过网络发送到另一台机器上回放，这是联网多人游戏的重要组成部分。",
             "en": "Think of commands as a queue or stream: producers (input handler, AI) put commands in; consumers (dispatcher, actor) take them out and invoke them. Making commands serializable lets you send the stream over the network and replay it on another machine — a key piece of networked multiplayer.",
-            "zh": "可以把命令看作一个队列或流：生产者（输入处理器、AI）把命令放进去，消费者（调度器、角色）取出并执行。如果命令可序列化，就能把命令流通过网络发送到另一台机器上回放，这是联网多人游戏的重要组成部分。"
+            "es": "Piensa en los comandos como una cola o un flujo: los productores (el manejador de entrada, la IA) introducen comandos; los consumidores (el despachador, el actor) los sacan y los invocan. Si los comandos son serializables, puedes enviar el flujo por la red y reproducirlo en otra máquina — una pieza clave de los juegos multijugador en red."
           }
         }
       ]
@@ -154,59 +181,70 @@
     {
       "num": "2.3",
       "title": {
+        "zh": "撤销与重做",
         "en": "Undo and Redo",
-        "zh": "撤销与重做"
+        "es": "Deshacer y rehacer"
       },
       "points": [
         {
           "title": {
+            "zh": "绑定到具体时刻的命令",
             "en": "Commands bound to a specific moment",
-            "zh": "绑定到具体时刻的命令"
+            "es": "Comandos ligados a un momento concreto"
           },
           "body": {
+            "zh": "MoveUnitCommand 绑定了具体的单位和目标位置。与可复用的 JumpCommand 不同，它表示某一时刻的一次具体移动，因此输入处理器每走一步都要新建一个实例（在 C++ 中还需要有人负责释放它）。",
             "en": "MoveUnitCommand binds a specific unit and destination. Unlike the reusable JumpCommand, it represents a concrete move at a specific point in time, so the input handler creates a new instance for each move (and in C++ someone must free it).",
-            "zh": "MoveUnitCommand 绑定了具体的单位和目标位置。与可复用的 JumpCommand 不同，它表示某一时刻的一次具体移动，因此输入处理器每走一步都要新建一个实例（在 C++ 中还需要有人负责释放它）。"
+            "es": "MoveUnitCommand liga una unidad y un destino concretos. A diferencia de JumpCommand, que es reutilizable, representa un movimiento concreto en un instante determinado, así que el manejador de entrada crea una instancia nueva por cada movimiento (y en C++ alguien debe liberarla)."
           }
         },
         {
           "title": {
+            "zh": "增加 undo() 并记住之前的状态",
             "en": "Add undo() and remember the previous state",
-            "zh": "增加 undo() 并记住之前的状态"
+            "es": "Agregar undo() y recordar el estado anterior"
           },
           "body": {
+            "zh": "增加一个 undo() 方法，用来撤销 execute() 造成的改变。单位移动后会“忘记”原来的位置，所以命令必须自己保存之前的位置（xBefore_、yBefore_）。",
             "en": "Add an undo() method that reverses what execute() did. Because a unit forgets where it used to be when it moves, the command must store the previous position itself (xBefore_, yBefore_).",
-            "zh": "增加一个 undo() 方法，用来撤销 execute() 造成的改变。单位移动后会“忘记”原来的位置，所以命令必须自己保存之前的位置（xBefore_、yBefore_）。"
+            "es": "Agrega un método undo() que invierta lo que hizo execute(). Como una unidad olvida dónde estaba cuando se mueve, el comando debe guardar él mismo la posición anterior (xBefore_, yBefore_)."
           },
           "code": "virtual void execute() {\n  xBefore_ = unit_->x();\n  yBefore_ = unit_->y();\n  unit_->moveTo(x_, y_);\n}\n\nvirtual void undo() {\n  unit_->moveTo(xBefore_, yBefore_);\n}"
         },
         {
           "title": {
+            "zh": "备忘录模式与持久化数据结构",
             "en": "Memento vs. persistent data structures",
-            "zh": "备忘录模式与持久化数据结构"
+            "es": "Memento frente a estructuras de datos persistentes"
           },
           "body": {
+            "zh": "备忘录（Memento）模式看似合适，但命令通常只改动对象的一小部分，快照整个对象很浪费内存，只保存被修改的部分更划算。另一种选择是持久化数据结构：每次修改都返回一个与旧对象共享数据的新对象，撤销时切换回旧对象即可。",
             "en": "Memento seems natural, but snapshotting a whole object wastes memory since commands change only a little state; storing just the changed bits is cheaper. Persistent data structures are another option: each modification returns a new object sharing data with the old one, and undo just switches back.",
-            "zh": "备忘录（Memento）模式看似合适，但命令通常只改动对象的一小部分，快照整个对象很浪费内存，只保存被修改的部分更划算。另一种选择是持久化数据结构：每次修改都返回一个与旧对象共享数据的新对象，撤销时切换回旧对象即可。"
+            "es": "El patrón Memento parece natural, pero tomar una instantánea de un objeto entero desperdicia memoria, ya que los comandos solo cambian una pequeña parte del estado; guardar únicamente los fragmentos modificados sale más barato. Las estructuras de datos persistentes son otra opción: cada modificación devuelve un objeto nuevo que comparte datos con el anterior, y deshacer solo consiste en volver al anterior."
           }
         },
         {
           "title": {
+            "zh": "用命令列表实现多级撤销",
             "en": "Multi-level undo with a command list",
-            "zh": "用命令列表实现多级撤销"
+            "es": "Deshacer en varios niveles con una lista de comandos"
           },
           "body": {
+            "zh": "维护一个命令列表和一个指向“当前”命令的指针。撤销时执行当前命令的 undo 并把指针后移；重做时把指针前移并执行该命令。撤销后如果执行了新命令，就丢弃当前位置之后的所有命令。前提是要严格保证所有数据修改都通过命令完成。",
             "en": "Keep a list of commands and a pointer to the \"current\" one. Undo reverses the current command and moves the pointer back; Redo advances the pointer and executes. Issuing a new command after undoing discards everything after current. It takes discipline to route every modification through a command.",
-            "zh": "维护一个命令列表和一个指向“当前”命令的指针。撤销时执行当前命令的 undo 并把指针后移；重做时把指针前移并执行该命令。撤销后如果执行了新命令，就丢弃当前位置之后的所有命令。前提是要严格保证所有数据修改都通过命令完成。"
+            "es": "Mantén una lista de comandos y un puntero al comando «actual». Deshacer invierte el comando actual y retrocede el puntero; rehacer avanza el puntero y lo ejecuta. Si se emite un comando nuevo después de deshacer, se descarta todo lo que hay después del actual. Hace falta disciplina para canalizar cada modificación a través de un comando."
           }
         },
         {
           "title": {
+            "zh": "通过记录命令实现回放",
             "en": "Replays by recording commands",
-            "zh": "通过记录命令实现回放"
+            "es": "Repeticiones mediante la grabación de comandos"
           },
           "body": {
+            "zh": "每帧记录完整的游戏状态太占内存。很多游戏改为记录每个实体每帧执行的命令，回放时用这些预先记录的命令驱动正常的游戏模拟即可。",
             "en": "Recording full game state every frame uses too much memory. Instead, many games record the commands each entity performed per frame, then replay by running the normal simulation with those pre-recorded commands.",
-            "zh": "每帧记录完整的游戏状态太占内存。很多游戏改为记录每个实体每帧执行的命令，回放时用这些预先记录的命令驱动正常的游戏模拟即可。"
+            "es": "Grabar el estado completo del juego cada fotograma consume demasiada memoria. En su lugar, muchos juegos graban los comandos que ejecutó cada entidad en cada fotograma y luego reproducen la partida ejecutando la simulación normal con esos comandos pregrabados."
           }
         }
       ]
@@ -214,29 +252,34 @@
     {
       "num": "2.4",
       "title": {
+        "zh": "用类，还是用函数？",
         "en": "Classy and Dysfunctional?",
-        "zh": "用类，还是用函数？"
+        "es": "¿Clases o funciones?"
       },
       "points": [
         {
           "title": {
+            "zh": "命令模式是对闭包的模拟",
             "en": "Command emulates closures",
-            "zh": "命令模式是对闭包的模拟"
+            "es": "El Comando emula clausuras"
           },
           "body": {
+            "zh": "示例使用类，是因为 C++ 对一等函数的支持有限。如果语言有真正的闭包，就尽管用。从某种意义上说，命令模式就是在没有闭包的语言中模拟闭包。",
             "en": "The examples use classes because C++ has limited first-class function support. In languages with real closures, use them! In some ways the Command pattern is a way of emulating closures in languages that lack them.",
-            "zh": "示例使用类，是因为 C++ 对一等函数的支持有限。如果语言有真正的闭包，就尽管用。从某种意义上说，命令模式就是在没有闭包的语言中模拟闭包。"
+            "es": "Los ejemplos usan clases porque el soporte de C++ para funciones de primera clase es limitado. En lenguajes con clausuras reales, ¡úsalas! En cierto modo, el patrón Comando es una forma de emular clausuras en lenguajes que carecen de ellas."
           },
           "code": "function makeMoveUnitCommand(unit, x, y) {\n  var xBefore, yBefore;\n  return {\n    execute: function() {\n      xBefore = unit.x(); yBefore = unit.y();\n      unit.moveTo(x, y);\n    },\n    undo: function() { unit.moveTo(xBefore, yBefore); }\n  };\n}"
         },
         {
           "title": {
+            "zh": "类依然有用的场合",
             "en": "When classes still help",
-            "zh": "类依然有用的场合"
+            "es": "Cuándo siguen ayudando las clases"
           },
           "body": {
+            "zh": "即使有闭包，当命令有多个操作（如 execute 和 undo）时，用类仍然更合适；显式的字段也能清楚表明命令持有哪些状态，而闭包捕获状态太“自动”，反而不容易看清。",
             "en": "Even with closures, classes are useful when a command has multiple operations (like execute + undo), and explicit fields make it obvious what state the command holds, whereas closures capture state so automatically that it can be hard to see.",
-            "zh": "即使有闭包，当命令有多个操作（如 execute 和 undo）时，用类仍然更合适；显式的字段也能清楚表明命令持有哪些状态，而闭包捕获状态太“自动”，反而不容易看清。"
+            "es": "Incluso con clausuras, las clases resultan útiles cuando un comando tiene varias operaciones (como execute + undo), y los campos explícitos dejan claro qué estado guarda el comando, mientras que las clausuras capturan estado de forma tan automática que puede resultar difícil de ver."
           }
         }
       ]
@@ -244,18 +287,21 @@
     {
       "num": "2.5",
       "title": {
+        "zh": "参考",
         "en": "See Also",
-        "zh": "参考"
+        "es": "Véase también"
       },
       "points": [
         {
           "title": {
+            "zh": "相关模式",
             "en": "Related patterns",
-            "zh": "相关模式"
+            "es": "Patrones relacionados"
           },
           "body": {
+            "zh": "给命令提供一个带有辅助方法的基类，会让 execute() 变成子类沙盒（Subclass Sandbox）模式。让命令沿着对象层级传递直到有人处理，就是职责链（Chain of Responsibility）模式。像 JumpCommand 这样无状态的命令可以用享元（Flyweight）模式共享（也可以做成单例，但作者调侃说“朋友不会让朋友写单例”）。",
             "en": "A base class with helper methods for commands turns execute() into a Subclass Sandbox. Passing a command along an object hierarchy until someone handles it is Chain of Responsibility. Stateless commands like JumpCommand can be shared with Flyweight (a singleton also works, but \"friends don't let friends create singletons\").",
-            "zh": "给命令提供一个带有辅助方法的基类，会让 execute() 变成子类沙盒（Subclass Sandbox）模式。让命令沿着对象层级传递直到有人处理，就是职责链（Chain of Responsibility）模式。像 JumpCommand 这样无状态的命令可以用享元（Flyweight）模式共享（也可以做成单例，但作者调侃说“朋友不会让朋友写单例”）。"
+            "es": "Una clase base con métodos auxiliares para los comandos convierte execute() en un Sandbox de subclases. Pasar un comando por una jerarquía de objetos hasta que alguien lo maneje es la Cadena de responsabilidad. Los comandos sin estado como JumpCommand se pueden compartir con Peso ligero (un Singleton también sirve, pero «los amigos no dejan que sus amigos creen singletons»)."
           }
         }
       ]
@@ -263,223 +309,593 @@
   ],
   "terms": [
     {
-      "en": "reify / reified",
-      "zh": "实体化 / 具象化"
+      "term": {
+        "zh": "实体化 / 具象化",
+        "en": "reify / reified",
+        "es": "reificar / reificado"
+      }
     },
     {
-      "en": "first-class",
-      "zh": "一等公民（一等的）"
+      "term": {
+        "zh": "一等公民（一等的）",
+        "en": "first-class",
+        "es": "de primera clase"
+      }
     },
     {
-      "en": "layer of indirection",
-      "zh": "间接层"
+      "term": {
+        "zh": "间接层",
+        "en": "layer of indirection",
+        "es": "capa de indirección"
+      }
     },
     {
-      "en": "Null Object",
-      "zh": "空对象模式"
+      "term": {
+        "zh": "空对象模式",
+        "en": "Null Object",
+        "es": "Objeto nulo (Null Object)"
+      }
     },
     {
-      "en": "undo / redo",
-      "zh": "撤销 / 重做"
+      "term": {
+        "zh": "撤销 / 重做",
+        "en": "undo / redo",
+        "es": "deshacer / rehacer"
+      }
     },
     {
-      "en": "persistent data structure",
-      "zh": "持久化数据结构"
+      "term": {
+        "zh": "持久化数据结构",
+        "en": "persistent data structure",
+        "es": "estructura de datos persistente"
+      }
     },
     {
-      "en": "closure",
-      "zh": "闭包"
+      "term": {
+        "zh": "闭包",
+        "en": "closure",
+        "es": "clausura (closure)"
+      }
     },
     {
-      "en": "serializable",
-      "zh": "可序列化的"
+      "term": {
+        "zh": "可序列化的",
+        "en": "serializable",
+        "es": "serializable"
+      }
     }
   ],
   "exercises": [
     {
       "type": "choice",
       "ref": "2.0",
-      "q": "作者对 Command pattern 的一句话定义是什么？ / What is the author's tagline for the Command pattern?",
+      "q": {
+        "zh": "作者对命令模式（Command pattern）的一句话定义是什么？",
+        "en": "What is the author's tagline for the Command pattern?",
+        "es": "¿Cuál es la definición en una frase del autor para el patrón Comando?"
+      },
+      "explain": {
+        "zh": "命令 = 被对象包装起来的方法调用。把方法调用包装成对象之后，就可以存储、传递并延迟执行。",
+        "en": "Command = a method call wrapped in an object. Once the call is wrapped in an object it can be stored, passed around and executed later.",
+        "es": "Comando = una llamada a método envuelta en un objeto. Una vez envuelta, la llamada se puede almacenar, pasar de un lado a otro y ejecutar más tarde."
+      },
       "options": [
-        "A command is a reified method call（实体化的方法调用）",
-        "A command is a global access point（全局访问点）",
-        "A command is a cached computation（缓存的计算结果）",
-        "A command is a shared immutable state（共享的不可变状态）"
+        {
+          "zh": "命令是实体化的方法调用（a reified method call）",
+          "en": "A command is a reified method call",
+          "es": "Un comando es una llamada a método reificada"
+        },
+        {
+          "zh": "命令是一个全局访问点（global access point）",
+          "en": "A command is a global access point",
+          "es": "Un comando es un punto de acceso global"
+        },
+        {
+          "zh": "命令是一份缓存的计算结果（cached computation）",
+          "en": "A command is a cached computation",
+          "es": "Un comando es un cálculo en caché"
+        },
+        {
+          "zh": "命令是一种共享的不可变状态（shared immutable state）",
+          "en": "A command is a shared immutable state",
+          "es": "Un comando es un estado inmutable compartido"
+        }
       ],
-      "answer": 0,
-      "explain": "Command = a method call wrapped in an object. 把方法调用包装成对象，就可以存储、传递、延迟执行。"
+      "answer": 0
     },
     {
       "type": "fill",
       "ref": "2.1",
-      "q": "An interface with a single method that doesn't return anything 很可能就是 ___ pattern。",
+      "q": {
+        "zh": "一个只有一个无返回值方法的接口，很可能就是 ___ 模式。",
+        "en": "An interface with a single method that doesn't return anything is probably the ___ pattern.",
+        "es": "Una interfaz con un único método que no devuelve nada probablemente sea el patrón ___."
+      },
+      "explain": {
+        "zh": "单一的无返回值方法（如 execute()）是命令模式的典型特征。",
+        "en": "A single method with no return value (such as execute()) is the hallmark of the Command pattern.",
+        "es": "Un único método sin valor de retorno (como execute()) es el rasgo típico del patrón Comando."
+      },
       "answer": [
         "Command",
         "命令",
         "命令模式"
       ],
-      "explain": "单一的无返回值方法（如 execute()）是命令模式的典型特征。"
+      "answerText": {
+        "zh": "Command（命令 / 命令模式）",
+        "en": "Command",
+        "es": "Command (patrón Comando)"
+      }
     },
     {
       "type": "truefalse",
       "ref": "2.1",
-      "q": "用一个 execute() 为空的命令代替 NULL，可以避免空指针检查——这叫做 Null Object pattern。",
-      "answer": true,
-      "explain": "Correct. A do-nothing command is a Null Object. 空对象让调用方不再需要判空。"
+      "q": {
+        "zh": "用一个 execute() 为空的命令代替 NULL，可以避免空指针检查——这叫做 Null Object pattern（空对象模式）。",
+        "en": "Replacing NULL with a command whose execute() is empty avoids null-pointer checks — that is called the Null Object pattern.",
+        "es": "Usar un comando con execute() vacío en lugar de NULL evita las comprobaciones de puntero nulo: eso se llama patrón Null Object (Objeto nulo)."
+      },
+      "explain": {
+        "zh": "正确。什么也不做的命令就是一个空对象（Null Object），它让调用方不再需要判空。",
+        "en": "Correct. A do-nothing command is a Null Object, and it frees the caller from null checks.",
+        "es": "Correcto. Un comando que no hace nada es un Objeto nulo (Null Object) y libera al llamador de comprobar si hay null."
+      },
+      "answer": true
     },
     {
       "type": "choice",
       "ref": "2.2",
-      "q": "Why does handleInput() return a Command* instead of executing it immediately? 为什么不立即执行？",
+      "q": {
+        "zh": "为什么 handleInput() 返回 Command* 而不是立即执行它？",
+        "en": "Why does handleInput() return a Command* instead of executing it immediately?",
+        "es": "¿Por qué handleInput() devuelve un Command* en lugar de ejecutarlo de inmediato?"
+      },
+      "explain": {
+        "zh": "处理器不知道该传入哪个 actor；由于调用已经被实体化，执行时机就可以推迟。",
+        "en": "The handler doesn't know which actor to pass in; because the call is reified, execution can be deferred.",
+        "es": "El manejador no sabe qué actor debe pasar; como la llamada está reificada, la ejecución puede aplazarse."
+      },
       "options": [
-        "因为它不知道该把命令作用在哪个 actor 上",
-        "因为 C++ 不支持虚函数",
-        "为了减少内存分配",
-        "因为命令必须在下一帧执行"
+        {
+          "zh": "因为它不知道该把命令作用在哪个 actor（角色）上",
+          "en": "Because it doesn't know which actor the command should act on",
+          "es": "Porque no sabe sobre qué actor debe actuar el comando"
+        },
+        {
+          "zh": "因为 C++ 不支持虚函数",
+          "en": "Because C++ doesn't support virtual functions",
+          "es": "Porque C++ no admite funciones virtuales"
+        },
+        {
+          "zh": "为了减少内存分配",
+          "en": "To reduce memory allocations",
+          "es": "Para reducir las asignaciones de memoria"
+        },
+        {
+          "zh": "因为命令必须在下一帧执行",
+          "en": "Because the command must run on the next frame",
+          "es": "Porque el comando debe ejecutarse en el siguiente fotograma"
+        }
       ],
-      "answer": 0,
-      "explain": "The handler doesn't know which actor to pass in; because the call is reified, execution can be deferred. 调用被实体化后，执行时机可以推迟。"
+      "answer": 0
     },
     {
       "type": "open",
       "ref": "2.2",
-      "q": "用中英文各一句话说明：AI 和玩家输入都产生 Command 对象，这带来了什么好处？",
-      "answer": "EN: It decouples the code that chooses commands (input/AI) from the actor code that executes them, so AI modules can be swapped per actor and even attached to the player (demo mode). 中：选择命令的代码与执行命令的角色代码解耦，可以为每个角色更换 AI，甚至让 AI 操控玩家角色（演示模式）。",
-      "explain": "关键词：decoupling（解耦）、producer/consumer（生产者/消费者）、command stream（命令流）。"
+      "q": {
+        "zh": "用一句话说明：AI 和玩家输入都产生 Command 对象，这带来了什么好处？",
+        "en": "In one sentence: player input and the AI both produce Command objects — what benefit does that bring?",
+        "es": "En una frase: tanto la entrada del jugador como la IA producen objetos Command, ¿qué ventaja aporta eso?"
+      },
+      "explain": {
+        "zh": "关键词：decoupling（解耦）、producer/consumer（生产者/消费者）、command stream（命令流）。",
+        "en": "Keywords: decoupling, producer/consumer, command stream.",
+        "es": "Palabras clave: desacoplamiento (decoupling), productor/consumidor (producer/consumer), flujo de comandos (command stream)."
+      },
+      "answer": {
+        "zh": "选择命令的代码（输入 / AI）与执行命令的角色代码解耦，因此可以为每个角色更换 AI 模块，甚至让 AI 操控玩家角色（demo mode）。",
+        "en": "It decouples the code that chooses commands (input/AI) from the actor code that executes them, so AI modules can be swapped per actor and even attached to the player (demo mode).",
+        "es": "Desacopla el código que elige los comandos (entrada/IA) del código del actor que los ejecuta, de modo que los módulos de IA se pueden intercambiar por actor e incluso conectar al personaje del jugador (modo demo)."
+      }
     },
     {
       "type": "choice",
       "ref": "2.3",
-      "q": "MoveUnitCommand 为了支持 undo() 额外保存了什么？ What extra state does it keep?",
+      "q": {
+        "zh": "MoveUnitCommand 为了支持 undo() 额外保存了什么状态？",
+        "en": "What extra state does MoveUnitCommand keep in order to support undo()?",
+        "es": "¿Qué estado adicional guarda MoveUnitCommand para poder implementar undo()?"
+      },
+      "explain": {
+        "zh": "单位移动后会忘记原位置，所以命令自己记住 xBefore_/yBefore_。只存被改变的部分，比快照整个对象（Memento）更省内存。",
+        "en": "A unit forgets where it was once it moves, so the command remembers xBefore_/yBefore_ itself. Storing only what changed uses less memory than snapshotting the whole object (Memento).",
+        "es": "Una unidad olvida dónde estaba en cuanto se mueve, así que el comando recuerda por sí mismo xBefore_/yBefore_. Guardar solo lo que cambió ahorra memoria frente a fotografiar el objeto entero (Memento)."
+      },
       "options": [
-        "The unit's previous position (xBefore_, yBefore_)",
-        "A full snapshot of the game world",
-        "A pointer to the previous command",
-        "The time the command was created"
+        {
+          "zh": "单位之前的位置（xBefore_、yBefore_）",
+          "en": "The unit's previous position (xBefore_, yBefore_)",
+          "es": "La posición anterior de la unidad (xBefore_, yBefore_)"
+        },
+        {
+          "zh": "游戏世界的完整快照",
+          "en": "A full snapshot of the game world",
+          "es": "Una instantánea completa del mundo del juego"
+        },
+        {
+          "zh": "指向前一个命令的指针",
+          "en": "A pointer to the previous command",
+          "es": "Un puntero al comando anterior"
+        },
+        {
+          "zh": "命令创建的时间",
+          "en": "The time the command was created",
+          "es": "El momento en que se creó el comando"
+        }
       ],
-      "answer": 0,
-      "explain": "单位移动后会忘记原位置，所以命令自己记住 xBefore_/yBefore_。只存被改变的部分，比快照整个对象（Memento）更省内存。"
+      "answer": 0
     },
     {
       "type": "truefalse",
       "ref": "2.3",
-      "q": "In multi-level undo, if the player issues a new command after undoing some, the commands after \"current\" are kept for later redo. 撤销后执行新命令，后面的命令仍保留以便重做。",
-      "answer": false,
-      "explain": "False. 执行新命令时，当前位置之后的所有命令都会被丢弃（discarded）。"
+      "q": {
+        "zh": "在多级撤销中，如果玩家撤销之后又执行了新命令，\"current\" 之后的命令会被保留，以便日后重做。",
+        "en": "In multi-level undo, if the player issues a new command after undoing some, the commands after \"current\" are kept for a later redo.",
+        "es": "En el deshacer de varios niveles, si el jugador emite un comando nuevo después de deshacer, los comandos posteriores a «current» se conservan para rehacerlos más tarde."
+      },
+      "explain": {
+        "zh": "错误。执行新命令时，当前位置之后的所有命令都会被丢弃（discarded）。",
+        "en": "False. When a new command is executed, every command after the current position is discarded.",
+        "es": "Falso. Al ejecutar un comando nuevo se descartan todos los comandos posteriores a la posición actual."
+      },
+      "answer": false
     },
     {
       "type": "fill",
       "ref": "2.3",
-      "q": "Many games implement replays by recording the ___ each entity performed every frame, 而不是记录每帧完整的游戏状态。",
+      "q": {
+        "zh": "很多游戏通过记录每个实体每帧执行的 ___ 来实现回放，而不是记录每帧完整的游戏状态。",
+        "en": "Many games implement replays by recording the ___ each entity performed every frame, rather than recording the full game state every frame.",
+        "es": "Muchos juegos implementan las repeticiones grabando los ___ que ejecutó cada entidad en cada fotograma, en lugar de guardar el estado completo del juego en cada fotograma."
+      },
+      "explain": {
+        "zh": "记录命令比记录完整状态节省大量内存；回放时用这些命令重新驱动模拟。",
+        "en": "Recording commands saves a lot of memory compared with recording the full state; during replay those commands drive the simulation again.",
+        "es": "Grabar comandos ahorra mucha memoria frente a grabar el estado completo; durante la repetición, esos comandos vuelven a impulsar la simulación."
+      },
       "answer": [
         "commands",
         "command",
         "命令"
       ],
-      "explain": "记录命令比记录完整状态节省大量内存；回放时用这些命令重新驱动模拟。"
+      "answerText": {
+        "zh": "commands（命令）",
+        "en": "commands",
+        "es": "commands (comandos)"
+      }
     },
     {
       "type": "choice",
       "ref": "2.4",
-      "q": "In languages with real closures, 作者为什么仍可能选择用 class 实现命令？",
+      "q": {
+        "zh": "在拥有真正闭包的语言中，作者为什么仍可能选择用 class（类）实现命令？",
+        "en": "In languages with real closures, why might the author still choose to implement a command with a class?",
+        "es": "En lenguajes con clausuras reales, ¿por qué podría el autor seguir eligiendo implementar un comando con una clase?"
+      },
+      "explain": {
+        "zh": "多个操作映射到单个函数会很别扭，而显式字段能让命令持有的状态一目了然。",
+        "en": "Multiple operations map awkwardly to a single function, and explicit fields make the state the command holds obvious.",
+        "es": "Varias operaciones encajan con torpeza en una sola función, y los campos explícitos dejan claro qué estado guarda el comando."
+      },
       "options": [
-        "当命令有多个操作（如 execute + undo），且显式字段能让状态一目了然",
-        "因为闭包无法捕获变量",
-        "因为类的执行速度总是更快",
-        "因为闭包不能被存进变量"
+        {
+          "zh": "当命令有多个操作（如 execute + undo），且显式字段能让状态一目了然",
+          "en": "When the command has multiple operations (such as execute + undo) and explicit fields make the state obvious",
+          "es": "Cuando el comando tiene varias operaciones (como execute + undo) y los campos explícitos dejan el estado a la vista"
+        },
+        {
+          "zh": "因为闭包无法捕获变量",
+          "en": "Because closures cannot capture variables",
+          "es": "Porque las clausuras no pueden capturar variables"
+        },
+        {
+          "zh": "因为类的执行速度总是更快",
+          "en": "Because classes always execute faster",
+          "es": "Porque las clases siempre se ejecutan más rápido"
+        },
+        {
+          "zh": "因为闭包不能被存进变量",
+          "en": "Because closures cannot be stored in variables",
+          "es": "Porque las clausuras no se pueden guardar en variables"
+        }
       ],
-      "answer": 0,
-      "explain": "Multiple operations map awkwardly to a single function, and explicit fields make the held state obvious."
+      "answer": 0
     },
     {
       "type": "choice",
       "ref": "2.5",
-      "q": "Stateless commands like JumpCommand waste memory when duplicated. 哪个模式可以解决这个问题？",
+      "q": {
+        "zh": "像 JumpCommand 这样无状态的命令，重复创建会浪费内存。哪个模式可以解决这个问题？",
+        "en": "Stateless commands like JumpCommand waste memory when duplicated. Which pattern solves this problem?",
+        "es": "Los comandos sin estado como JumpCommand desperdician memoria cuando se duplican. ¿Qué patrón resuelve este problema?"
+      },
+      "explain": {
+        "zh": "所有无状态实例都等价，用享元（Flyweight）共享一个实例即可。",
+        "en": "All stateless instances are equivalent, so a single shared instance via Flyweight is enough.",
+        "es": "Todas las instancias sin estado son equivalentes, así que basta con compartir una sola instancia mediante Peso ligero."
+      },
       "options": [
-        "Flyweight（享元）",
-        "Observer（观察者）",
-        "Dirty Flag（脏标记）",
-        "Bytecode（字节码）"
+        {
+          "zh": "Flyweight（享元）",
+          "en": "Flyweight",
+          "es": "Peso ligero (Flyweight)"
+        },
+        {
+          "zh": "Observer（观察者）",
+          "en": "Observer",
+          "es": "Observador (Observer)"
+        },
+        {
+          "zh": "Dirty Flag（脏标记）",
+          "en": "Dirty Flag",
+          "es": "Marca de suciedad (Dirty Flag)"
+        },
+        {
+          "zh": "Bytecode（字节码）",
+          "en": "Bytecode",
+          "es": "Bytecode"
+        }
       ],
-      "answer": 0,
-      "explain": "所有无状态实例都等价，用享元共享一个实例即可。"
+      "answer": 0
     },
     {
       "type": "scenario",
       "ref": "2.1",
-      "title": "自定义按键 · Rebindable controls",
-      "q": "你在做一款 PC + 手柄双平台的动作游戏。策划要求：玩家可以在 Settings 菜单里把任意 game action（jump / attack / dodge / interact）绑定到任意 button，还要能 Reset to default。目前 InputHandler 里是一长串 if (isPressed(BUTTON_X)) jump(); 这样的硬编码。请用 Command pattern 重新设计：需要哪些类？按键与命令的映射存在哪里？如何处理“某个按键未绑定任何动作”而不到处写 NULL 检查？",
-      "answer": "设计：定义抽象基类 Command { virtual void execute(GameActor&) = 0; }，每个动作一个子类：JumpCommand、AttackCommand、DodgeCommand、InteractCommand。InputHandler 持有一张 map<Button, Command*>（bindings），handleInput() 只做查表并返回命令：Command* cmd = bindings[pressed]; 由调用方 cmd->execute(player)。Settings 菜单修改绑定 = 替换 map 中的指针；Reset to default = 用一份默认 map 覆盖。未绑定的按键指向一个 NullCommand（execute() 为空），这就是 Null Object pattern，调用方永远不用判空。Because the commands are stateless, a single shared instance of each is enough (see Flyweight).",
+      "q": {
+        "zh": "你在做一款 PC + 手柄双平台的动作游戏。策划要求：玩家可以在 Settings 菜单里把任意游戏动作（jump / attack / dodge / interact）绑定到任意按键，还要能恢复默认设置（Reset to default）。目前 InputHandler 里是一长串 if (isPressed(BUTTON_X)) jump(); 这样的硬编码。请用命令模式（Command pattern）重新设计：需要哪些类？按键与命令的映射存在哪里？如何处理“某个按键未绑定任何动作”而不到处写 NULL 检查？",
+        "en": "You are building an action game for both PC and gamepad. The designers require that the player can bind any game action (jump / attack / dodge / interact) to any button in the Settings menu, and can also Reset to default. Right now InputHandler is a long run of hard-coded lines like if (isPressed(BUTTON_X)) jump();. Redesign it with the Command pattern: which classes do you need? Where is the button-to-command mapping stored? How do you handle \"a button bound to no action\" without scattering NULL checks everywhere?",
+        "es": "Estás haciendo un juego de acción para PC y mando. El diseño exige que el jugador pueda asignar cualquier acción de juego (jump / attack / dodge / interact) a cualquier botón en el menú Settings, y que además pueda hacer Reset to default. Ahora mismo InputHandler es una larga lista de líneas codificadas a mano como if (isPressed(BUTTON_X)) jump();. Rediséñalo con el patrón Comando: ¿qué clases necesitas? ¿Dónde se guarda la correspondencia entre botón y comando? ¿Cómo tratas el caso de «un botón no está asignado a ninguna acción» sin llenar el código de comprobaciones de NULL?"
+      },
+      "explain": {
+        "zh": "这正是书中 §2.1 Configuring Input（配置输入）的核心：“swapping out sounds a lot like assigning a variable”——把动作变成对象，换绑就变成了赋值。",
+        "en": "This is the heart of §2.1 Configuring Input: \"swapping out sounds a lot like assigning a variable\" — once actions are objects, rebinding becomes assignment.",
+        "es": "Este es el núcleo de §2.1 Configuring Input: «swapping out sounds a lot like assigning a variable»; una vez que las acciones son objetos, reasignar se convierte en una asignación."
+      },
       "code": "class Command {\npublic:\n  virtual ~Command() {}\n  virtual void execute(GameActor& actor) = 0;\n};\n\nclass NullCommand : public Command {\npublic:\n  virtual void execute(GameActor&) {}\n};\n\nclass InputHandler {\npublic:\n  void bind(Button b, Command* c) { bindings_[b] = c; }\n  Command* handleInput() {\n    for (auto& [button, cmd] : bindings_)\n      if (isPressed(button)) return cmd;\n    return &nullCommand_;\n  }\nprivate:\n  std::map<Button, Command*> bindings_;\n  NullCommand nullCommand_;\n};",
+      "title": {
+        "zh": "自定义按键",
+        "en": "Rebindable controls",
+        "es": "Controles reasignables"
+      },
+      "answer": {
+        "zh": "设计：定义抽象基类 Command { virtual void execute(GameActor&) = 0; }，每个动作一个子类：JumpCommand、AttackCommand、DodgeCommand、InteractCommand。InputHandler 持有一张 map<Button, Command*>（bindings），handleInput() 只做查表并返回命令：Command* cmd = bindings[pressed];，再由调用方执行 cmd->execute(player)。Settings 菜单修改绑定 = 替换 map 中的指针；Reset to default = 用一份默认 map 覆盖。未绑定的按键指向一个 NullCommand（execute() 为空），这就是 Null Object pattern（空对象模式），调用方永远不用判空。因为命令是无状态的，每种命令只需要一个共享实例（参见 Flyweight）。",
+        "en": "Design: define the abstract base class Command { virtual void execute(GameActor&) = 0; }, with one subclass per action: JumpCommand, AttackCommand, DodgeCommand, InteractCommand. InputHandler holds a map<Button, Command*> (bindings), and handleInput() only does a lookup and returns the command: Command* cmd = bindings[pressed];, and the caller then runs cmd->execute(player). Changing a binding in the Settings menu = replacing a pointer in the map; Reset to default = overwriting it with a default map. An unbound button points to a NullCommand whose execute() is empty; that is the Null Object pattern, so the caller never has to check for null. Because the commands are stateless, a single shared instance of each is enough (see Flyweight).",
+        "es": "Diseño: define la clase base abstracta Command { virtual void execute(GameActor&) = 0; }, con una subclase por acción: JumpCommand, AttackCommand, DodgeCommand, InteractCommand. InputHandler guarda un map<Button, Command*> (bindings), y handleInput() solo consulta la tabla y devuelve el comando: Command* cmd = bindings[pressed];, y el llamador ejecuta cmd->execute(player). Cambiar una asignación en el menú Settings = reemplazar un puntero del map; Reset to default = sobrescribirlo con un map por defecto. Un botón sin asignar apunta a un NullCommand cuyo execute() está vacío; ese es el patrón Null Object (Objeto nulo), así que el llamador nunca tiene que comprobar si hay null. Como los comandos no tienen estado, basta con una única instancia compartida de cada uno (véase Peso ligero)."
+      },
       "checklist": [
-        "动作被封装为 Command 子类，而不是直接调用函数 (actions are objects)",
-        "按键 → 命令的映射是可修改的数据（map / 数组），重新绑定只是替换指针",
-        "用 NullCommand（Null Object）代替 NULL 检查",
-        "execute() 接收 GameActor 参数，而不是写死玩家",
-        "意识到无状态命令可以共享单一实例（Flyweight）"
-      ],
-      "explain": "这正是书中 §2.1 Configuring Input 的核心：“swapping out sounds a lot like assigning a variable”——把动作变成对象，换绑就变成了赋值。"
+        {
+          "zh": "动作被封装为 Command 子类，而不是直接调用函数",
+          "en": "Actions are encapsulated as Command subclasses rather than called directly",
+          "es": "Las acciones se encapsulan como subclases de Command en lugar de llamar directamente a funciones"
+        },
+        {
+          "zh": "按键 → 命令的映射是可修改的数据（map / 数组），重新绑定只是替换指针",
+          "en": "The button-to-command mapping is mutable data (a map / array), so rebinding only replaces a pointer",
+          "es": "La correspondencia botón → comando es dato modificable (un map / un array), así que reasignar solo reemplaza un puntero"
+        },
+        {
+          "zh": "用 NullCommand（Null Object）代替 NULL 检查",
+          "en": "Use NullCommand (Null Object) instead of NULL checks",
+          "es": "Usar NullCommand (Null Object) en lugar de comprobar NULL"
+        },
+        {
+          "zh": "execute() 接收 GameActor 参数，而不是写死玩家",
+          "en": "execute() takes a GameActor parameter instead of hard-coding the player",
+          "es": "execute() recibe un GameActor como parámetro en lugar de tener al jugador codificado a mano"
+        },
+        {
+          "zh": "意识到无状态命令可以共享单一实例（Flyweight）",
+          "en": "Recognize that stateless commands can share a single instance (Flyweight)",
+          "es": "Reconocer que los comandos sin estado pueden compartir una única instancia (Peso ligero)"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "2.2",
-      "title": "玩家与 AI 共用角色 · Player and AI drive the same actor",
-      "q": "一款 roguelike 中，Hero 由玩家控制，Goblin 由 AI 控制；此外需要一个 demo mode：在标题画面让 AI 自动操控 Hero 打一局。目前 Hero 的行为写在 PlayerInput 里，Goblin 的写在 GoblinAI 里，两套代码各自直接调用 actor 的方法，有大量重复。请用 Command pattern 设计统一的控制方式，说明 producer 和 consumer 分别是谁，以及 demo mode 如何几乎零成本实现。",
-      "answer": "设计：所有“控制源”实现同一接口 Controller { virtual Command* nextCommand(GameActor&) = 0; }，PlayerController 从输入读取命令，AIController 根据局势产出命令（如 AttackCommand(target)、MoveCommand(dir)）。它们是 producer（生产者）。每帧主循环对每个 actor 调用 Command* c = actor.controller->nextCommand(actor); if (c) c->execute(actor); 执行命令的 actor 是 consumer（消费者），它不关心命令来自玩家还是 AI。Demo mode：只需把 Hero 的 controller 换成 AIController——Hero 的代码一行不改。Different AI difficulty = plug in a different Controller. 这就是 §2.2 所说的 decoupling：选择命令的代码与执行命令的代码分离。",
+      "q": {
+        "zh": "一款 roguelike 中，Hero 由玩家控制，Goblin 由 AI 控制；此外还需要一个演示模式（demo mode）：在标题画面让 AI 自动操控 Hero 打一局。目前 Hero 的行为写在 PlayerInput 里，Goblin 的写在 GoblinAI 里，两套代码各自直接调用 actor 的方法，有大量重复。请用命令模式（Command pattern）设计统一的控制方式，说明 producer 和 consumer 分别是谁，以及 demo mode 如何几乎零成本实现。",
+        "en": "In a roguelike, the Hero is controlled by the player and the Goblin by the AI; you also need a demo mode where the AI plays a round as the Hero on the title screen. Right now the Hero's behaviour lives in PlayerInput and the Goblin's in GoblinAI, and each block of code calls actor methods directly, with a lot of duplication. Design a unified control scheme with the Command pattern, say who the producer and the consumer are, and explain how demo mode becomes almost free to implement.",
+        "es": "En un roguelike, el Hero lo controla el jugador y el Goblin la IA; además hace falta un modo demo en el que la IA controla al Hero y juega una partida en la pantalla de título. Ahora mismo el comportamiento del Hero está en PlayerInput y el del Goblin en GoblinAI, y cada bloque llama directamente a métodos del actor, con mucha duplicación. Diseña una forma unificada de control con el patrón Comando, indica quién es el productor y quién el consumidor, y explica cómo el modo demo se implementa casi sin coste."
+      },
+      "explain": {
+        "zh": "书中原话：“the AI code simply emits Command objects”，并提到在演示模式中可以“bolt AI onto the player's character”（把 AI 挂到玩家角色上）。",
+        "en": "The book's own words: \"the AI code simply emits Command objects\", and it notes that demo mode can \"bolt AI onto the player's character\".",
+        "es": "Palabras textuales del libro: «the AI code simply emits Command objects», y señala que el modo demo puede «bolt AI onto the player's character» (conectar la IA al personaje del jugador)."
+      },
       "code": "class Controller {\npublic:\n  virtual ~Controller() {}\n  virtual Command* nextCommand(GameActor& self) = 0;\n};\n\n// Game loop\nfor (GameActor* actor : actors) {\n  Command* cmd = actor->controller()->nextCommand(*actor);\n  if (cmd) cmd->execute(*actor);\n}\n\n// Demo mode: just swap the controller\nhero.setController(new AIController());",
+      "title": {
+        "zh": "玩家与 AI 共用角色",
+        "en": "Player and AI drive the same actor",
+        "es": "El jugador y la IA controlan el mismo actor"
+      },
+      "answer": {
+        "zh": "设计：所有“控制源”实现同一接口 Controller { virtual Command* nextCommand(GameActor&) = 0; }，PlayerController 从输入读取命令，AIController 根据局势产出命令（如 AttackCommand(target)、MoveCommand(dir)）。它们就是 producer（生产者）。每帧主循环对每个 actor 执行：Command* c = actor.controller->nextCommand(actor); if (c) c->execute(actor);。执行命令的 actor 是 consumer（消费者），它不关心命令来自玩家还是 AI。Demo mode：只需把 Hero 的 controller 换成 AIController——Hero 的代码一行不改。不同的 AI 难度 = 换一个不同的 Controller 插进去。这就是 §2.2 所说的 decoupling：选择命令的代码与执行命令的代码分离。",
+        "en": "Design: every \"control source\" implements the same interface Controller { virtual Command* nextCommand(GameActor&) = 0; }; PlayerController reads commands from input, and AIController produces commands from the situation (such as AttackCommand(target) or MoveCommand(dir)). They are the producers. Each frame the main loop does this for every actor: Command* c = actor.controller->nextCommand(actor); if (c) c->execute(actor);. The actor that executes the command is the consumer, and it does not care whether the command came from the player or from the AI. Demo mode: just swap the Hero's controller for an AIController — not a single line of Hero code changes. Different AI difficulty = plug in a different Controller. This is the decoupling §2.2 talks about: the code that chooses commands is separated from the code that executes them.",
+        "es": "Diseño: toda «fuente de control» implementa la misma interfaz Controller { virtual Command* nextCommand(GameActor&) = 0; }; PlayerController lee comandos de la entrada y AIController produce comandos según la situación (como AttackCommand(target) o MoveCommand(dir)). Ellas son los productores. En cada fotograma el bucle principal hace esto para cada actor: Command* c = actor.controller->nextCommand(actor); if (c) c->execute(actor);. El actor que ejecuta el comando es el consumidor, y no le importa si el comando vino del jugador o de la IA. Modo demo: basta con cambiar el controller del Hero por un AIController; no se toca ni una línea del código del Hero. Distinta dificultad de IA = conectar un Controller distinto. Este es el desacoplamiento del que habla §2.2: el código que elige los comandos queda separado del código que los ejecuta."
+      },
       "checklist": [
-        "玩家输入和 AI 都“产出命令”，而不是直接调用 actor 方法",
-        "执行方（actor）与产出方（input/AI）解耦",
-        "demo mode / 难度切换通过替换 Controller 实现，不改 actor 代码",
-        "能说出 producer / consumer（命令流）的概念"
-      ],
-      "explain": "书中原话：“the AI code simply emits Command objects”，并提到 demo mode 可以“bolt AI onto the player's character”。"
+        {
+          "zh": "玩家输入和 AI 都“产出命令”，而不是直接调用 actor 方法",
+          "en": "Player input and the AI both \"produce commands\" instead of calling actor methods directly",
+          "es": "Tanto la entrada del jugador como la IA «producen comandos» en lugar de llamar directamente a métodos del actor"
+        },
+        {
+          "zh": "执行方（actor）与产出方（input/AI）解耦",
+          "en": "The executor (the actor) is decoupled from the producer (input/AI)",
+          "es": "El ejecutor (el actor) está desacoplado del productor (entrada/IA)"
+        },
+        {
+          "zh": "demo mode / 难度切换通过替换 Controller 实现，不改 actor 代码",
+          "en": "Demo mode / difficulty switching works by swapping the Controller, without touching actor code",
+          "es": "El modo demo y el cambio de dificultad se logran sustituyendo el Controller, sin tocar el código del actor"
+        },
+        {
+          "zh": "能说出 producer / consumer（命令流）的概念",
+          "en": "Can explain the producer / consumer (command stream) idea",
+          "es": "Saber explicar el concepto de productor / consumidor (flujo de comandos)"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "2.3",
-      "title": "关卡编辑器的多级撤销 · Multi-level undo in a level editor",
-      "q": "你负责公司内部的 level editor。关卡设计师可以 Place / Delete / Move 物体，以及修改物体的 color 属性。需求：支持无限次 Ctrl+Z (undo) 和 Ctrl+Y (redo)；撤销到一半时如果做了新操作，后面的 redo 历史要被丢弃。请设计 Command 接口、每种操作需要保存哪些状态，以及 history 的数据结构与 undo/redo 算法。特别说明：DeleteObjectCommand 的 undo 需要什么？",
-      "answer": "接口：class Command { virtual void execute() = 0; virtual void undo() = 0; }。每个命令绑定具体对象和参数（a concrete action at a point in time），并在 execute() 时记录撤销所需的旧状态：MoveCommand 保存 oldPos/newPos；SetColorCommand 保存 oldColor/newColor；PlaceCommand 记录新建对象的 id，undo 时移除；DeleteCommand 必须保存被删除对象的完整数据（或把对象本身移到一个“回收区”而不是真正销毁），undo 时放回原处。History：vector<Command*> history + int current（指向最后执行的命令）。执行新命令：先删除 current 之后的所有命令（discard redo branch），再 push_back 并 current++。Undo：history[current]->undo(); current--。Redo：current++; history[current]->execute()。关键纪律：every modification must go through a command，否则历史会不一致。Only store what changes rather than snapshotting the whole level (cheaper than Memento).",
+      "q": {
+        "zh": "你负责公司内部的关卡编辑器（level editor）。关卡设计师可以 Place / Delete / Move 物体，以及修改物体的 color（颜色）属性。需求：支持无限次 Ctrl+Z (undo) 和 Ctrl+Y (redo)；撤销到一半时如果做了新操作，后面的 redo 历史要被丢弃。请设计 Command 接口、每种操作需要保存哪些状态，以及 history（历史记录）的数据结构与 undo/redo 算法。特别说明：DeleteObjectCommand 的 undo 需要什么？",
+        "en": "You maintain your company's internal level editor. Level designers can Place / Delete / Move objects and change an object's color property. Requirements: unlimited Ctrl+Z (undo) and Ctrl+Y (redo); if a new operation is performed halfway through undoing, the later redo history must be discarded. Design the Command interface, the state each operation needs to keep, and the data structure plus undo/redo algorithm for the history. In particular: what does the undo of DeleteObjectCommand need?",
+        "es": "Te encargas del editor de niveles interno de la empresa. Los diseñadores de niveles pueden Place / Delete / Move objetos y cambiar la propiedad color de un objeto. Requisitos: Ctrl+Z (deshacer) y Ctrl+Y (rehacer) ilimitados; si se hace una operación nueva a mitad de un deshacer, el historial de rehacer posterior debe descartarse. Diseña la interfaz Command, el estado que debe guardar cada operación, y la estructura de datos y el algoritmo de deshacer/rehacer del historial. En particular: ¿qué necesita el undo de DeleteObjectCommand?"
+      },
+      "explain": {
+        "zh": "对应 §2.3 Undo and Redo（撤销与重做）。作者说第一次在关卡编辑器里实现时“felt like a genius”，前提是 discipline（纪律）：每次数据修改都走命令。",
+        "en": "This corresponds to §2.3 Undo and Redo. The author said his first implementation in a level editor \"felt like a genius\", and the precondition is discipline: every data modification goes through a command.",
+        "es": "Corresponde a §2.3 Undo and Redo. El autor cuenta que la primera vez que lo implementó en un editor de niveles «felt like a genius» (se sintió un genio), y la condición previa es la disciplina: toda modificación de datos pasa por un comando."
+      },
       "code": "class CommandHistory {\npublic:\n  void run(Command* cmd) {\n    // Drop the redo branch\n    while ((int)history_.size() > current_ + 1) {\n      delete history_.back();\n      history_.pop_back();\n    }\n    cmd->execute();\n    history_.push_back(cmd);\n    current_++;\n  }\n  void undo() {\n    if (current_ < 0) return;\n    history_[current_--]->undo();\n  }\n  void redo() {\n    if (current_ + 1 >= (int)history_.size()) return;\n    history_[++current_]->execute();\n  }\nprivate:\n  std::vector<Command*> history_;\n  int current_ = -1;\n};",
+      "title": {
+        "zh": "关卡编辑器的多级撤销",
+        "en": "Multi-level undo in a level editor",
+        "es": "Deshacer en varios niveles en un editor de niveles"
+      },
+      "answer": {
+        "zh": "接口：class Command { virtual void execute() = 0; virtual void undo() = 0; }。每个命令绑定具体对象和参数（某一时刻的一次具体动作），并在 execute() 时记录撤销所需的旧状态：MoveCommand 保存 oldPos/newPos；SetColorCommand 保存 oldColor/newColor；PlaceCommand 记录新建对象的 id，undo 时把它移除；DeleteCommand 必须保存被删除对象的完整数据（或者把对象本身移到一个“回收区”而不是真正销毁），undo 时放回原处。历史记录用 vector<Command*> history + int current（指向最后执行的命令）。执行新命令：先删除 current 之后的所有命令（丢弃 redo 分支），再 push_back 并 current++。Undo：history[current]->undo(); current--。Redo：current++; history[current]->execute()。关键纪律：所有修改都必须经过命令，否则历史会不一致。只保存发生变化的部分，而不是快照整个关卡（比 Memento 更省）。",
+        "en": "Interface: class Command { virtual void execute() = 0; virtual void undo() = 0; }. Each command binds a specific object and arguments (a concrete action at a point in time) and records, during execute(), the old state needed for undo: MoveCommand keeps oldPos/newPos; SetColorCommand keeps oldColor/newColor; PlaceCommand records the id of the created object and removes it on undo; DeleteCommand must keep the full data of the deleted object (or move the object itself into a \"recycle area\" instead of really destroying it) and put it back in place on undo. History: vector<Command*> history + int current (pointing at the last executed command). Executing a new command: first delete every command after current (discarding the redo branch), then push_back and current++. Undo: history[current]->undo(); current--. Redo: current++; history[current]->execute(). Key discipline: every modification must go through a command, or the history will be inconsistent. Store only what changed rather than snapshotting the whole level (cheaper than Memento).",
+        "es": "Interfaz: class Command { virtual void execute() = 0; virtual void undo() = 0; }. Cada comando liga un objeto y unos argumentos concretos (una acción concreta en un instante concreto) y, en execute(), registra el estado antiguo necesario para deshacer: MoveCommand guarda oldPos/newPos; SetColorCommand guarda oldColor/newColor; PlaceCommand registra el id del objeto creado y lo elimina al deshacer; DeleteCommand debe guardar los datos completos del objeto borrado (o mover el objeto a una «zona de reciclaje» en lugar de destruirlo de verdad) y devolverlo a su sitio al deshacer. Historial: vector<Command*> history + int current (que apunta al último comando ejecutado). Ejecutar un comando nuevo: primero se borran todos los comandos posteriores a current (se descarta la rama de rehacer), luego push_back y current++. Undo: history[current]->undo(); current--. Redo: current++; history[current]->execute(). Disciplina clave: toda modificación debe pasar por un comando, o el historial quedará incoherente. Guardar solo lo que cambia en lugar de fotografiar el nivel entero (más barato que Memento)."
+      },
       "checklist": [
-        "Command 同时有 execute() 和 undo()",
-        "每个命令只保存被修改的那部分旧状态（而非整个关卡快照）",
-        "Delete 的 undo 需要保留被删对象的数据，不能直接销毁",
-        "history 列表 + current 指针；新操作会丢弃 current 之后的 redo 历史",
-        "强调所有修改都必须经过命令"
-      ],
-      "explain": "对应 §2.3 Undo and Redo。作者说第一次在关卡编辑器里实现时“felt like a genius”，前提是 discipline：每次数据修改都走命令。"
+        {
+          "zh": "Command 同时有 execute() 和 undo()",
+          "en": "Command has both execute() and undo()",
+          "es": "Command tiene tanto execute() como undo()"
+        },
+        {
+          "zh": "每个命令只保存被修改的那部分旧状态（而非整个关卡快照）",
+          "en": "Each command stores only the part of the old state it modified (not a snapshot of the whole level)",
+          "es": "Cada comando guarda solo la parte del estado antiguo que modificó (no una instantánea del nivel completo)"
+        },
+        {
+          "zh": "Delete 的 undo 需要保留被删对象的数据，不能直接销毁",
+          "en": "A Delete's undo must keep the deleted object's data, so it cannot simply be destroyed",
+          "es": "El undo de un Delete debe conservar los datos del objeto borrado; no se puede destruir sin más"
+        },
+        {
+          "zh": "history 列表 + current 指针；新操作会丢弃 current 之后的 redo 历史",
+          "en": "A history list plus a current pointer; a new operation discards the redo history after current",
+          "es": "Una lista history más un puntero current; una operación nueva descarta el historial de rehacer posterior a current"
+        },
+        {
+          "zh": "强调所有修改都必须经过命令",
+          "en": "Stressing that every modification must go through a command",
+          "es": "Insistir en que toda modificación debe pasar por un comando"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "2.3",
-      "title": "比赛回放 · Match replay",
-      "q": "你在做一款 1v1 格斗游戏，需要 replay 功能：比赛结束后可以完整回看，并能保存成文件分享给朋友。一场比赛约 3 分钟、60 FPS。同事提议“每帧把整个 game state 存下来”。请评估这个方案，并用 Command pattern 提出替代设计：录制什么、回放时如何运行、需要满足什么前提条件才能保证回放结果和原比赛一致？",
-      "answer": "评估：3 分钟 × 60 FPS ≈ 10,800 帧，每帧存完整状态（两个角色、所有特效、投射物、物理状态）内存和文件体积都过大。替代设计：只录制命令。每帧记录每个 fighter 执行的命令列表，如 {frame: 1520, player: 1, cmd: HeavyPunch}，大多数帧为空，数据量极小。回放：从相同的初始状态出发，运行正常的 game simulation，在对应帧把录制的命令喂给 fighter 执行。The engine just runs the normal simulation with pre-recorded commands. 前提：模拟必须是 deterministic（确定性的）——相同初始状态 + 相同命令序列 → 完全相同的结果。因此随机数要用固定 seed 并保存到 replay 文件中、固定时间步长（fixed time step）、避免依赖浮点运算的平台差异、不能让渲染帧率影响游戏逻辑。命令需要 serializable 才能写入文件。",
+      "q": {
+        "zh": "你在做一款 1v1 格斗游戏，需要回放（replay）功能：比赛结束后可以完整回看，并能保存成文件分享给朋友。一场比赛约 3 分钟、60 FPS。同事提议“每帧把整个游戏状态（game state）存下来”。请评估这个方案，并用命令模式（Command pattern）提出替代设计：录制什么、回放时如何运行、需要满足什么前提条件才能保证回放结果和原比赛一致？",
+        "en": "You are making a 1v1 fighting game and need a replay feature: after a match you can watch it in full and save it to a file to share with friends. A match lasts about 3 minutes at 60 FPS. A colleague suggests \"storing the entire game state every frame\". Evaluate that approach and propose an alternative design with the Command pattern: what do you record, how does playback run, and what preconditions must hold for the replay to match the original match exactly?",
+        "es": "Estás haciendo un juego de lucha 1v1 y necesitas una función de repetición: al terminar una partida se puede ver completa y guardarla en un archivo para compartirla con amigos. Una partida dura unos 3 minutos a 60 FPS. Un compañero propone «guardar el estado completo del juego en cada fotograma». Evalúa esa propuesta y plantea un diseño alternativo con el patrón Comando: ¿qué se graba, cómo se ejecuta la repetición y qué condiciones previas deben cumplirse para que el resultado coincida con la partida original?"
+      },
+      "explain": {
+        "zh": "§2.3 末尾：“Instead, many games record the set of commands every entity performed each frame.”（很多游戏改为记录每个实体每帧执行的命令集合。）确定性要求是书中未展开、但实践中必须注意的关键前提，也与 Game Loop 一章的 fixed time step 相关。",
+        "en": "The end of §2.3: \"Instead, many games record the set of commands every entity performed each frame.\" The determinism requirement is a key precondition the book does not expand on but that practice demands, and it relates to the fixed time step in the Game Loop chapter.",
+        "es": "El final de §2.3: «Instead, many games record the set of commands every entity performed each frame». El requisito de determinismo es una condición previa clave que el libro no desarrolla pero que la práctica exige, y se relaciona con el paso de tiempo fijo del capítulo Game Loop."
+      },
+      "title": {
+        "zh": "比赛回放",
+        "en": "Match replay",
+        "es": "Repetición de una partida"
+      },
+      "answer": {
+        "zh": "评估：3 分钟 × 60 FPS ≈ 10,800 帧，每帧存完整状态（两个角色、所有特效、投射物、物理状态）内存和文件体积都过大。替代设计：只录制命令。每帧记录每个角色（fighter）执行的命令列表，如 {frame: 1520, player: 1, cmd: HeavyPunch}，大多数帧为空，数据量极小。回放：从相同的初始状态出发，运行正常的游戏模拟（game simulation），在对应帧把录制的命令喂给角色执行。引擎只是用预先录制的命令跑一遍正常模拟。前提：模拟必须是确定性的（deterministic）——相同初始状态 + 相同命令序列 → 完全相同的结果。因此随机数要用固定随机种子（seed）并保存到回放文件中、固定时间步长（fixed time step）、避免依赖浮点运算的平台差异、不能让渲染帧率影响游戏逻辑。命令还需要可序列化（serializable）才能写入文件。",
+        "en": "Evaluation: 3 minutes × 60 FPS ≈ 10,800 frames, and storing the full state every frame (both fighters, all effects, projectiles, physics state) is far too large in both memory and file size. Alternative design: record only commands. Each frame you log the list of commands each fighter executed, such as {frame: 1520, player: 1, cmd: HeavyPunch}; most frames are empty, so the data is tiny. Playback: start from the same initial state, run the normal game simulation, and feed the recorded commands to the fighters on the corresponding frames. The engine just runs the normal simulation with pre-recorded commands. Preconditions: the simulation must be deterministic — same initial state + same command sequence → exactly the same result. So use a fixed random seed stored in the replay file, a fixed time step, avoid platform differences in floating-point arithmetic, and never let the render frame rate affect game logic. Commands must be serializable to be written to a file.",
+        "es": "Evaluación: 3 minutos × 60 FPS ≈ 10.800 fotogramas, y guardar el estado completo en cada fotograma (los dos luchadores, todos los efectos, los proyectiles, el estado físico) ocupa demasiado tanto en memoria como en tamaño de archivo. Diseño alternativo: grabar solo comandos. En cada fotograma se registra la lista de comandos que ejecutó cada luchador, por ejemplo {frame: 1520, player: 1, cmd: HeavyPunch}; la mayoría de los fotogramas están vacíos, así que los datos son mínimos. Repetición: se parte del mismo estado inicial, se ejecuta la simulación normal del juego y se alimentan a los luchadores los comandos grabados en los fotogramas correspondientes. El motor simplemente ejecuta la simulación normal con comandos pregrabados. Condiciones previas: la simulación debe ser determinista: mismo estado inicial + misma secuencia de comandos → exactamente el mismo resultado. Por eso hay que usar una semilla aleatoria fija guardada en el archivo de repetición, un paso de tiempo fijo (fixed time step), evitar diferencias de plataforma en la aritmética de coma flotante y no dejar que la tasa de fotogramas de render afecte a la lógica del juego. Los comandos deben ser serializables para poder escribirlos en un archivo."
+      },
       "checklist": [
-        "指出“每帧存完整状态”内存/体积不可接受",
-        "录制的是每帧的命令，而不是状态",
-        "回放 = 用录制的命令重新驱动正常的模拟",
-        "提到确定性（deterministic）要求：固定随机种子、固定时间步长等",
-        "命令需要可序列化（serializable）"
-      ],
-      "explain": "§2.3 末尾：“Instead, many games record the set of commands every entity performed each frame.” 确定性要求是书中未展开但实践中必须注意的关键前提，也与 Game Loop 一章的 fixed time step 相关。"
+        {
+          "zh": "指出“每帧存完整状态”在内存和文件体积上都不可接受",
+          "en": "Pointing out that \"store the full state every frame\" is unacceptable in both memory and file size",
+          "es": "Señalar que «guardar el estado completo en cada fotograma» es inaceptable tanto en memoria como en tamaño de archivo"
+        },
+        {
+          "zh": "录制的是每帧的命令，而不是状态",
+          "en": "What gets recorded is the commands of each frame, not the state",
+          "es": "Lo que se graba son los comandos de cada fotograma, no el estado"
+        },
+        {
+          "zh": "回放 = 用录制的命令重新驱动正常的模拟",
+          "en": "Playback = driving the normal simulation again with the recorded commands",
+          "es": "Repetición = volver a impulsar la simulación normal con los comandos grabados"
+        },
+        {
+          "zh": "提到确定性（deterministic）要求：固定随机种子、固定时间步长等",
+          "en": "Mentioning the determinism requirement: fixed random seed, fixed time step, etc.",
+          "es": "Mencionar el requisito de determinismo: semilla aleatoria fija, paso de tiempo fijo, etc."
+        },
+        {
+          "zh": "命令需要可序列化（serializable）",
+          "en": "Commands must be serializable",
+          "es": "Los comandos deben ser serializables"
+        }
+      ]
     },
     {
       "type": "scenario",
       "ref": "2.4",
-      "title": "用闭包实现命令 · Commands as closures",
-      "q": "你在用 TypeScript 写一款网页回合制战棋游戏。队友说：“JS 有 first-class functions，没必要写一堆 Command class，直接用 closure 就行。”现在需要实现两类命令：(1) 不需要撤销的 UI 快捷操作，如 openInventory；(2) 需要 undo 的棋子移动 moveUnit(unit, x, y)。请分别给出用 closure 实现的方式，并判断：在什么情况下仍然更推荐写成 class？",
-      "answer": "(1) 单一操作的命令直接用函数即可：const openInventory = () => ui.open('inventory'); 存进按键映射 bindings.set('I', openInventory)。(2) 需要 undo 时，用返回对象的工厂函数，用闭包捕获参数和旧状态：makeMoveUnitCommand(unit, x, y) 返回 { execute, undo }，execute 中记录 xBefore/yBefore。In some ways the Command pattern is a way of emulating closures in languages that lack them. 仍推荐 class 的情况：命令有多个操作（execute/undo/serialize/describe 等），单个函数表达起来别扭；需要让读代码的人一眼看清命令持有哪些数据（显式字段 vs 闭包隐式捕获）；需要序列化到网络或 replay 文件（闭包无法直接序列化，需要数据字段）；需要 instanceof / 类型区分来做调试或日志。",
+      "q": {
+        "zh": "你在用 TypeScript 写一款网页回合制战棋游戏。队友说：“JS 有一等函数（first-class functions），没必要写一堆 Command class，直接用闭包（closure）就行。”现在需要实现两类命令：(1) 不需要撤销的 UI 快捷操作，如 openInventory；(2) 需要 undo 的棋子移动 moveUnit(unit, x, y)。请分别给出用闭包实现的方式，并判断：在什么情况下仍然更推荐写成 class（类）？",
+        "en": "You are writing a browser-based turn-based tactics game in TypeScript. A teammate says: \"JS has first-class functions, there is no need to write a pile of Command classes — just use a closure.\" You now need two kinds of commands: (1) UI shortcuts that need no undo, such as openInventory; (2) a piece move that needs undo, moveUnit(unit, x, y). Show how to implement each with closures, and judge when a class is still preferable.",
+        "es": "Estás escribiendo en TypeScript un juego de táctica por turnos para navegador. Un compañero dice: «JS tiene funciones de primera clase, no hace falta escribir un montón de clases Command; basta con usar una clausura». Ahora hay que implementar dos tipos de comandos: (1) atajos de interfaz que no necesitan deshacer, como openInventory; (2) el movimiento de una pieza que sí necesita undo, moveUnit(unit, x, y). Muestra cómo implementar cada uno con clausuras y juzga cuándo sigue siendo preferible escribirlo como clase."
+      },
+      "explain": {
+        "zh": "对应 §2.4 Classy and Dysfunctional?（用类，还是用函数？）：有闭包就用闭包，但多操作和可读性是保留 class 的理由。序列化是实践中的额外考虑。",
+        "en": "This corresponds to §2.4 Classy and Dysfunctional?: if you have closures, use them, but multiple operations and readability are reasons to keep a class. Serialization is an extra practical consideration.",
+        "es": "Corresponde a §2.4 Classy and Dysfunctional?: si tienes clausuras, úsalas, pero varias operaciones y la legibilidad son razones para mantener una clase. La serialización es una consideración práctica adicional."
+      },
       "code": "// (1) single operation: a plain function\nconst openInventory = () => ui.open('inventory');\n\n// (2) undoable: closures capture args + previous state\nfunction makeMoveUnitCommand(unit, x, y) {\n  let xBefore, yBefore;\n  return {\n    execute() {\n      xBefore = unit.x; yBefore = unit.y;\n      unit.moveTo(x, y);\n    },\n    undo() { unit.moveTo(xBefore, yBefore); }\n  };\n}",
+      "title": {
+        "zh": "用闭包实现命令",
+        "en": "Commands as closures",
+        "es": "Comandos como clausuras"
+      },
+      "answer": {
+        "zh": "(1) 单一操作的命令直接用函数即可：const openInventory = () => ui.open('inventory');，把它存进按键映射 bindings.set('I', openInventory)。(2) 需要 undo 时，用一个返回对象的工厂函数，让闭包捕获参数和旧状态：makeMoveUnitCommand(unit, x, y) 返回 { execute, undo }，在 execute 中记录 xBefore/yBefore。从某种意义上说，命令模式就是在没有闭包的语言中模拟闭包。仍然推荐写成 class 的情况：命令有多个操作（execute/undo/serialize/describe 等），用单个函数表达起来别扭；需要让读代码的人一眼看清命令持有哪些数据（显式字段 vs 闭包隐式捕获）；需要序列化到网络或回放文件（闭包无法直接序列化，需要数据字段）；需要 instanceof / 类型区分来做调试或日志。",
+        "en": "(1) A single-operation command can simply be a function: const openInventory = () => ui.open('inventory'); store it in the button mapping with bindings.set('I', openInventory). (2) When you need undo, use a factory function that returns an object and lets a closure capture the arguments and the old state: makeMoveUnitCommand(unit, x, y) returns { execute, undo }, and execute records xBefore/yBefore. In some ways the Command pattern is a way of emulating closures in languages that lack them. Cases where a class is still preferable: the command has multiple operations (execute/undo/serialize/describe, etc.) and a single function expresses that awkwardly; readers must see at a glance which data the command holds (explicit fields vs implicit closure capture); the command must be serialized to the network or a replay file (a closure cannot be serialized directly, so data fields are needed); and you need instanceof / type discrimination for debugging or logging.",
+        "es": "(1) Un comando de una sola operación puede ser simplemente una función: const openInventory = () => ui.open('inventory'); y se guarda en la correspondencia de botones con bindings.set('I', openInventory). (2) Cuando hace falta undo, usa una función de fábrica que devuelve un objeto y deja que una clausura capture los argumentos y el estado antiguo: makeMoveUnitCommand(unit, x, y) devuelve { execute, undo }, y execute registra xBefore/yBefore. En cierto modo, el patrón Comando es una forma de emular clausuras en lenguajes que carecen de ellas. Casos en los que sigue siendo preferible una clase: el comando tiene varias operaciones (execute/undo/serialize/describe, etc.) y una sola función lo expresa con torpeza; quien lee el código debe ver de un vistazo qué datos guarda el comando (campos explícitos frente a la captura implícita de la clausura); el comando debe serializarse a la red o a un archivo de repetición (una clausura no se puede serializar directamente, hacen falta campos de datos); y se necesita instanceof / distinción de tipos para depurar o registrar."
+      },
       "checklist": [
-        "简单命令可以直接用函数/闭包",
-        "可撤销命令用一对闭包（execute + undo）共享捕获的状态",
-        "理解命令模式在某种意义上是在模拟闭包",
-        "能说出 class 更合适的场景：多个操作、状态可读性、序列化"
-      ],
-      "explain": "对应 §2.4 Classy and Dysfunctional?：有闭包就用闭包，但多操作和可读性是保留 class 的理由。序列化是实践中的额外考虑。"
+        {
+          "zh": "简单命令可以直接用函数/闭包",
+          "en": "Simple commands can just be functions/closures",
+          "es": "Los comandos simples pueden ser directamente funciones/clausuras"
+        },
+        {
+          "zh": "可撤销命令用一对闭包（execute + undo）共享捕获的状态",
+          "en": "An undoable command uses a pair of closures (execute + undo) that share the captured state",
+          "es": "Un comando que se puede deshacer usa un par de clausuras (execute + undo) que comparten el estado capturado"
+        },
+        {
+          "zh": "理解命令模式在某种意义上是在模拟闭包",
+          "en": "Understanding that the Command pattern is, in a sense, emulating closures",
+          "es": "Entender que el patrón Comando, en cierto sentido, emula clausuras"
+        },
+        {
+          "zh": "能说出 class 更合适的场景：多个操作、状态可读性、序列化",
+          "en": "Naming the cases where a class fits better: multiple operations, readable state, serialization",
+          "es": "Saber decir en qué casos encaja mejor una clase: varias operaciones, legibilidad del estado, serialización"
+        }
+      ]
     }
   ]
 }
