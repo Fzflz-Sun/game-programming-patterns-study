@@ -723,6 +723,62 @@
         "en": "Think about and design for performance throughout development, but put off low-level, nitty-gritty optimizations that lock assumptions into the code until as late as possible.",
         "es": "Pensar en el rendimiento y diseñar para él a lo largo de todo el desarrollo, pero posponer lo más posible las optimizaciones de bajo nivel que fijan supuestos en el código."
       }
+    },
+    {
+      "type": "scenario",
+      "ref": "1.5",
+      "q": {
+        "zh": "你接手一款分屏赛车游戏：同一个循环负责更新世界、绘制画面和刷新 HUD，AI 直接调用渲染与音频函数。基础主机上只有 30 FPS，高端硬件上可到 120 FPS。团队希望同屏车辆数翻倍。请运用本章概念，提出模块边界并决定先优化什么：说出模块与数据流，给出一种测量方案，并说明两个取舍。",
+        "en": "You inherit a split-screen racing game. One loop updates the world, draws the screen and updates the HUD; the AI directly calls renderer and audio functions. The game runs at 30 FPS on the base console and 120 FPS on high-end hardware. The team wants twice as many cars on screen. Using the chapter, propose a module boundary and decide what to optimize first. Name the modules and data flow, give one measurement plan, and state two trade-offs.",
+        "es": "Heredas un juego de carreras a pantalla dividida. Un único bucle actualiza el mundo, dibuja la pantalla y refresca el HUD; la IA llama directamente a funciones de renderizado y audio. El juego va a 30 FPS en la consola base y a 120 FPS en hardware de gama alta. El equipo quiere el doble de coches en pantalla. Con los conceptos del capítulo, propón una frontera entre módulos y decide qué optimizar primero. Nombra los módulos y el flujo de datos, describe un plan de medición y señala dos compromisos."
+      },
+      "explain": {
+        "zh": "本章把架构理解为“让代码易于修改的决策集合”，同时把性能视为要测量而不是猜测的需求。解耦让团队可以独立优化和替换模块；YAGNI 与简单性原则防止设计被投机性的层压垮。",
+        "en": "The chapter frames architecture as the set of decisions that make code easy to change, while performance is a requirement to measure rather than guess. Decoupling modules lets teams optimize and replace parts independently; YAGNI and simplicity keep the design from collapsing under speculative layers.",
+        "es": "El capítulo entiende la arquitectura como el conjunto de decisiones que facilitan cambiar el código, mientras que el rendimiento es un requisito que se mide, no se adivina. Desacoplar módulos permite optimizar y sustituir partes de forma independiente; YAGNI y la simplicidad evitan que el diseño se derrumbe bajo capas especulativas."
+      },
+      "title": {
+        "zh": "120 FPS 分屏赛车",
+        "en": "Split-screen racing at 120 FPS",
+        "es": "Carreras a pantalla dividida a 120 FPS"
+      },
+      "answer": {
+        "zh": "把模拟与表现、平台输入分开。RaceSimulation 拥有车辆、物理、AI 和比赛状态；Presentation 层读取每帧快照（位置、动画状态）来渲染；HUD 与音频消费事件或快照，而不是直接调用模拟内部。AI 只把意图（油门、转向、使用道具）写入模拟。先做性能测量：记录模拟、AI、渲染和 HUD 的每帧 CPU/GPU 时间，设定帧预算（60 FPS 为 16.6 ms；120 FPS 为 8.3 ms）。优化测出来的热点，通常是 AI、碰撞或数据布局，再考虑抽象。优先简单：只有变化或测量真正需要时才加边界。取舍：快照/复制带来内存与延迟；车辆翻倍会不均匀地增加 CPU 与 GPU 成本，并压缩基础硬件的余量。用帧时间百分位和分屏压力测试验证。",
+        "en": "Split simulation from presentation and platform input. A RaceSimulation owns cars, physics, AI and race state; a Presentation layer reads a per-frame snapshot (positions, animation state) and renders; HUD and audio consume events or snapshots rather than calling simulation internals. AI emits intents (throttle, steer, use-item) into the simulation. Profile first: record per-frame CPU/GPU timings for simulation, AI, rendering and HUD; set a frame budget (16.6 ms at 60 FPS; 8.3 ms at 120 FPS). Optimize the measured hot path, often AI/collision/data layout, before adding abstractions. Simplicity wins: add a boundary only where change or measurement demands it. Trade-offs: a snapshot/copy costs memory and latency; more cars raise CPU and GPU cost unevenly and reduce headroom on base hardware. Verify with frame-time percentiles and split-screen stress tests.",
+        "es": "Separa la simulación de la presentación y de la entrada de plataforma. Una RaceSimulation posee coches, física, IA y estado de carrera; una capa Presentation lee una instantánea por fotograma (posiciones, estado de animación) y dibuja; el HUD y el audio consumen eventos o instantáneas en lugar de llamar a las interioridades de la simulación. La IA emite intenciones (acelerar, girar, usar objeto) hacia la simulación. Primero mide: registra tiempos de CPU/GPU por fotograma para simulación, IA, renderizado y HUD; fija un presupuesto de fotograma (16,6 ms a 60 FPS; 8,3 ms a 120 FPS). Optimiza la ruta caliente medida, a menudo IA/colisiones/disposición de datos, antes de añadir abstracciones. La simplicidad gana: crea una frontera solo cuando el cambio o la medición la exijan. Compromisos: una instantánea/copia cuesta memoria y latencia; duplicar coches eleva el coste de CPU y GPU de forma desigual y reduce el margen en el hardware base. Verifica con percentiles de tiempo de fotograma y pruebas de estrés a pantalla dividida."
+      },
+      "checklist": [
+        {
+          "zh": "把模拟与表现/平台代码分开",
+          "en": "separates simulation from presentation/platform code",
+          "es": "separa la simulación de la presentación y del código de plataforma"
+        },
+        {
+          "zh": "说明 AI 与 HUD 如何和模拟通信",
+          "en": "defines how AI and HUD communicate with simulation",
+          "es": "define cómo se comunican la IA y el HUD con la simulación"
+        },
+        {
+          "zh": "先按子系统测量帧时间再优化",
+          "en": "measures frame time by subsystem before optimizing",
+          "es": "mide el tiempo por fotograma y por subsistema antes de optimizar"
+        },
+        {
+          "zh": "使用帧预算并定义验证方法",
+          "en": "uses a frame budget and defines a verification method",
+          "es": "usa un presupuesto de fotograma y define un método de verificación"
+        },
+        {
+          "zh": "优先简单，避免投机性抽象",
+          "en": "favors simplicity and avoids speculative abstraction",
+          "es": "prioriza la simplicidad y evita la abstracción especulativa"
+        },
+        {
+          "zh": "说明所选边界的具体取舍",
+          "en": "states concrete trade-offs of the chosen boundary",
+          "es": "señala compromisos concretos de la frontera elegida"
+        }
+      ]
     }
   ]
 }
